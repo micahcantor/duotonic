@@ -24,6 +24,8 @@
     "rules": {
         "indent": ["error", 4 ],
         "react/jsx-indent": ["error", 4],
+        "react/prop-types": 0,
+        "react/destructuring-assignment": 0,
         "arrow-body-style": ["error", "always"]
     }
 }
