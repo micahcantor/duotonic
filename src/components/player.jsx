@@ -3,7 +3,7 @@ import '../styles.css';
 
 const Player = () => {
     return (
-        <div className="flex flex-col bg-black h-20">
+        <div className="flex absolute bottom-0 inset-x-0 flex-col bg-black h-20">
             <div className="flex justify-between items-center">
                 <SongInfo> </SongInfo>
                 <PlaybackControls> </PlaybackControls>
