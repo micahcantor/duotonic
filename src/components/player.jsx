@@ -38,15 +38,6 @@ const SongInfo = (props) => {
         </div>
     );
 };
-
-/* const ProgressBar = () => {
-    return (
-        <div className="flex shadow w-full h-2">
-            <div className="bg-green text-xs leading-none py-1" style={{ width: '60%' }}> </div>
-        </div>
-    );
-} */
-
  
 class ProgressBar extends React.Component {
     // onPlay and onPause are not hooked up to anything yet 
@@ -63,7 +54,7 @@ class ProgressBar extends React.Component {
     }
 
     onPause() {
-        clearInterval(this.timerID);    // stops tick function
+        clearInterval(this.timerID);     // stops tick function
     }
 
     tick() {
@@ -85,15 +76,46 @@ class ProgressBar extends React.Component {
     }
 }
 
-const PausePlay = () => {
+class PausePlay extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {isPaused:true}
+
+        // This binding is necessary to make `this` work in the callback
+        this.handleClick = this.handleClick.bind(this);
+    }
+
+    handleClick() {
+        this.setState(state => ({
+            isPaused: !state.isPaused
+        }));
+    }
+    render() {
+        const isPaused = this.state.isPaused;
+        return (
+            <button onClick={this.handleClick} className="rounded-full h-16 w-16 flex items-center mt-2" type="button">
+                {isPaused ? <PauseIcon /> : <PlayIcon />}
+            </button>
+        );      
+    }
+}
+
+const PauseIcon = () => {
     return (
-        <button className="rounded-full h-16 w-16 flex items-center mt-2" type="button">
-            <svg className="flex w-16 h-16" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth=".75" stroke="white" viewBox="0 0 24 24">
-                <path d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"> </path>
-            </svg>
-        </button>
-    );
-};
+        <svg className="flex w-16 h-16" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth=".75" stroke="white" viewBox="0 0 24 24">
+            <path d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"> </path>                
+        </svg>
+    )
+}
+
+const PlayIcon = () => {
+    return (
+        <svg className="flex w-16 h-16" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth=".75" stroke="white" viewBox="0 0 24 24">
+            <path d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+            <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+    )
+}
 
 const RightSkip = () => {
     return (

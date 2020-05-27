@@ -33,7 +33,7 @@ const data = {
 
 const Root = (props) => {
     return (
-        <div className="text-white w-screen h-screen bg-gray-700">
+        <div className="text-white w-screen h-screen bg-gray-900">
             <div className="container mx-auto p-5">
                 <SearchBar />
                 <Queue songs={props.songs} />
