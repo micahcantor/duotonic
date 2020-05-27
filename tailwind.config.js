@@ -3,11 +3,11 @@ module.exports = {
     theme: {
         extend: {
             colors: {
-                black: '#191414',
-                green: '#1DB954',
+                customgreen: '#1DB954',
             },
         },
     },
-    variants: {},
+    variants: {
+    },
     plugins: [],
 };
