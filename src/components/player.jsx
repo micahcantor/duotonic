@@ -3,24 +3,44 @@
 import React from 'react';
 import '../styles.css';
 
-const Player = (props) => {
-    return (
-        <div className="flex absolute bottom-0 inset-x-0 flex-col border-t-2 border-gray-500 bg-gray-900 h-22">
-            <div className="flex justify-between items-center">
-                <SongInfo song={props.song} />
-                <PlaybackControls />
-                <DisconnectButton />
-            </div>
-            <ProgressBar />
-        </div>
-    );
-};
+class Player extends React.Component {
+    constructor(props) {
+        super(props);
+        this.handlePauseChange = this.handlePauseChange.bind(this);
+        this.state = {isPaused: true, elapsed: 0}
+    }
 
-const PlaybackControls = () => {
+    handlePauseChange(elapsed, isPaused) {
+        this.setState({
+            elapsed: elapsed + 1,
+            isPaused,
+        });
+    }
+
+    render() { 
+        const elapsed = this.state.elapsed;
+        const isPaused = this.state.isPaused;
+        return (
+            <div className="flex absolute bottom-0 inset-x-0 flex-col border-t-2 border-gray-500 bg-gray-900 h-22">
+                <div className="flex justify-between items-center">
+                    <SongInfo song={this.props.song} />
+                    <PlaybackControls 
+                        isPaused={isPaused} 
+                        onPauseChange={this.handlePauseChange}/>
+                    <DisconnectButton />
+                </div>
+                <ProgressBar 
+                    elapsed={elapsed} onPauseChange={this.handlePauseChange}/>
+            </div>   
+        )     
+    }
+}
+
+const PlaybackControls = (props) => {
     return (
         <div className="flex w-1/5 justify-center">
             <LeftSkip />
-            <PausePlay />
+            <PausePlay isPaused={props.isPaused} onPauseChange={props.onPauseChange}/>
             <RightSkip />
         </div>
     );
@@ -43,27 +63,28 @@ class ProgressBar extends React.Component {
     // onPlay and onPause are not hooked up to anything yet 
     constructor(props) {
         super(props);
-        this.state = { elapsed: 0 };
+        // this.state = {elapsed:0}
+        this.advance = this.advance.bind(this);
     }
 
     onPlay() {
         this.timerID = setInterval(
-            () => this.tick(),           // calls tick
-            1000,                        // runs every second
+            () => this.advance(),         // calls advance
+            1000,                        //  every second
         );
     }
 
     onPause() {
-        clearInterval(this.timerID);     // stops tick function
+        clearInterval(this.timerID);     // stops advance function
     }
 
-    tick() {
+    advance() {
         // incremenets elapsed counter
         // see: https://reactjs.org/docs/state-and-lifecycle.html "Using State Correctly"
-        //
-        this.setState((state) => ({
+        /* this.setState((state) => ({
             elapsed: state.elapsed + 1,
-        }));
+        })); */
+        this.props.onPauseChange(this.props.elapsed)
     }
 
     render() {
@@ -79,19 +100,19 @@ class ProgressBar extends React.Component {
 class PausePlay extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {isPaused:true}
-
-        // This binding is necessary to make `this` work in the callback
+        // this.state = {isPaused:true};
         this.handleClick = this.handleClick.bind(this);
     }
 
     handleClick() {
-        this.setState(state => ({
+        /* this.setState(state => ({
             isPaused: !state.isPaused
-        }));
+        })); */
+        this.props.onPauseChange(this.props.isPaused)
     }
     render() {
-        const isPaused = this.state.isPaused;
+        // const isPaused = this.state.isPaused;
+        const isPaused = this.props.isPaused;
         return (
             <button onClick={this.handleClick} className="rounded-full h-16 w-16 flex items-center mt-2" type="button">
                 {isPaused ? <PauseIcon /> : <PlayIcon />}
