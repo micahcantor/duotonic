@@ -9,6 +9,7 @@ const data = {
         {
             name: 'Test',
             artist: 'FakeArtist',
+            album: 'FakeAlbum',
             coverUrl: 'https://miro.medium.com/proxy/1*8FkvzbSdSJ4HNxtuZo5kLg.jpeg',
         },
         {
@@ -23,6 +24,7 @@ const songsArray = [
     {
         name: 'Test',
         artist: 'FakeArtist',
+        album: 'FakeAlbum',
         coverUrl: 'https://miro.medium.com/proxy/1*8FkvzbSdSJ4HNxtuZo5kLg.jpeg',
     },
 ];
@@ -33,9 +35,10 @@ const Root = (props) => {
             <div className="container mx-auto p-5">
                 <Queue songs={props.songs} />
             </div>
-            <Player />
+            <Player songs={props.songs}/>
         </div>
     );
 };
 
-ReactDOM.render(<Root songs={songsArray} />, document.getElementById('root'));
+const element = <Root songs={songsArray}/>
+ReactDOM.render(element, document.getElementById('root'));

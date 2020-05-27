@@ -1,10 +1,11 @@
+/* eslint-disable arrow-body-style */
 
 import React from 'react';
 import '../styles.css';
 
 const Queue = (props) => {
     const { songs } = props;
-    const songList = songs.map((song) => { return <QueueItem song={song} />; });
+    const songList = songs.map((song) => <QueueItem song={song} />);
 
     return (
         <div className="bg-gray-800 overflow-hidden max-w-sm rounded shadow-lg">

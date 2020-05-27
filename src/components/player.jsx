@@ -1,11 +1,13 @@
+/* eslint-disable prefer-destructuring */
 import React from 'react';
 import '../styles.css';
 
-const Player = () => {
+const Player = (props) => {
+    const song = props.songs[0];
     return (
-        <div className="flex absolute bottom-0 inset-x-0 flex-col bg-black h-20">
+        <div className="flex absolute bottom-0 inset-x-0 flex-col border-t-2 border-gray-500 bg-gray-900 h-20">
             <div className="flex justify-between items-center">
-                <SongInfo> </SongInfo>
+                <SongInfo song={song}> </SongInfo>
                 <PlaybackControls> </PlaybackControls>
                 <DisconnectButton> </DisconnectButton>
             </div>
@@ -24,14 +26,14 @@ const PlaybackControls = () => {
     );
 };
 
-const SongInfo = () => {
+const SongInfo = (props) => {
     return (
         <div className="flex w-1/5 items-center">
-            <div className="mr-2 ml-2 border border-white w-16 h-16"> </div>
-            <div className="flex flex-col text-white">
-                <span> Song</span>
-                <span> Artist</span>
-                <span> Album</span>
+            <img className="mx-3 h-16 max-w-none rounded shadow" src={props.song.coverUrl} alt="Album Cover" />
+            <div className="flex flex-col text-gray-500">
+                <span className="text-white"> {props.song.name} </span>
+                <span> {props.song.artist} </span>
+                <span> {props.song.album} </span>
             </div>
         </div>
     );
@@ -87,8 +89,8 @@ const LeftSkip = () => {
 const DisconnectButton = () => {
     return (
         <div className="flex w-1/5 mr-2 text-white justify-end">
-            <button type="button" className="bg-transparent hover:bg-white-500 text-white-500 font-semibold hover:text-green py-2 px-4 border border-white-500 hover:border-transparent rounded">
-                Disconnect
+            <button type="button" className="bg-transparent font-semibold hover:text-green py-2 px-4 rounded">
+                disconnect
             </button>
         </div>
     );
