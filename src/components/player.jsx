@@ -1,13 +1,13 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable prefer-destructuring */
 import React from 'react';
 import '../styles.css';
 
 const Player = (props) => {
-    const song = props.songs[0];
     return (
         <div className="flex absolute bottom-0 inset-x-0 flex-col border-t-2 border-gray-500 bg-gray-900 h-22">
             <div className="flex justify-between items-center">
-                <SongInfo song={song} />
+                <SongInfo song={props.song} />
                 <PlaybackControls />
                 <DisconnectButton />
             </div>
@@ -39,9 +39,17 @@ const SongInfo = (props) => {
     );
 };
 
+/* const ProgressBar = () => {
+    return (
+        <div className="flex shadow w-full h-2">
+            <div className="bg-green text-xs leading-none py-1" style={{ width: '60%' }}> </div>
+        </div>
+    );
+} */
 
+ 
 class ProgressBar extends React.Component {
-    /* onPlay and onPause are not hooked up to anything yet */
+    // onPlay and onPause are not hooked up to anything yet 
     constructor(props) {
         super(props);
         this.state = { elapsed: 0 };
@@ -59,9 +67,9 @@ class ProgressBar extends React.Component {
     }
 
     tick() {
-        /* incremenets elapsed counter
-        see: https://reactjs.org/docs/state-and-lifecycle.html "Using State Correctly"
-        */
+        // incremenets elapsed counter
+        // see: https://reactjs.org/docs/state-and-lifecycle.html "Using State Correctly"
+        //
         this.setState((state) => ({
             elapsed: state.elapsed + 1,
         }));
@@ -70,8 +78,8 @@ class ProgressBar extends React.Component {
     render() {
         // const progress = (this.state.elapsed / this.props.runtime) * 100;
         return (
-            <div className="flex shadow w-full h-2 bg-grey-light">
-                <div className="bg-green text-xs leading-none py-1" style={{ width: '60%' }}> </div>
+            <div className="flex shadow w-full h-2">
+                <div className="bg-green" style={{ width: '60%' }}> </div>
             </div>
         );
     }

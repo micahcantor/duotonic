@@ -1,3 +1,5 @@
+/* eslint-disable react/jsx-key */
+/* eslint-disable react/prop-types */
 /* eslint-disable arrow-body-style */
 
 import React from 'react';
