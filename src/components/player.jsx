@@ -78,8 +78,8 @@ class ProgressBar extends React.Component {
     render() {
         // const progress = (this.state.elapsed / this.props.runtime) * 100;
         return (
-            <div className="flex shadow w-full h-2">
-                <div className="bg-green" style={{ width: '60%' }}> </div>
+            <div className="flex shadow w-full h-2 bg-grey-light">
+                <div className="bg-customgreen leading-none py-1" style={{ width: '60%' }}> </div> 
             </div>
         );
     }
