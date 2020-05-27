@@ -5,7 +5,7 @@ import '../styles.css';
 const Player = (props) => {
     const song = props.songs[0];
     return (
-        <div className="flex absolute bottom-0 inset-x-0 flex-col border-t-2 border-gray-500 bg-gray-900 h-20">
+        <div className="flex absolute bottom-0 inset-x-0 flex-col border-t-2 border-gray-500 bg-gray-900 h-22">
             <div className="flex justify-between items-center">
                 <SongInfo song={song}> </SongInfo>
                 <PlaybackControls> </PlaybackControls>
@@ -30,7 +30,7 @@ const SongInfo = (props) => {
     return (
         <div className="flex w-1/5 items-center">
             <img className="mx-3 h-16 max-w-none rounded shadow" src={props.song.coverUrl} alt="Album Cover" />
-            <div className="flex flex-col text-gray-500">
+            <div className="flex flex-col text-gray-500 font-mono">
                 <span className="text-white"> {props.song.name} </span>
                 <span> {props.song.artist} </span>
                 <span> {props.song.album} </span>
@@ -38,16 +38,37 @@ const SongInfo = (props) => {
         </div>
     );
 };
-const ProgressBar = () => {
-    return (
-        <div className="flex shadow w-full h-2 bg-grey-light">
-            <div className="bg-green text-xs leading-none py-1" style={{ width: '60%' }}> </div>
-        </div>
-    );
-};
-/*
+
+
 class ProgressBar extends React.Component {
+    /* onPlay and onPause are not hooked up to anything yet */
+    constructor(props) {
+        super(props);
+        this.state = { elapsed: 0 };
+    }
+
+    onPlay() {
+        this.timerID = setInterval(
+            () => this.tick(),           // calls tick
+            1000,                        // runs every second
+        );
+    }
+
+    onPause() {
+        clearInterval(this.timerID);    // stops tick function
+    }
+
+    tick() {
+        /* incremenets elapsed counter
+        see: https://reactjs.org/docs/state-and-lifecycle.html "Using State Correctly"
+        */
+        this.setState((state) => ({
+            elapsed: state.elapsed + 1,
+        }));
+    }
+
     render() {
+        // const progress = (this.state.elapsed / this.props.runtime) * 100;
         return (
             <div className="flex shadow w-full h-2 bg-grey-light">
                 <div className="bg-green text-xs leading-none py-1" style={{ width: '60%' }}> </div>
@@ -55,7 +76,7 @@ class ProgressBar extends React.Component {
         );
     }
 }
- */
+
 const PausePlay = () => {
     return (
         <button className="rounded-full h-16 w-16 flex items-center mt-2" type="button">
@@ -89,7 +110,7 @@ const LeftSkip = () => {
 const DisconnectButton = () => {
     return (
         <div className="flex w-1/5 mr-2 text-white justify-end">
-            <button type="button" className="bg-transparent font-semibold hover:text-green py-2 px-4 rounded">
+            <button type="button" className="bg-transparent font-mono hover:text-green py-2 px-4 rounded">
                 disconnect
             </button>
         </div>

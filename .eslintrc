@@ -27,6 +27,7 @@
         "react/jsx-one-expression-per-line": 0,
         "react/prop-types": 0,
         "react/destructuring-assignment": 0,
-        "arrow-body-style": ["error", "always"]
+        "no-multi-spaces": 0,
+        "arrow-body-style": 0
     }
 }
