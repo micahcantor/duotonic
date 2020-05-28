@@ -10,11 +10,11 @@ class Player extends React.Component {
         this.state = {isPaused: true, elapsed: 0}
     }
 
-    handlePauseChange(elapsed, isPaused) {
-        this.setState({
-            elapsed: elapsed + 1,
-            isPaused,
-        });
+    handlePauseChange(elapsed, isPausedParam) {
+        if (isNaN(elapsed))
+            this.setState({isPaused: !isPausedParam});
+        else if (isPausedParam == null)
+            this.setState({elapsed: elapsed + 1});
     }
 
     render() { 
@@ -30,7 +30,7 @@ class Player extends React.Component {
                     <DisconnectButton />
                 </div>
                 <ProgressBar 
-                    elapsed={elapsed} onPauseChange={this.handlePauseChange}/>
+                    elapsed={elapsed} runtime={this.props.song.runtime} onPauseChange={this.handlePauseChange}/>
             </div>   
         )     
     }
@@ -60,10 +60,8 @@ const SongInfo = (props) => {
 };
  
 class ProgressBar extends React.Component {
-    // onPlay and onPause are not hooked up to anything yet 
     constructor(props) {
         super(props);
-        // this.state = {elapsed:0}
         this.advance = this.advance.bind(this);
     }
 
@@ -80,18 +78,14 @@ class ProgressBar extends React.Component {
 
     advance() {
         // incremenets elapsed counter
-        // see: https://reactjs.org/docs/state-and-lifecycle.html "Using State Correctly"
-        /* this.setState((state) => ({
-            elapsed: state.elapsed + 1,
-        })); */
-        this.props.onPauseChange(this.props.elapsed)
+        this.props.onPauseChange(this.props.elapsed, null)
     }
 
     render() {
-        // const progress = (this.state.elapsed / this.props.runtime) * 100;
+        const progress = (this.props.elapsed / this.props.runtime) * 100;
         return (
             <div className="flex shadow w-full h-2 bg-grey-light">
-                <div className="bg-customgreen leading-none py-1" style={{ width: '60%' }}> </div> 
+                <div className="bg-customgreen leading-none py-1" style={{ width: toString(progress) }}> </div> 
             </div>
         );
     }
@@ -100,22 +94,17 @@ class ProgressBar extends React.Component {
 class PausePlay extends React.Component {
     constructor(props) {
         super(props);
-        // this.state = {isPaused:true};
         this.handleClick = this.handleClick.bind(this);
     }
 
     handleClick() {
-        /* this.setState(state => ({
-            isPaused: !state.isPaused
-        })); */
-        this.props.onPauseChange(this.props.isPaused)
+        this.props.onPauseChange(NaN, this.props.isPaused)
     }
     render() {
-        // const isPaused = this.state.isPaused;
         const isPaused = this.props.isPaused;
         return (
             <button onClick={this.handleClick} className="rounded-full h-16 w-16 flex items-center mt-2" type="button">
-                {isPaused ? <PauseIcon /> : <PlayIcon />}
+                {isPaused ? <PlayIcon /> : <PauseIcon />}
             </button>
         );      
     }
