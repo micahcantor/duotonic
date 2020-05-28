@@ -7,30 +7,27 @@ class Player extends React.Component {
     constructor(props) {
         super(props);
         this.handlePauseChange = this.handlePauseChange.bind(this);
-        this.state = {isPaused: true, elapsed: 0}
+        this.state = {isPaused: true}              // holds pause state for the entire player
     }
 
-    handlePauseChange(elapsed, isPausedParam) {
-        if (isNaN(elapsed))
-            this.setState({isPaused: !isPausedParam});
-        else if (isPausedParam == null)
-            this.setState({elapsed: elapsed + 1});
+    handlePauseChange(isPausedParam) {
+        this.setState({isPaused: !isPausedParam})  // flip paused bool state
     }
 
     render() { 
-        const elapsed = this.state.elapsed;
         const isPaused = this.state.isPaused;
         return (
             <div className="flex absolute bottom-0 inset-x-0 flex-col border-t-2 border-gray-500 bg-gray-900 h-22">
                 <div className="flex justify-between items-center">
                     <SongInfo song={this.props.song} />
                     <PlaybackControls 
-                        isPaused={isPaused} 
-                        onPauseChange={this.handlePauseChange}/>
+                        isPaused={isPaused}        // same isPaused bool is sent to PlaybackControls and progress bar
+                        onPauseChange={this.handlePauseChange} />
                     <DisconnectButton />
                 </div>
                 <ProgressBar 
-                    elapsed={elapsed} runtime={this.props.song.runtime} onPauseChange={this.handlePauseChange}/>
+                    isPaused={isPaused}            // same state sent to PlaybackConrols
+                    runtime={this.props.song.runtime} />
             </div>   
         )     
     }
@@ -40,11 +37,69 @@ const PlaybackControls = (props) => {
     return (
         <div className="flex w-1/5 justify-center">
             <LeftSkip />
-            <PausePlay isPaused={props.isPaused} onPauseChange={props.onPauseChange}/>
+            <PausePlay 
+                isPaused={props.isPaused} 
+                onPauseChange={props.onPauseChange}/>
             <RightSkip />
         </div>
     );
 };
+ 
+class ProgressBar extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {elapsed: 0, progressActive: false}     // elapsed: seconds of the song elapsed
+    }                                                        // progressActive: is the progress bar incrementing
+
+    advanceProgress() {
+        /* starts a repeating increment function and sets progress active to true*/
+        this.setState({progressActive: true});
+        this.timerID = setInterval(
+            () => this.setState((state) => ({elapsed: state.elapsed + 1})), // increments elapsed
+            1000                                                            // every second
+        );
+    }
+
+    pauseProgress() {
+        this.setState({progressActive: false}); 
+        clearInterval(this.timerID);                                         // stops the interval when paused
+    }
+
+    render() {
+        if (!this.props.isPaused && !this.state.progressActive)             // if song is playing and the progress bar is not already active
+            this.advanceProgress();                                         
+        else if (this.props.isPaused && this.state.progressActive)          // if the song is paused and the progress bar is active
+            this.pauseProgress();
+
+        const progress = ((this.state.elapsed / this.props.runtime) * 100) + "%";   // elapsed / runtime as a percentage
+        
+        return (
+            <div className="flex shadow w-full h-2 bg-grey-light">
+                <div className="bg-customgreen leading-none py-1 rounded" style={{ width: progress }}> </div> 
+            </div>
+        );
+    }
+}
+
+class PausePlay extends React.Component {
+    constructor(props) {
+        super(props);
+        this.handleClick = this.handleClick.bind(this);
+    }
+
+    handleClick() {
+        this.props.onPauseChange(this.props.isPaused);          // calls function passed down from Player
+    }                                                           // lifts pause state to the player so it is accessible to other player components
+
+    render() {
+        const isPaused = this.props.isPaused;
+        return (
+            <button onClick={this.handleClick} className="rounded-full h-16 w-16 flex items-center mt-2" type="button">
+                {isPaused ? <PlayIcon /> : <PauseIcon />}  
+            </button>
+        );      
+    }
+}
 
 const SongInfo = (props) => {
     return (
@@ -58,57 +113,6 @@ const SongInfo = (props) => {
         </div>
     );
 };
- 
-class ProgressBar extends React.Component {
-    constructor(props) {
-        super(props);
-        this.advance = this.advance.bind(this);
-    }
-
-    onPlay() {
-        this.timerID = setInterval(
-            () => this.advance(),         // calls advance
-            1000,                        //  every second
-        );
-    }
-
-    onPause() {
-        clearInterval(this.timerID);     // stops advance function
-    }
-
-    advance() {
-        // incremenets elapsed counter
-        this.props.onPauseChange(this.props.elapsed, null)
-    }
-
-    render() {
-        const progress = (this.props.elapsed / this.props.runtime) * 100;
-        return (
-            <div className="flex shadow w-full h-2 bg-grey-light">
-                <div className="bg-customgreen leading-none py-1" style={{ width: toString(progress) }}> </div> 
-            </div>
-        );
-    }
-}
-
-class PausePlay extends React.Component {
-    constructor(props) {
-        super(props);
-        this.handleClick = this.handleClick.bind(this);
-    }
-
-    handleClick() {
-        this.props.onPauseChange(NaN, this.props.isPaused)
-    }
-    render() {
-        const isPaused = this.props.isPaused;
-        return (
-            <button onClick={this.handleClick} className="rounded-full h-16 w-16 flex items-center mt-2" type="button">
-                {isPaused ? <PlayIcon /> : <PauseIcon />}
-            </button>
-        );      
-    }
-}
 
 const PauseIcon = () => {
     return (
