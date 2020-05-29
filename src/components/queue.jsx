@@ -15,7 +15,7 @@ const Queue = (props) => {
 
     // Render Queue with array of QueueItems
     return (
-        <div className="bg-gray-800 overflow-hidden max-w-sm rounded shadow-lg">
+        <div className="bg-gray-800 max-w-sm rounded shadow-lg">
             <p className="uppercase tracking-wider font-mono p-3 border-gray-500 border-b-2">Queue</p>
             <div className="divide-y divide-gray-600">
                 {songList}
@@ -26,10 +26,10 @@ const Queue = (props) => {
 
 const QueueItem = (props) => {
     return (
-        <div className="p-3 flex text-gray-300 flex-no-wrap items-center bg-gray-800 first:bg-gray-900">
+        <div className="boxPop p-3 flex text-gray-300 flex-no-wrap items-center bg-gray-800 first:bg-gray-900">
             <img className="h-16 max-w-none rounded shadow" alt="Album cover" src={props.song.coverUrl} />
             <div className="pl-5 whitespace-no-wrap font-light">
-                <p className="">{props.song.name}</p>
+                <p>{props.song.name}</p>
                 <p className="text-gray-500 text-sm">{props.song.artist}</p>
             </div>
         </div>

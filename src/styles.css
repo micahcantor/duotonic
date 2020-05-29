@@ -5,3 +5,16 @@
 @tailwind utilities;
 
 /* Custom CSS below */
+
+/* based on https://tobiasahlin.com/blog/how-to-animate-box-shadow/ */
+.boxPop {
+    transition: all .05s;
+}
+
+.boxPop:hover {
+    -webkit-transform: scale(1.1, 1.1);
+    transform: scale(1.1, 1.1);
+    border-radius: 10px;
+    
+    border: 2px solid #1DB954;
+}
