@@ -43,6 +43,7 @@ const Root = (props) => {
                 <Queue songs={props.songs} />
             </div>
             <Player song={props.songs[0]} />
+            
         </div>
     );
 };

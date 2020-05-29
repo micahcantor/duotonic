@@ -1,6 +1,8 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable prefer-destructuring */
 import React from 'react';
+import {SliderInput, SliderTrack, SliderTrackHighlight, SliderHandle} from '@reach/slider'
+import '../slider_styles.css';
 import '../styles.css';
 
 class Player extends React.Component {
@@ -11,19 +13,20 @@ class Player extends React.Component {
     }
 
     handlePauseChange(isPausedParam) {
-        this.setState({isPaused: !isPausedParam})  // flip paused bool state
+        this.setState({isPaused: !isPausedParam});  // flip paused bool state
     }
 
     render() { 
         const isPaused = this.state.isPaused;
         return (
-            <div className="flex absolute bottom-0 inset-x-0 flex-col border-t-2 border-gray-500 bg-gray-900 h-22">
-                <div className="flex justify-between items-center">
-                    <SongInfo song={this.props.song} />
-                    <PlaybackControls 
+            <div className="flex overflow-hidden absolute bottom-0 inset-x-0 flex-col border-t-2 border-gray-500 bg-gray-900 h-22">
+                <div className="flex mx-auto mt-2 justify-between items-center" style={{ width: "95%"}}>
+                    <SongInfo className="w-1/3 px-2" song={this.props.song} />
+                    <PlaybackControls className="w-1/3 px-2"
                         isPaused={isPaused}        // same isPaused bool is sent to PlaybackControls and progress bar
                         onPauseChange={this.handlePauseChange} />
-                    <DisconnectButton />
+                    <VolumeSlider className="w-1/3 px-2" />
+                    
                 </div>
                 <ProgressBar 
                     isPaused={isPaused}            // same state sent to PlaybackConrols
@@ -35,7 +38,7 @@ class Player extends React.Component {
 
 const PlaybackControls = (props) => {
     return (
-        <div className="flex w-1/5 justify-center">
+        <div className="flex justify-center -ml-2 -mr-5 text-gray-500">
             <LeftSkip />
             <PausePlay 
                 isPaused={props.isPaused} 
@@ -55,8 +58,8 @@ class ProgressBar extends React.Component {
         /* starts a repeating increment function and sets progress active to true*/
         this.setState({progressActive: true});
         this.timerID = setInterval(
-            () => this.setState((state) => ({elapsed: state.elapsed + 1})), // increments elapsed
-            1000                                                            // every second
+            () => this.setState((state) => ({elapsed: state.elapsed + .01})), // increments elapsed
+            10                                                            // every 10 ms
         );
     }
 
@@ -71,11 +74,12 @@ class ProgressBar extends React.Component {
         else if (this.props.isPaused && this.state.progressActive)          // if the song is paused and the progress bar is active
             this.pauseProgress();
 
-        const progress = ((this.state.elapsed / this.props.runtime) * 100) + "%";   // elapsed / runtime as a percentage
-        
+        const progress = (this.state.elapsed / this.props.runtime) * 100;   // elapsed / runtime as a percentage
+        if (progress == 100) this.pauseProgress();                          // stops progress bar at 100%
+
         return (
             <div className="flex shadow w-full h-2 bg-grey-light">
-                <div className="bg-customgreen leading-none py-1 rounded" style={{ width: progress }}> </div> 
+                <div className="bg-customgreen leading-none py-1 rounded" style={{ width: progress + "%"}}> </div> 
             </div>
         );
     }
@@ -94,18 +98,46 @@ class PausePlay extends React.Component {
     render() {
         const isPaused = this.props.isPaused;
         return (
-            <button onClick={this.handleClick} className="rounded-full h-16 w-16 flex items-center mt-2" type="button">
+            <button onClick={this.handleClick} className="rounded-full h-16 w-16 flex items-center" type="button">
                 {isPaused ? <PlayIcon /> : <PauseIcon />}  
             </button>
         );      
     }
 }
 
+class VolumeSlider extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+
+    render() {
+        return (
+            <div className="flex items-center text-gray-500">
+                <svg className="w-4 h-4 mr-3 mt-2 stroke-current" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24">
+                    <path d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" clipRule="evenodd"></path>
+                    <path d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"></path>
+                </svg>
+                
+                <SliderInput className="w-32" min={0} max={100}>
+                    <SliderTrack>
+                        <SliderTrackHighlight />
+                        <SliderHandle />
+                    </SliderTrack>
+                </SliderInput>
+
+                <svg className="w-4 h-4 ml-2 mt-2 stroke-current" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" >
+                    <path d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
+                </svg>          
+            </div>
+        );
+    }
+}
+
 const SongInfo = (props) => {
     return (
-        <div className="flex w-1/5 items-center">
-            <img className="mx-3 h-16 max-w-none rounded shadow" src={props.song.coverUrl} alt="Album cover" />
-            <div className="flex flex-col font-light text-gray-500">
+        <div className="flex items-center justify-between">
+            <img className="h-16 max-w-none rounded shadow" src={props.song.coverUrl} alt="Album cover" />
+            <div className="flex flex-col ml-2 font-light text-gray-500">
                 <span className="text-white">{props.song.name}</span>
                 <span>{props.song.artist}</span>
                 <span>{props.song.album}</span>
@@ -116,7 +148,7 @@ const SongInfo = (props) => {
 
 const PauseIcon = () => {
     return (
-        <svg className="flex w-16 h-16" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth=".75" stroke="white" viewBox="0 0 24 24">
+        <svg className="flex w-16 h-16 stroke-current hover:text-white" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth=".75" viewBox="0 0 24 24">
             <path d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"> </path>                
         </svg>
     )
@@ -124,7 +156,7 @@ const PauseIcon = () => {
 
 const PlayIcon = () => {
     return (
-        <svg className="flex w-16 h-16" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth=".75" stroke="white" viewBox="0 0 24 24">
+        <svg className="flex w-16 h-16 stroke-current hover:text-white" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth=".75" viewBox="0 0 24 24">
             <path d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
             <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
         </svg>
@@ -133,8 +165,8 @@ const PlayIcon = () => {
 
 const RightSkip = () => {
     return (
-        <button className="mt-2" type="button">
-            <svg className="w-12 h-12" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth=".75" stroke="white" viewBox="0 0 24 24">
+        <button className="" type="button">
+            <svg className="w-12 h-12 stroke-current hover:text-white" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth=".75" viewBox="0 0 24 24">
                 <path d="M9 5l7 7-7 7"> </path>
             </svg>
         </button>
@@ -143,8 +175,8 @@ const RightSkip = () => {
 
 const LeftSkip = () => {
     return (
-        <button className="mt-2" type="button">
-            <svg className="w-12 h-12" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth=".75" stroke="white" viewBox="0 0 24 24">
+        <button className="" type="button">
+            <svg className="w-12 h-12 stroke-current hover:text-white" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth=".75" viewBox="0 0 24 24">
                 <path d="M15 19l-7-7 7-7"></path>
             </svg>
         </button>
