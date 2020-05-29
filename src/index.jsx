@@ -5,6 +5,7 @@ import './styles.css';
 import SearchBar from './components/searchbar.jsx';
 import Player from './components/player.jsx';
 import Queue from './components/queue.jsx';
+import GiveUrl from './components/giveCodePage/GiveURL.jsx'
 
 const data = {
     songs: [
@@ -35,7 +36,15 @@ const data = {
     ],
 };
 
-const Root = (props) => {
+const Landing = () => {
+    return (
+        <div className="text-white w-screen h-screen bg-gray-900">
+            <GiveUrl />
+        </div>
+    )
+}
+
+const PlayerPage = (props) => {
     return (
         <div className="text-white w-screen h-screen bg-gray-900">
             <div className="container mx-auto p-5">
@@ -48,5 +57,7 @@ const Root = (props) => {
     );
 };
 
-const element = <Root songs={data.songs} />;
-ReactDOM.render(element, document.getElementById('root'));
+const playPage = <PlayerPage songs={data.songs} />
+const landing = <Landing />
+
+ReactDOM.render(landing, document.getElementById('root'));
