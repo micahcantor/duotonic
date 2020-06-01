@@ -5,6 +5,7 @@ import './styles.css';
 import SearchBar from './components/searchbar.jsx';
 import Player from './components/player.jsx';
 import Queue from './components/queue.jsx';
+import Chat from './components/chat.jsx';
 import GiveUrl from './components/giveCodePage/GiveURL.jsx'
 
 const data = {
@@ -49,7 +50,11 @@ const PlayerPage = (props) => {
         <div className="text-white w-screen h-screen bg-gray-900">
             <div className="container mx-auto p-5">
                 <SearchBar />
-                <Queue songs={props.songs} />
+                <div className="flex">
+                    <Queue songs={props.songs} />
+                    <Chat />
+                </div>
+                
             </div>
             <Player song={props.songs[0]} />
             
@@ -60,4 +65,4 @@ const PlayerPage = (props) => {
 const playPage = <PlayerPage songs={data.songs} />
 const landing = <Landing />
 
-ReactDOM.render(landing, document.getElementById('root'));
+ReactDOM.render(playPage, document.getElementById('root'));
