@@ -6,7 +6,27 @@ class Chat extends React.Component {
         super(props);
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
-        this.state = {value: '', newMessage: false, messages: []};
+        this.state = {value: '', messages: []};
+        this.user = 'Micah';
+        this.wsURL = 'ws://localhost:3030';
+        this.ws = new WebSocket(this.wsURL);
+    }
+
+    componentDidMount() {
+        this.ws.onopen = () => {
+            console.log('connected');
+        }
+        this.ws.onmessage = (e) => {
+            const message = JSON.parse(e.data);
+            this.addMessage(message)
+        }
+        this.ws.onclose = () => {
+            console.log('disconnected')
+            // automatically try to reconnect on connection loss
+            this.setState({
+              ws: new WebSocket(URL),
+            })
+        }
     }
 
     handleChange(value) {
@@ -14,10 +34,16 @@ class Chat extends React.Component {
     }
 
     handleSubmit(e) {
-        /* TODO: Create a new message item to render with the latest message */
         e.preventDefault();
+        const message = {user: this.user, messageString: this.state.value}
+        this.ws.send(JSON.stringify(message))
+        this.addMessage(message);
+    }
+
+    addMessage(message) {
+        /* Utility function that updates the local state of messages */
         this.setState((state) => {
-            state.messages.push(this.state.value);
+            state.messages.push(message);
             return {messages: state.messages};
         })
     }
@@ -27,6 +53,13 @@ class Chat extends React.Component {
             <div className="relative bg-gray-800 w-3/4 md:2/3 rounded shadow-lg">
                 <p className="uppercase tracking-wider font-mono p-3 border-gray-500 border-b-2">Chat</p>
                 <div className="divide-y divide-gray-600"></div>
+                {this.state.messages.map((message, index) =>
+                    <Message
+                        key={index}
+                        message={message.messageString}
+                        user={message.user}
+                    />
+                )}
                 <ChatInput onChange={this.handleChange} onSubmit={this.handleSubmit} />
             </div>
         );
@@ -76,7 +109,12 @@ const SendButton = () => {
 }
 
 const Message = (props) => {
-    return (<span> {props.text} </span>)
+    return (
+        <div className="flex flex-col">
+            <span className="font-bold"> {props.user}</span>
+            <span className="font-sans"> {props.message}</span>
+        </div>
+    )
 }
 
 export default Chat;
