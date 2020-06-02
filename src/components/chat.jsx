@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React from 'react';
 import '../styles.css';
 
@@ -8,7 +9,7 @@ class Chat extends React.Component {
         this.handleSubmit = this.handleSubmit.bind(this);
         this.state = {value: '', messages: []};
         this.user = 'Micah';
-        this.wsURL = 'ws://localhost:3030';
+        this.wsURL = 'ws://localhost:8000';
         this.ws = new WebSocket(this.wsURL);
     }
 
@@ -35,8 +36,8 @@ class Chat extends React.Component {
 
     handleSubmit(e) {
         e.preventDefault();
-        const message = {user: this.user, messageString: this.state.value}
-        this.ws.send(JSON.stringify(message))
+        const message = {user: this.user, messageString: this.state.value};
+        this.ws.send(JSON.stringify(message));
         this.addMessage(message);
     }
 
@@ -45,7 +46,7 @@ class Chat extends React.Component {
         this.setState((state) => {
             state.messages.push(message);
             return {messages: state.messages};
-        })
+        });
     }
 
     render() {
@@ -53,18 +54,11 @@ class Chat extends React.Component {
             <div className="relative bg-gray-800 w-3/4 md:2/3 rounded shadow-lg">
                 <p className="uppercase tracking-wider font-mono p-3 border-gray-500 border-b-2">Chat</p>
                 <div className="divide-y divide-gray-600"></div>
-                {this.state.messages.map((message, index) =>
-                    <Message
-                        key={index}
-                        message={message.messageString}
-                        user={message.user}
-                    />
-                )}
+                <MessageList messages={this.state.messages}/>
                 <ChatInput onChange={this.handleChange} onSubmit={this.handleSubmit} />
             </div>
         );
     }
-    
 }
 
 class ChatInput extends React.Component {
@@ -108,11 +102,21 @@ const SendButton = () => {
     )
 }
 
+const MessageList = (props) => {
+    const messages = props.messages;
+    const listItems = messages.map((message, index) => {
+        <li className="ml-3 overflow-scroll" key={index} >
+            <Message user={message.user} messageString={message.message} />
+        </li>
+    });
+    return (<ul>{listItems}</ul>);
+}
+
 const Message = (props) => {
     return (
         <div className="flex flex-col">
             <span className="font-bold"> {props.user}</span>
-            <span className="font-sans"> {props.message}</span>
+            <span className="font-sans"> {props.messageString}</span>
         </div>
     )
 }
