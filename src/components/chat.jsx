@@ -9,7 +9,7 @@ class Chat extends React.Component {
         this.handleSubmit = this.handleSubmit.bind(this);
         this.state = {value: '', messages: []};
         this.user = 'Micah';
-        this.wsURL = 'ws://localhost:8000';
+        this.wsURL = 'ws://localhost:3030';
         this.ws = new WebSocket(this.wsURL);
     }
 
@@ -18,6 +18,7 @@ class Chat extends React.Component {
             console.log('connected');
         }
         this.ws.onmessage = (e) => {
+            console.log('message received')
             const message = JSON.parse(e.data);
             this.addMessage(message)
         }
@@ -38,6 +39,7 @@ class Chat extends React.Component {
         e.preventDefault();
         const message = {user: this.user, messageString: this.state.value};
         this.ws.send(JSON.stringify(message));
+        console.log('message sent to server');
         this.addMessage(message);
     }
 
@@ -45,6 +47,7 @@ class Chat extends React.Component {
         /* Utility function that updates the local state of messages */
         this.setState((state) => {
             state.messages.push(message);
+            console.log(message.messageString);
             return {messages: state.messages};
         });
     }
@@ -54,7 +57,8 @@ class Chat extends React.Component {
             <div className="relative bg-gray-800 w-3/4 md:2/3 rounded shadow-lg">
                 <p className="uppercase tracking-wider font-mono p-3 border-gray-500 border-b-2">Chat</p>
                 <div className="divide-y divide-gray-600"></div>
-                <MessageList messages={this.state.messages}/>
+    
+                <MessageList messages={this.state.messages} />
                 <ChatInput onChange={this.handleChange} onSubmit={this.handleSubmit} />
             </div>
         );
@@ -103,18 +107,26 @@ const SendButton = () => {
 }
 
 const MessageList = (props) => {
+    
     const messages = props.messages;
-    const listItems = messages.map((message, index) => {
-        <li className="ml-3 overflow-scroll" key={index} >
-            <Message user={message.user} messageString={message.message} />
-        </li>
-    });
-    return (<ul>{listItems}</ul>);
+    var listItems = []
+
+    /* this is ugly but I couldn't get map function to work, not sure why */
+    var i = 0;
+    for (const m of messages) {
+        listItems.push(
+            <li key={i}> <Message user={m.user} messageString={m.messageString}/></li>
+        );
+    }
+    
+    return (
+        <ul>{listItems}</ul>
+    );
 }
 
 const Message = (props) => {
     return (
-        <div className="flex flex-col">
+        <div className="flex flex-col ml-3">
             <span className="font-bold"> {props.user}</span>
             <span className="font-sans"> {props.messageString}</span>
         </div>
