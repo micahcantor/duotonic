@@ -8,48 +8,67 @@ class Chat extends React.Component {
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.state = {value: '', messages: []};
-        this.user = 'Micah';
+        this.user = 'Anonymous';
         this.wsURL = 'ws://localhost:3030';
         this.ws = new WebSocket(this.wsURL);
     }
 
     componentDidMount() {
+        this.scrollToBottom();  // scroll to bottom of messages
+
         this.ws.onopen = () => {
             console.log('connected');
         }
         this.ws.onmessage = (e) => {
-            console.log('message received')
+            console.log('message received');
             const message = JSON.parse(e.data);
-            this.addMessage(message)
+            this.addMessage(message);
         }
         this.ws.onclose = () => {
-            console.log('disconnected')
+            console.log('disconnected');
+
             // automatically try to reconnect on connection loss
             this.setState({
               ws: new WebSocket(URL),
-            })
+            });
         }
     }
 
+    componentDidUpdate() {
+        this.scrollToBottom();  // scroll to bottom of messages when a new message is added
+    }
+
     handleChange(value) {
-        this.setState({value: value})
+        this.setState({value: value}); // updates the input box
     }
 
     handleSubmit(e) {
         e.preventDefault();
-        const message = {user: this.user, messageString: this.state.value};
-        this.ws.send(JSON.stringify(message));
-        console.log('message sent to server');
-        this.addMessage(message);
+
+        if (this.state.value != "") { // prevent empty messages   
+            const date = new Date();
+            const timeSent = date.toLocaleTimeString().split(" ");
+            const timeFormatted = timeSent[0].substring(0, timeSent[0].length - 3) + " " + timeSent[1];       
+            const message = {user: this.user, messageString: this.state.value, time: timeFormatted};
+
+            this.ws.send(JSON.stringify(message));
+            console.log('message sent to server');
+
+            this.addMessage(message);
+        }
     }
 
     addMessage(message) {
         /* Utility function that updates the local state of messages */
         this.setState((state) => {
             state.messages.push(message);
-            console.log(message.messageString);
             return {messages: state.messages};
         });
+    }
+
+    scrollToBottom() {
+        /* Utility function that scrolls to dummy div at the bottom of the message list */
+        this.messagesEnd.scrollIntoView({ behavior: "smooth" });
     }
 
     render() {
@@ -57,8 +76,12 @@ class Chat extends React.Component {
             <div className="relative bg-gray-800 w-3/4 md:2/3 rounded shadow-lg">
                 <p className="uppercase tracking-wider font-mono p-3 border-gray-500 border-b-2">Chat</p>
                 <div className="divide-y divide-gray-600"></div>
-    
-                <MessageList messages={this.state.messages} />
+                <div className="absolute overflow-y-auto" style={{height: "75%"}}>
+                    <MessageList messages={this.state.messages} />
+                    <div style={{ float:"left", clear: "both" }}
+                        ref={(el) => { this.messagesEnd = el; }}>
+                    </div>
+                </div> 
                 <ChatInput onChange={this.handleChange} onSubmit={this.handleSubmit} />
             </div>
         );
@@ -115,19 +138,23 @@ const MessageList = (props) => {
     var i = 0;
     for (const m of messages) {
         listItems.push(
-            <li key={i}> <Message user={m.user} messageString={m.messageString}/></li>
+            <li key={i}> <Message user={m.user} messageString={m.messageString} time={m.time}/></li>
         );
+        i++;
     }
-    
+
     return (
-        <ul>{listItems}</ul>
+        <ul className="mt-2">{listItems}</ul>
     );
 }
 
 const Message = (props) => {
     return (
-        <div className="flex flex-col ml-3">
-            <span className="font-bold"> {props.user}</span>
+        <div className="flex flex-col mx-1 p-2 rounded hover:bg-gray-900">
+            <div className="flex items-center">
+                <span className="font-bold"> {props.user}</span>
+                <span className="ml-1 text-sm text-gray-400"> {props.time} </span>
+            </div>
             <span className="font-sans"> {props.messageString}</span>
         </div>
     )
