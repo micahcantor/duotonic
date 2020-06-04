@@ -76,7 +76,7 @@ class Chat extends React.Component {
             <div className="relative bg-gray-800 w-3/4 md:2/3 rounded shadow-lg">
                 <p className="uppercase tracking-wider font-mono p-3 border-gray-500 border-b-2">Chat</p>
                 <div className="divide-y divide-gray-600"></div>
-                <div className="absolute overflow-y-auto" style={{height: "75%"}}>
+                <div className="absolute overflow-y-auto w-full scrollbar" style={{height: "75%"}}>
                     <MessageList messages={this.state.messages} />
                     <div style={{ float:"left", clear: "both" }}
                         ref={(el) => { this.messagesEnd = el; }}>

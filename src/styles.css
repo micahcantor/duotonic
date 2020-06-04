@@ -17,3 +17,18 @@
     border-radius: 10px;
     border: 2px solid #1DB954;
 }
+
+.scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #9EAEBF #2B3747;
+}
+
+.scrollbar::-webkit-scrollbar {
+    width: 12px;
+}
+
+.scrollbar::-webkit-scrollbar-thumb {
+    background-color: #9EAEBF;
+    border-radius: 20px;
+    border: 3px solid #9EAEBF;
+}
