@@ -5,7 +5,8 @@ import './styles.css';
 import SearchBar from './components/searchbar.jsx';
 import Player from './components/player.jsx';
 import Queue from './components/queue.jsx';
-import GiveUrl from './components/giveCodePage/GiveURL.jsx'
+import GiveUrl from './components/landing/GiveURL.jsx'
+import NoAuth from './components/landing/NoAuth.jsx'
 
 const data = {
     songs: [
@@ -36,10 +37,12 @@ const data = {
     ],
 };
 
-const Landing = () => {
+const Landing = (props) => {
+    const isAuth = props.isAuth;
+
     return (
         <div className="text-white w-screen h-screen bg-gray-900">
-            <GiveUrl />
+            {isAuth ? <GiveUrl /> : <NoAuth />}
         </div>
     )
 }
@@ -58,6 +61,6 @@ const PlayerPage = (props) => {
 };
 
 const playPage = <PlayerPage songs={data.songs} />
-const landing = <Landing />
+const landing = <Landing isAuth={true}/>
 
 ReactDOM.render(landing, document.getElementById('root'));

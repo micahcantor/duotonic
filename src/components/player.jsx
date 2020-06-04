@@ -1,9 +1,9 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable prefer-destructuring */
 import React from 'react';
+import '../styles.css';
 import {SliderInput, SliderTrack, SliderTrackHighlight, SliderHandle} from '@reach/slider'
 import '../slider_styles.css';
-import '../styles.css';
 
 class Player extends React.Component {
     constructor(props) {
