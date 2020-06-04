@@ -15,7 +15,7 @@ const Queue = (props) => {
 
     // Render Queue with array of QueueItems
     return (
-        <div className="bg-gray-800 max-w-sm rounded shadow-lg">
+        <div className="bg-gray-800 w-1/4 md:w-1/3 mr-4 rounded shadow-lg">
             <p className="uppercase tracking-wider font-mono p-3 border-gray-500 border-b-2">Queue</p>
             <div className="divide-y divide-gray-600">
                 {songList}

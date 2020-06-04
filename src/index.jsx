@@ -7,6 +7,7 @@ import Player from './components/player.jsx';
 import Queue from './components/queue.jsx';
 import GiveUrl from './components/landing/GiveURL.jsx'
 import NoAuth from './components/landing/NoAuth.jsx'
+import Chat from './components/chat.jsx';
 
 const data = {
     songs: [
@@ -52,7 +53,11 @@ const PlayerPage = (props) => {
         <div className="text-white w-screen h-screen bg-gray-900">
             <div className="container mx-auto p-5">
                 <SearchBar />
-                <Queue songs={props.songs} />
+                <div className="flex">
+                    <Queue songs={props.songs} />
+                    <Chat />
+                </div>
+                
             </div>
             <Player song={props.songs[0]} />
             
@@ -63,4 +68,4 @@ const PlayerPage = (props) => {
 const playPage = <PlayerPage songs={data.songs} />
 const landing = <Landing isAuth={true}/>
 
-ReactDOM.render(landing, document.getElementById('root'));
+ReactDOM.render(playPage, document.getElementById('root'));
