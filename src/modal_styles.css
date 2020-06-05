@@ -1,0 +1,24 @@
+/* Used to detect in JavaScript if apps have loaded styles or not. */
+:root {
+    --reach-dialog: 1;
+  }
+  
+[data-reach-dialog-overlay] {
+  background: hsla(0, 0%, 0%, 0.603);
+  backdrop-filter: blur(4px);
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  overflow: auto;
+}
+
+[data-reach-dialog-content] {
+  width: 50vw;
+  margin: 10vh auto;
+  background: #2B3747;
+  color: white;
+  padding: 2rem;
+  outline: none;
+}

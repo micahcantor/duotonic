@@ -8,6 +8,7 @@ import Queue from './components/queue.jsx';
 import GiveUrl from './components/landing/GiveURL.jsx'
 import NoAuth from './components/landing/NoAuth.jsx'
 import Chat from './components/chat.jsx';
+import Modal from './components/modal.jsx';
 
 const data = {
     songs: [
@@ -56,6 +57,7 @@ const PlayerPage = (props) => {
                 <div className="flex">
                     <Queue songs={props.songs} />
                     <Chat />
+                    <Modal />
                 </div>
                 
             </div>

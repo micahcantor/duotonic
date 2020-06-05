@@ -155,7 +155,7 @@ const Message = (props) => {
                 <span className="font-bold"> {props.user}</span>
                 <span className="ml-1 text-sm text-gray-400"> {props.time} </span>
             </div>
-            <span className="font-sans"> {props.messageString}</span>
+            <p className="font-sans"> {props.messageString} </p>
         </div>
     )
 }
