@@ -48,7 +48,7 @@ class Player extends React.Component {
 
 const PlaybackControls = (props) => {
   return (
-    <div className="flex justify-center -ml-2 -mr-4 text-white">
+    <div className="flex justify-center -ml-3 -mr-4 text-white">
       <LeftSkip />
       <PausePlay
         isPaused={props.isPaused}
@@ -128,7 +128,7 @@ class PausePlay extends React.Component {
 }
 
 class VolumeSlider extends React.Component {
-  /* Later on the value state of the sldier will be lifted up so it can be referenced by the audio playing component. */
+  /* Later on the value state of the slider will be lifted up so it can be referenced by the audio playing component. */
 
   constructor(props) {
     super(props);
@@ -182,7 +182,7 @@ const SongInfo = (props) => {
         src={props.song.coverUrl}
         alt="Album cover"
       />
-      <div className="flex flex-col ml-2 font-light text-gray-500">
+      <div className="flex flex-col ml-3 font-light text-gray-500">
         <span className="text-white">{props.song.name}</span>
         <span>{props.song.artist}</span>
         <span>{props.song.album}</span>

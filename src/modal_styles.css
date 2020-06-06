@@ -15,8 +15,9 @@
 }
 
 [data-reach-dialog-content] {
-  width: 50vw;
+  width: 35vw;
   margin: 10vh auto;
+  border-radius: 10px;
   background: #2B3747;
   color: white;
   padding: 2rem;
