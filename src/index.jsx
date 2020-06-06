@@ -8,7 +8,7 @@ import Queue from "./components/queue.jsx";
 import GiveUrl from "./components/landing/GiveURL.jsx";
 import NoAuth from "./components/landing/NoAuth.jsx";
 import Chat from "./components/chat.jsx";
-import Modal from "./components/modal.jsx";
+import Header from "./components/header.jsx";
 
 const data = {
   songs: [
@@ -55,15 +55,15 @@ const Landing = (props) => {
 const PlayerPage = (props) => {
   return (
     <div className="text-white w-screen h-screen bg-gray-900">
-      <div className="container mx-auto p-5">
-        <SearchBar />
-        <div className="flex">
-          <Queue songs={props.songs} />
-          <Chat />
-          <Modal />
+        <Header />
+        <div className="container mx-auto p-5">
+            <SearchBar />
+            <div className="flex">
+            <Queue songs={props.songs} />
+            <Chat />
+            </div>
         </div>
-      </div>
-      <Player song={props.songs[0]} />
+        <Player song={props.songs[0]} />
     </div>
   );
 };
