@@ -12,8 +12,6 @@
 }
 
 .boxPop:hover {
-    -webkit-transform: scale(1.05, 1.05);
-    transform: scale(1.05, 1.05);
     border-radius: 10px;
     border: 2px solid #1DB954;
 }

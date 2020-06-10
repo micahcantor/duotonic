@@ -75,7 +75,7 @@ const FindRandom = () => {
 const TriggerButton = (props) => {
   return (
     <button
-      className="inline-block text-sm px-4 py-2 leading-none border rounded hover:text-customgreen hover:border-customgreen mt-4 mx-2 lg:mt-0"
+      className="inline-block text-sm lowercase font-mono px-3 py-2 leading-none border rounded hover:text-customgreen hover:border-customgreen mt-4 mx-2 lg:mt-0"
       onClick={props.open}
     >
       {props.buttonText}

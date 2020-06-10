@@ -39,6 +39,8 @@ const data = {
       coverUrl: "https://miro.medium.com/proxy/1*8FkvzbSdSJ4HNxtuZo5kLg.jpeg",
       runtime: 180,
     },
+    
+    
   ],
 };
 
@@ -56,11 +58,11 @@ const PlayerPage = (props) => {
   return (
     <div className="text-white w-screen h-screen bg-gray-900">
         <Header />
-        <div className="container mx-auto p-5">
+        <div className="mx-auto p-5" style={{height: '65%'}}>
             <SearchBar />
-            <div className="flex">
-            <Queue songs={props.songs} />
-            <Chat />
+            <div className="flex h-full">
+              <Queue songs={props.songs} />
+              <Chat />
             </div>
         </div>
         <Player song={props.songs[0]} />
