@@ -6,6 +6,7 @@
 [data-reach-dialog-overlay] {
   background: hsla(0, 0%, 0%, 0.603);
   backdrop-filter: blur(4px);
+  text-align: center;
   position: fixed;
   top: 0;
   right: 0;
@@ -15,9 +16,6 @@
 }
 
 [data-reach-dialog-content] {
-  width: 35vw;
-  margin: 10vh auto;
-  border-radius: 10px;
   background: #2B3747;
   color: white;
   padding: 2rem;
