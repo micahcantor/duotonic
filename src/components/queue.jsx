@@ -14,14 +14,14 @@ const Queue = (props) => {
 
   // Render Queue with array of QueueItems
   return (
-    <div className="relative hidden h-full w-full md:block mr-4 bg-gray-800 rounded shadow-lg overflow-y-scroll scrollbar">
+    <div className="relative hidden h-full w-full md:block mr-4 bg-gray-800 rounded shadow-lg">
       <div className="flex w-full border-b-2 border-gray-500">
         <p className="uppercase tracking-wider font-mono p-3">
           Queue
         </p>
         <SwapIcon />
       </div> 
-      <div>
+      <div className="overflow-y-scroll scrollbar w-full" style={{height: "90%"}}>
         {songList}
       </div>
     </div>

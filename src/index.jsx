@@ -97,16 +97,6 @@ const data = {
   ],
 };
 
-const Landing = (props) => {
-  const isAuth = props.isAuth;
-
-  return (
-    <div className="text-white w-screen h-screen bg-gray-900">
-      {isAuth ? <GiveUrl /> : <NoAuth />}
-    </div>
-  );
-};
-
 const PlayerPage = (props) => {
   return (
     <div className="text-white w-screen h-screen bg-gray-900">
