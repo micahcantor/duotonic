@@ -5,8 +5,6 @@ import "./styles.css";
 import SearchBar from "./components/searchbar.jsx";
 import Player from "./components/player.jsx";
 import Queue from "./components/queue.jsx";
-import GiveUrl from "./components/landing/GiveURL.jsx";
-import NoAuth from "./components/landing/NoAuth.jsx";
 import Chat from "./components/chat.jsx";
 import Header from "./components/header.jsx";
 

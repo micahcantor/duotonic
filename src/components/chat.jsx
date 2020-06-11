@@ -80,12 +80,12 @@ class Chat extends React.Component {
 
   render() {
     return (
-      <div className="relative bg-gray-800 w-full h-full rounded shadow-lg">
+      <div id="chat" className="relative hidden md:block bg-gray-800 w-full h-full rounded shadow-lg">
         <div className="flex border-b-2 border-gray-500">
           <p className="uppercase tracking-wider font-mono p-3">
             Chat
           </p>
-          <SwapIcon />
+          <SwapIcon chatActive={true} />
         </div>
         <div className="absolute overflow-y-auto w-full scrollbar" style={{ height: "80%" }}>
           <MessageList messages={this.state.messages} />
