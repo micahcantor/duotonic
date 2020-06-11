@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import React from "react";
+import SwapIcon from "./swap.jsx";
 import "../styles.css";
 
 class Chat extends React.Component {
@@ -79,11 +80,13 @@ class Chat extends React.Component {
 
   render() {
     return (
-      <div className="relative bg-gray-800 w-3/4 h-full rounded shadow-lg">
-        <p className="uppercase tracking-wider font-mono p-3 border-gray-500 border-b-2">
-          Chat
-        </p>
-        <div className="divide-y divide-gray-600"></div>
+      <div className="relative bg-gray-800 w-full h-full rounded shadow-lg">
+        <div className="flex border-b-2 border-gray-500">
+          <p className="uppercase tracking-wider font-mono p-3">
+            Chat
+          </p>
+          <SwapIcon />
+        </div>
         <div className="absolute overflow-y-auto w-full scrollbar" style={{ height: "80%" }}>
           <MessageList messages={this.state.messages} />
           <div className="flow-left clear-both"
@@ -115,15 +118,9 @@ class ChatInput extends React.Component {
 
   render() {
     return (
-      <form
-        onSubmit={this.handleSubmit}
-        className="absolute inset-x-0 bottom-0 mb-3 w-full flex justify-center items-center"
-      >
-        <input
-          type="text"
-          onChange={this.handleChange}
-          className="transition-colors duration-200 ease-in-out bg-gray-200 appearance-none border-2 border-transparent rounded h-8 w-9/10 px-4 mr-3 text-gray-700 leading-tight focus:outline-none hover:bg-white focus:border-green-400"
-          placeholder="Send a message"
+      <form onSubmit={this.handleSubmit} className="absolute inset-x-0 bottom-0 mb-3 w-full flex justify-center items-center">
+        <input type="text" onChange={this.handleChange} placeholder="Send a message"
+          className="transition-colors duration-200 ease-in-out bg-gray-200 appearance-none border-2 border-transparent rounded h-8 w-9/10 px-4 ml-2 mr-3 text-gray-700 leading-tight focus:outline-none hover:bg-white focus:border-green-400"      
         />
         <SendButton />
       </form>
@@ -135,7 +132,7 @@ const SendButton = () => {
   return (
     <button type="button">
       <svg
-        className="fill-current hover:text-customgreen"
+        className="fill-current mr-2 hover:text-customgreen"
         xmlns="http://www.w3.org/2000/svg"
         height="24"
         viewBox="0 0 24 24"

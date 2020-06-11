@@ -48,7 +48,7 @@ class Player extends React.Component {
 
 const PlaybackControls = (props) => {
   return (
-    <div className="flex justify-center -ml-3 -mr-4 text-white">
+    <div className="flex justify-center -ml-3 md:-mr-4 text-white">
       <LeftSkip />
       <PausePlay
         isPaused={props.isPaused}
@@ -58,6 +58,30 @@ const PlaybackControls = (props) => {
     </div>
   );
 };
+
+class PausePlay extends React.Component {
+  constructor(props) {
+    super(props);
+    this.handleClick = this.handleClick.bind(this);
+  }
+
+  handleClick() {
+    this.props.onPauseChange(this.props.isPaused); // calls function passed down from Player
+  } // lifts pause state to the player so it is accessible to other player components
+
+  render() {
+    const isPaused = this.props.isPaused;
+    return (
+      <button
+        onClick={this.handleClick}
+        className="rounded-full h-16 w-16 flex items-center"
+        type="button"
+      >
+        {isPaused ? <PlayIcon /> : <PauseIcon />}
+      </button>
+    );
+  }
+}
 
 class ProgressBar extends React.Component {
   constructor(props) {
@@ -103,30 +127,6 @@ class ProgressBar extends React.Component {
   }
 }
 
-class PausePlay extends React.Component {
-  constructor(props) {
-    super(props);
-    this.handleClick = this.handleClick.bind(this);
-  }
-
-  handleClick() {
-    this.props.onPauseChange(this.props.isPaused); // calls function passed down from Player
-  } // lifts pause state to the player so it is accessible to other player components
-
-  render() {
-    const isPaused = this.props.isPaused;
-    return (
-      <button
-        onClick={this.handleClick}
-        className="rounded-full h-16 w-16 flex items-center"
-        type="button"
-      >
-        {isPaused ? <PlayIcon /> : <PauseIcon />}
-      </button>
-    );
-  }
-}
-
 class VolumeSlider extends React.Component {
   /* Later on the value state of the slider will be lifted up so it can be referenced by the audio playing component. */
 
@@ -136,7 +136,7 @@ class VolumeSlider extends React.Component {
 
   render() {
     return (
-      <div className="flex items-center text-gray-500">
+      <div className="hidden lg:flex items-center text-gray-500">
         <svg
           className="w-4 h-4 mr-2 mt-2 stroke-current"
           fill="none"
@@ -182,8 +182,8 @@ const SongInfo = (props) => {
         src={props.song.coverUrl}
         alt="Album cover"
       />
-      <div className="flex flex-col ml-3 font-light text-gray-500">
-        <span className="text-white">{props.song.name}</span>
+      <div className="flex flex-col md:flex-row lg:flex-col ml-3 font-light text-gray-500">
+        <span className="text-white md:mr-2 lg:mr-none">{props.song.name}</span>
         <span>{props.song.artist}</span>
         <span>{props.song.album}</span>
       </div>
