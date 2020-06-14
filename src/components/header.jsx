@@ -21,8 +21,8 @@ const Header = () => {
                     </a>
                 </div>
                 <div className="flex mx-2">
-                    <ModalTrigger buttonText="Get a Link" />
-                    <ModalTrigger buttonText="Go Random" />
+                    <ModalTrigger buttonText="Get a Link" mobile={false}/>
+                    <ModalTrigger buttonText="Go Random" mobile={false}/>
                 </div>
             </div>
         </nav>

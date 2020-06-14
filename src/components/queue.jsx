@@ -23,7 +23,7 @@ const Queue = (props) => {
         <SwapIcon chatActive={false}/>
       </div>
 
-      <div className="overflow-y-scroll scrollbar w-full" style={{height: "88%"}}>
+      <div className="overflow-y-scroll scrollbar w-full" style={{height: "86%"}}>
         {songList}
       </div>
     </div>
