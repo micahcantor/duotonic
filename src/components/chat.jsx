@@ -87,7 +87,7 @@ class Chat extends React.Component {
           </p>
           <SwapIcon chatActive={true} />
         </div>
-        <div className="absolute overflow-y-auto w-full scrollbar" style={{ height: "80%" }}>
+        <div className="absolute overflow-y-auto w-full scrollbar" style={{ height: "78%" }}>
           <MessageList messages={this.state.messages} />
           <div className="flow-left clear-both"
             ref={(el) => {
@@ -149,18 +149,14 @@ const MessageList = (props) => {
   const messages = props.messages;
   var listItems = [];
 
-  /* this is ugly but I couldn't get map function to work, not sure why */
-  var i = 0;
-  for (const m of messages) {
-    listItems.push(
-      <li key={i}>
-        {" "}
+  listItems = messages.map((m, idx) => {
+    return (
+      <li key={idx}>
         <Message user={m.user} messageString={m.messageString} time={m.time} />
       </li>
     );
-    i++;
-  }
-
+  })
+  
   return <ul className="mt-2">{listItems}</ul>;
 };
 
