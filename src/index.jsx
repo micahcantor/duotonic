@@ -71,26 +71,6 @@ const data = {
         "https://upload.wikimedia.org/wikipedia/en/8/8d/Harvest_Moon_single.jpg",
       runtime: 180,
     },
-    {
-      name: "bad guy",
-      artist: "Billie Eillish",
-      coverUrl:
-        "https://vignette.wikia.nocookie.net/wherearetheavocados/images/0/06/DyGkj-cU0AAGLH-.jpeg/revision/latest?cb=20190525003458",
-      runtime: 180,
-    },
-    {
-      name: "FACE",
-      artist: "Brockhampton",
-      coverUrl:
-        "https://images.genius.com/63f4ae252959cf8e0fbbee735bba6bcd.1000x1000x1.jpg",
-      runtime: 180,
-    },
-    {
-      name: "Money",
-      artist: "Pink Floyd",
-      coverUrl: "https://miro.medium.com/proxy/1*8FkvzbSdSJ4HNxtuZo5kLg.jpeg",
-      runtime: 180,
-    },
     
   ],
 };
