@@ -11,10 +11,10 @@ const Yar = require('@hapi/yar');
 const RequireHttps = require('hapi-require-https');
 const Axios = require('axios');
 
-const tls = {
+/* const tls = {
     cert: Fs.readFileSync(Path.resolve(__dirname, '../ssl/localhost.crt')),
     key: Fs.readFileSync(Path.resolve(__dirname, '../ssl/localhost.key'))
-};
+}; */
 
 const requestSpotify = (endpoint, method, query, accessToken) => {
 
@@ -30,8 +30,7 @@ const init = async () => {
 
     const server = Hapi.server({
         host: process.env.HOST,
-        port: process.env.PORT,
-        tls
+        port: process.env.PORT
     });
 
     await server.register([Bell, RequireHttps,
@@ -67,7 +66,6 @@ const init = async () => {
                 }
 
                 request.yar.set('spotify', request.auth.credentials);
-
                 return h.redirect('/');
             }
         }
