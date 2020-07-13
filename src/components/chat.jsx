@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import React from "react";
-import SwapIcon from "./swap.jsx.js.js";
+import SwapIcon from "./swap.jsx";
 import "../styles.css";
 
 class Chat extends React.Component {

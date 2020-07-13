@@ -3,11 +3,11 @@ import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import "./styles.css";
 
-import SearchBar from "./components/searchbar.jsx.js";
-import Player from "./components/player.jsx.js";
-import Queue from "./components/queue.jsx.js";
-import Chat from "./components/chat.jsx.js";
-import Header from "./components/header.jsx.js";
+import SearchBar from "./components/searchbar.jsx";
+import Player from "./components/player.jsx";
+import Queue from "./components/queue.jsx";
+import Chat from "./components/chat.jsx";
+import Header from "./components/header.jsx";
 
 const data = {
   songs: [

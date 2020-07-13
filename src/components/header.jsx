@@ -1,5 +1,5 @@
 import React from "react";
-import ModalTrigger from "./modal.jsx.js.js";
+import ModalTrigger from "./modal.jsx";
 import "../styles.css";
 
 const Header = () => {

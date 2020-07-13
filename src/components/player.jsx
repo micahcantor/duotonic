@@ -2,7 +2,7 @@
 /* eslint-disable prefer-destructuring */
 import React, { useState } from "react";
 import "../styles.css";
-import SongInfo from "./song_info.jsx.js.js"
+import SongInfo from "./song_info.jsx"
 import { SliderInput, SliderTrack, SliderTrackHighlight, SliderHandle, } from "@reach/slider";
 import "../slider_styles.css";
 

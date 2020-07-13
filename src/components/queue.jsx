@@ -3,8 +3,8 @@
 /* eslint-disable arrow-body-style */
 
 import React from "react";
-import SwapIcon from "./swap.jsx.js.js";
-import SongInfo from "./song_info.jsx.js.js"
+import SwapIcon from "./swap.jsx";
+import SongInfo from "./song_info.jsx"
 import "../styles.css";
 
 const Queue = (props) => {

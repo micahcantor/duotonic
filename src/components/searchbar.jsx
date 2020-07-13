@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import React, { useState } from "react";
-import SongInfo from "./song_info.jsx.js.js"
+import SongInfo from "./song_info.jsx"
 import "../styles.css";
 
 class SearchBar extends React.Component {
