@@ -8,6 +8,12 @@ module.exports = {
             width: {
                 '9/10': '90%'
             },
+            height: {
+                '85': '85%'
+            },
+            gridTemplateRows: {
+                'pancake': 'auto 1fr auto'
+            },
         },
         maxHeight: {
             '1/3': '33%',

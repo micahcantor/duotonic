@@ -1,12 +1,13 @@
-import React from "react";
+/* eslint-disable react/prop-types */
+import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import "./styles.css";
 
-import SearchBar from "./components/searchbar.jsx";
-import Player from "./components/player.jsx";
-import Queue from "./components/queue.jsx";
-import Chat from "./components/chat.jsx";
-import Header from "./components/header.jsx";
+import SearchBar from "./components/searchbar.jsx.js";
+import Player from "./components/player.jsx.js";
+import Queue from "./components/queue.jsx.js";
+import Chat from "./components/chat.jsx.js";
+import Header from "./components/header.jsx.js";
 
 const data = {
   songs: [
@@ -17,76 +18,34 @@ const data = {
         "https://upload.wikimedia.org/wikipedia/en/8/8d/Harvest_Moon_single.jpg",
       runtime: 180,
     },
-    {
-      name: "bad guy",
-      artist: "Billie Eillish",
-      coverUrl:
-        "https://vignette.wikia.nocookie.net/wherearetheavocados/images/0/06/DyGkj-cU0AAGLH-.jpeg/revision/latest?cb=20190525003458",
-      runtime: 180,
-    },
-    {
-      name: "FACE",
-      artist: "Brockhampton",
-      coverUrl:
-        "https://images.genius.com/63f4ae252959cf8e0fbbee735bba6bcd.1000x1000x1.jpg",
-      runtime: 180,
-    },
-    {
-      name: "Money",
-      artist: "Pink Floyd",
-      coverUrl: "https://miro.medium.com/proxy/1*8FkvzbSdSJ4HNxtuZo5kLg.jpeg",
-      runtime: 180,
-    },
-    {
-      name: "Harvest Moon",
-      artist: "Neil Young",
-      coverUrl:
-        "https://upload.wikimedia.org/wikipedia/en/8/8d/Harvest_Moon_single.jpg",
-      runtime: 180,
-    },
-    {
-      name: "bad guy",
-      artist: "Billie Eillish",
-      coverUrl:
-        "https://vignette.wikia.nocookie.net/wherearetheavocados/images/0/06/DyGkj-cU0AAGLH-.jpeg/revision/latest?cb=20190525003458",
-      runtime: 180,
-    },
-    {
-      name: "FACE",
-      artist: "Brockhampton",
-      coverUrl:
-        "https://images.genius.com/63f4ae252959cf8e0fbbee735bba6bcd.1000x1000x1.jpg",
-      runtime: 180,
-    },
-    {
-      name: "Money",
-      artist: "Pink Floyd",
-      coverUrl: "https://miro.medium.com/proxy/1*8FkvzbSdSJ4HNxtuZo5kLg.jpeg",
-      runtime: 180,
-    },
-    {
-      name: "Harvest Moon",
-      artist: "Neil Young",
-      coverUrl:
-        "https://upload.wikimedia.org/wikipedia/en/8/8d/Harvest_Moon_single.jpg",
-      runtime: 180,
-    },
-    
   ],
 };
 
-const PlayerPage = (props) => {
+const PlayerPage = () => {
+  const [songs, updateSongs] = useState([]);
+  const songInQueue = songs.length > 0; // bool that is true if there is a song in the queue
+
+  const onAdd = (e) => {
+    const parentNode = e.target.closest("#result-parent").firstChild
+    const newQueueItem = {
+      name: parentNode.children[1].children[0].innerText,
+      artist: parentNode.children[1].children[1].innerText,
+      coverUrl: parentNode.children[0].src
+    };
+    updateSongs(songs.concat(newQueueItem));
+  }
+  
   return (
-    <div className="text-white w-screen h-screen bg-gray-900">
-        <Header />
-        <div className="container mx-auto p-5" style={{height: '65%'}}>
-            <SearchBar />
-            <div className="flex h-full">
-              <Queue songs={props.songs} />
-              <Chat />
-            </div>
-        </div>
-        <Player song={props.songs[0]} />
+    <div className="grid grid-rows-pancake text-white w-screen h-screen bg-gray-900 overflow-hidden">
+      <Header />
+      <div className="container mx-auto p-5 overflow-y-scroll">
+          <SearchBar onAdd={onAdd}/>
+          <div className="flex h-85">
+            <Queue songs={songs} />
+            <Chat />
+          </div>
+      </div>
+      <Player songInQueue={songInQueue} song={songs[0]} />
     </div>
   );
 };

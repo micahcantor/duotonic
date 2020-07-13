@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import React from "react";
-import SwapIcon from "./swap.jsx";
+import SwapIcon from "./swap.jsx.js.js";
 import "../styles.css";
 
 class Chat extends React.Component {
@@ -62,6 +62,7 @@ class Chat extends React.Component {
       console.log("message sent to server");
 
       this.addMessage(message);
+      document.getElementById("chat-input").value = "";
     }
   }
 
@@ -82,12 +83,12 @@ class Chat extends React.Component {
     return (
       <div id="chat" className="relative hidden md:block bg-gray-800 w-full h-full rounded shadow-lg">
         <div className="flex border-b-2 border-gray-500">
-          <p className="uppercase tracking-wider font-mono p-3">
+          <p className="text-lg uppercase tracking-wider font-mono p-3">
             Chat
           </p>
           <SwapIcon chatActive={true} />
         </div>
-        <div className="absolute overflow-y-auto w-full scrollbar" style={{ height: "78%" }}>
+        <div className="absolute overflow-y-auto w-full scrollbar" style={{ height: "75%" }}>
           <MessageList messages={this.state.messages} />
           <div className="flow-left clear-both"
             ref={(el) => {
@@ -101,43 +102,31 @@ class Chat extends React.Component {
   }
 }
 
-class ChatInput extends React.Component {
-  constructor(props) {
-    super(props);
-    this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
+const ChatInput = (props) => {
+
+  const handleChange = (e) => {
+    props.onChange(e.target.value);
   }
 
-  handleChange(e) {
-    this.props.onChange(e.target.value);
+  const handleSubmit = (e) => {
+    props.onSubmit(e);
   }
 
-  handleSubmit(e) {
-    this.props.onSubmit(e);
-  }
-
-  render() {
-    return (
-      <form onSubmit={this.handleSubmit} className="absolute inset-x-0 bottom-0 mb-3 w-full flex justify-center items-center">
-        <input type="text" onChange={this.handleChange} placeholder="Send a message"
-          className="transition-colors duration-200 ease-in-out bg-gray-200 appearance-none border-2 border-transparent rounded h-8 w-9/10 px-4 ml-2 mr-3 text-gray-700 leading-tight focus:outline-none hover:bg-white focus:border-green-400"      
-        />
-        <SendButton />
-      </form>
-    );
-  }
+  return (
+    <form onSubmit={handleSubmit} className="absolute inset-x-0 bottom-0 mb-3 w-full flex justify-center items-center">
+      <input id="chat-input" type="text" onChange={handleChange} placeholder="Send a message"
+        className="transition-colors duration-200 ease-in-out bg-gray-200 appearance-none border-2 border-transparent rounded h-8 w-9/10 px-4 ml-2 mr-3 text-gray-700 leading-tight focus:outline-none hover:bg-white focus:border-green-400"      
+      />
+      <SendButton />
+    </form>
+  );
+  
 }
 
 const SendButton = () => {
   return (
     <button type="button">
-      <svg
-        className="fill-current mr-2 hover:text-customgreen"
-        xmlns="http://www.w3.org/2000/svg"
-        height="24"
-        viewBox="0 0 24 24"
-        width="24"
-      >
+      <svg className="fill-current mr-2 hover:text-customgreen" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
         <path d="M0 0h24v24H0z" fill="none" />
         <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
       </svg>
