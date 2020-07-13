@@ -7,14 +7,16 @@ const Fs = require('fs');
 const Hapi = require('@hapi/hapi');
 const Boom = require('@hapi/boom');
 const Bell = require('@hapi/bell');
-const Yar = require('@hapi/yar');
 const RequireHttps = require('hapi-require-https');
 const Axios = require('axios');
+const ObjectId = require('mongodb').ObjectId;
 
-const tls = {
+const loadDB = require('./db');
+
+const tls = (process.env.TLS_ENABLED === 'true') ? {
     cert: Fs.readFileSync(Path.resolve(__dirname, '../ssl/localhost.crt')),
     key: Fs.readFileSync(Path.resolve(__dirname, '../ssl/localhost.key'))
-};
+} : undefined;
 
 const requestSpotify = (endpoint, method, query, accessToken) => {
 
@@ -28,22 +30,41 @@ const requestSpotify = (endpoint, method, query, accessToken) => {
 
 const init = async () => {
 
+    const db = await loadDB();
+
+    /* Uncomment to reset collection on start.
+    try {
+        await db.dropCollection('sessions');
+    }
+    catch (err) {
+    }
+    */
+
     const server = Hapi.server({
         host: process.env.HOST,
         port: process.env.PORT,
-        tls
-    });
-
-    await server.register([Bell, RequireHttps,
-        {
-            plugin: Yar,
-            options: {
-                cookieOptions: {
-                    password: process.env.COOKIE_PASSWORD
-                }
+        tls: (process.env.TLS_ENABLED === 'true') ? tls : false,
+        routes: {
+            cors: {
+                origin: ['*'],
+                credentials: true
             }
         }
-    ]);
+    });
+
+    server.state('sessionId', {
+        ttl: null,
+        isSecure: (process.env.TLS_ENABLED === 'true'),
+        isHttpOnly: true,
+        path: '/',
+        domain: process.env.HOST
+    });
+
+    await server.register(Bell);
+
+    if (process.env.TLS_ENABLED === 'true') {
+        await server.register(RequireHttps);
+    }
 
     server.auth.strategy('spotify', 'bell', {
         provider: 'spotify',
@@ -60,30 +81,20 @@ const init = async () => {
                 mode: 'try',
                 strategy: 'spotify'
             },
-            handler: function (request, h) {
+            handler: async function (request, h) {
 
                 if (!request.auth.isAuthenticated) {
-                    return h.redirect('/login');
+                    throw Boom.unauthorized();
                 }
 
-                request.yar.set('spotify', request.auth.credentials);
-
-                return h.redirect('/');
-            }
-        }
-    });
-
-    server.route({
-        method: ['GET'],
-        path: '/login',
-        options: {
-            handler: function (request, h) {
-
-                if (!request.yar.get('spotify')) {
-                    return '<form action="/auth/spotify" method="post"><button name="login" value="login">Login</button></form>';
+                const result = await db.collection('sessions').insertOne({ auth: request.auth });
+                if (result) {
+                    const id = result.ops[0]._id.toString();
+                    h.state('sessionId', id);
+                    return { sessionId: id };
                 }
 
-                return h.redirect('/');
+                throw Boom.badImplementation();
             }
         }
     });
@@ -94,17 +105,24 @@ const init = async () => {
         options: {
             handler: async function (request, h) {
 
-                if (!request.yar.get('spotify')) {
-                    return h.redirect('/login');
+                if (!request.state.sessionId) {
+                    throw Boom.unauthorized('Must have a session cookie.');
                 }
 
-                try {
-                    const response = await requestSpotify(request.params.endpoint, 'get', request.query, request.yar.get('spotify').token);
-                    return await JSON.stringify(response.data);
+                const id = ObjectId(request.state.sessionId);
+                const result = await db.collection('sessions').findOne({ _id: id });
+                if (result) {
+                    try {
+                        const token = result.auth.credentials.token;
+                        const response = await requestSpotify(request.params.endpoint, 'get', request.query, token);
+                        return await JSON.stringify(response.data);
+                    }
+                    catch (error) {
+                        throw Boom.badRequest('Third-party API request failed.');
+                    }
                 }
-                catch (error) {
-                    throw Boom.badRequest();
-                }
+
+                throw Boom.unauthorized('Session ID not found in database.');
             }
         }
     });
@@ -114,7 +132,7 @@ const init = async () => {
         path: '/',
         handler: (request, h) => {
 
-            return request.yar.id;
+            return 'Pass the Aux API';
         }
     });
 
