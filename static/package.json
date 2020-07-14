@@ -1,0 +1,20 @@
+{
+  "name": "static",
+  "version": "1.0.0",
+  "description": "landing page for pass the aux",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "postcss src/tailwind.css -o static/dist/tailwind.css",
+    "watch": "watch 'npm run build' ./src"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@fullhuman/postcss-purgecss": "^2.3.0",
+    "autoprefixer": "^9.8.5",
+    "cssnano": "^4.1.10",
+    "tailwindcss": "^1.4.6",
+    "watch": "^1.0.2"
+  }
+}
