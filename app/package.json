@@ -19,6 +19,7 @@
     "devDependencies": {
         "@babel/cli": "^7.8.4",
         "@babel/core": "^7.9.6",
+        "@babel/plugin-transform-runtime": "^7.10.4",
         "@babel/preset-env": "^7.9.6",
         "@babel/preset-react": "^7.9.4",
         "autoprefixer": "^9.8.0",
@@ -48,8 +49,10 @@
     "dependencies": {
         "@reach/dialog": "^0.10.3",
         "@reach/slider": "^0.10.3",
+        "core-js": "^3.6.5",
         "react": "^16.13.1",
         "react-dom": "^16.13.1",
+        "regenerator-runtime": "^0.13.5",
         "tailwindcss": "^1.4.6"
     }
 }
