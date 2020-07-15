@@ -26,12 +26,12 @@ const PlayerPage = () => {
   return (
     <div className="grid grid-rows-pancake text-white w-screen h-screen bg-gray-900 overflow-hidden">
       <Header />
-      <div className="container mx-auto p-5 overflow-y-scroll">
-          <SearchBar onAdd={onAdd}/>
-          <div className="flex h-85">
-            <Queue songs={songs} />
-            <Chat />
-          </div>
+      <div className="container mx-auto p-5 overflow-y-auto">
+        <SearchBar onAdd={onAdd}/>
+        <div className="flex h-85">
+          <Queue songs={songs} />
+          <Chat />
+        </div>
       </div>
       <Player songInQueue={songInQueue} song={songs[0]} />
     </div>

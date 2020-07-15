@@ -16,22 +16,20 @@ const Player = (props) => {
 
   return (
     <div className="flex overflow-hidden flex-col border-t-2 border-gray-500 bg-gray-900 h-22">
-      <div
-        className="flex mx-auto mt-2 justify-between items-center"
-        style={{ width: "95%" }}
-      >
-        {props.songInQueue ? <SongInfo className="w-1/3 px-2" song={props.song} /> : null}
-        <PlaybackControls
-          className="w-1/3 px-2"
-          isPaused={isPaused} // same isPaused bool is sent to PlaybackControls and progress bar
-          onPauseChange={handlePauseChange}
-        />
-        <VolumeSlider className="w-1/3 px-2" />
+      <div className="flex relative mx-auto mt-1 items-center" style={{ width: "95%" }}>
+        <div className="absolute left-0">
+          {props.songInQueue 
+            ? <SongInfo song={props.song} /> 
+            : null
+          }
+        </div>
+        <PlaybackControls isPaused={isPaused} onPauseChange={handlePauseChange} songInQueue={props.songInQueue}/>
+        <VolumeSlider />
       </div>
-      {props.songInQueue ? <ProgressBar
-        isPaused={isPaused} // same state sent to PlaybackConrols
-        runtime={props.song.runtime}
-      /> : null}
+      {props.songInQueue 
+        ? <ProgressBar isPaused={isPaused} runtime={props.song.runtime}/> 
+        : null
+      }
     </div>
   );
 
@@ -39,12 +37,9 @@ const Player = (props) => {
 
 const PlaybackControls = (props) => {
   return (
-    <div className="flex justify-center -ml-3 md:-mr-4 text-white">
+    <div className={`flex justify-center text-white ${props.songInQueue ? "mx-auto" : ""}`}>
       <LeftSkip />
-      <PausePlay
-        isPaused={props.isPaused}
-        onPauseChange={props.onPauseChange}
-      />
+      <PausePlay isPaused={props.isPaused} onPauseChange={props.onPauseChange} />
       <RightSkip />
     </div>
   );
@@ -56,11 +51,7 @@ const PausePlay = (props) => {
   } // lifts pause state to the player so it is accessible to other player components
 
   return (
-    <button
-      onClick={handleClick}
-      className="rounded-full h-16 w-16 flex items-center"
-      type="button"
-    >
+    <button onClick={handleClick} className="rounded-full h-16 w-16 flex items-center" type="button" >
       {props.isPaused ? <PlayIcon /> : <PauseIcon />}
     </button>
   );
@@ -99,10 +90,7 @@ class ProgressBar extends React.Component {
 
     return (
       <div className="flex shadow w-full h-2 bg-grey-light">
-        <div
-          className="bg-customgreen leading-none py-1 rounded"
-          style={{ width: progress + "%" }}
-        >
+        <div className="bg-customgreen leading-none py-1 rounded" style={{ width: progress + "%" }} >
           {" "}
         </div>
       </div>
@@ -119,7 +107,7 @@ class VolumeSlider extends React.Component {
 
   render() {
     return (
-      <div className="hidden lg:flex items-center text-gray-500">
+      <div className="hidden lg:flex items-center text-gray-500 absolute right-0">
         <svg
           className="w-4 h-4 mr-2 mt-2 stroke-current" fill="none" strokeLinecap="round"
           strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24"
@@ -186,10 +174,7 @@ const RightSkip = () => {
 const LeftSkip = () => {
   return (
     <button type="button">
-      <svg
-        className="w-12 h-12 stroke-current hover:text-customgreen" fill="none" strokeLinecap="round"
-        strokeLinejoin="round" strokeWidth=".75" viewBox="0 0 24 24"
-      >
+      <svg className="w-12 h-12 stroke-current hover:text-customgreen" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth=".75" viewBox="0 0 24 24" >
         <path d="M15 19l-7-7 7-7"></path>
       </svg>
     </button>

@@ -51,9 +51,12 @@ class SearchBar extends React.Component {
   render() {
     return (
       <>
-        <input id="search-input" type="text" placeholder="Song search" onChange={this.handleChange} 
-          className="transition-colors duration-200 ease-in-out bg-gray-200 appearance-none border-2 border-transparent rounded w-full mb-5 py-3 px-4 text-gray-700 leading-tight focus:outline-none hover:bg-white focus:border-green-400"  
-        />
+        <div className="relative">
+          <input id="search-input" type="text" placeholder="Song search" onChange={this.handleChange} 
+              className="transition-colors duration-200 ease-in-out bg-gray-200 appearance-none border-2 border-transparent rounded w-full mb-5 py-3 px-4 text-gray-700 leading-tight focus:outline-none hover:bg-white focus:border-green-400"  
+          />
+          <CloseButton onClick={this.closeResults}/>
+        </div>
         <SearchResults show={this.state.showResults} songs={this.state.searchResults} onAdd={this.props.onAdd} closeResults={this.closeResults}/>
       </>
     );
@@ -67,7 +70,7 @@ const SearchResults = (props) => {
 
   if (props.show) {
     return (
-      <div className="rounded bg-gray-800 w-full h-full overflow-y-scroll mb-4 -mt-5">
+      <div className="z-10 rounded bg-gray-800 w-full h-full overflow-y-auto mb-4 -mt-5">
         {resultList}
       </div>
     )
@@ -93,7 +96,7 @@ const SearchItem = (props) => {
 const CloseButton = (props) => {
   return (
     <button type="button" onClick={props.onClick}>
-      <svg className="stroke-current hover:text-customgreen w-6 h-6 mr-6" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24">
+      <svg className="text-black stroke-current hover:text-customgreen w-6 h-6 m-3 absolute top-0 right-0" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24">
         <path d="M6 18L18 6M6 6l12 12"></path>
       </svg>
     </button>
