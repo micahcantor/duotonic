@@ -6,7 +6,7 @@ import "../styles.css";
 class SearchBar extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { searchResults: [], showResults: false };
+    this.state = { searchResults: [], showResults: false, currentTimer: null };
     this.closeResults = this.closeResults.bind(this);
     this.handleChange = this.handleChange.bind(this);
   }
@@ -16,6 +16,7 @@ class SearchBar extends React.Component {
     const url = api + encodeURIComponent(query) + "&type=track&limit=10";
     const response = await fetch(url, { credentials: "include" });
     const json = await response.json();
+    console.log("response received for " + query)
     return json;
   }
 
@@ -37,15 +38,35 @@ class SearchBar extends React.Component {
   }
 
   async handleChange(e) {
+
+    // show the search results box is not empty
     const initial = e.target.value;
     if (initial.length > 0) {
       this.setState({ showResults: true })
     } else {
       this.setState({ searchResults: [], showResults: false })
     }
-    const response = await this.searchSpotify(initial);
-    this.handleSearchResults(response);
 
+    // clear the timer currently held in state, if it exists
+    // this prevents multiple requests within 1 second being sent to the search api
+    if (this.state.currentTimer != null) {
+      console.log("clearing timer " + this.state.currentTimer)
+      clearTimeout(this.state.currentTimer)
+    }
+    
+    // set a new timerID in state
+    // timeout function executes search query to api after 1 second delay
+    // this means the search is sent 1 second after the last letter is typed
+    this.setState({
+      currentTimer: setTimeout(async () => {
+        const query = document.getElementById("search-input").value
+        if (query != "") {
+          const response = await this.searchSpotify(query);
+          this.handleSearchResults(response);
+        }
+      }, 1000)
+    });
+    
   }
 
   render() {
