@@ -94,8 +94,8 @@ const SearchResults = (props) => {
 
   if (props.show) {
     return (
-      <div className={`relative z-0 rounded bg-gray-800 w-full h-full overflow-y-auto mb-4 -mt-5 flex flex-col items-center ${props.loading ? "justify-center" : ""}`}>
-        <ScaleLoader height="150" width="12" color="#1DB954" loading={props.loading} />
+      <div className={`relative z-0 rounded bg-gray-800 w-full h-full overflow-y-auto mb-4 -mt-5 text-center`}>
+        <ScaleLoader css="margin-top: -20px; margin-bottom: -20px" height="50" width="8" color="#1DB954" loading={props.loading} />
         {resultList}
       </div>
     )
@@ -111,7 +111,7 @@ const SearchItem = (props) => {
   }
 
   return (
-    <div id="result-parent" className="border-b-2 border-gray-600 hover:border-customgreen p-3 w-full flex justify-between items-center">
+    <div id="result-parent" className="text-left border-b-2 border-gray-600 hover:border-customgreen p-3 w-full flex justify-between items-center">
       <SongInfo id="info" className="ml-2" song={props.song} />
       {inQueue ? <CheckMark /> : <AddButton onClick={handleClick} />}
     </div>
