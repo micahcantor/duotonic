@@ -113,11 +113,13 @@ const ChatInput = (props) => {
   }
 
   return (
-    <form autoComplete="off" onSubmit={handleSubmit} className="absolute inset-x-0 bottom-0 mb-3 w-full flex justify-center items-center">
-      <input id="chat-input" type="text" onChange={handleChange} placeholder="Send a message"
-        className="transition-colors duration-200 ease-in-out bg-gray-200 appearance-none border-2 border-transparent rounded h-8 w-9/10 px-4 ml-2 mr-3 text-gray-700 leading-tight focus:outline-none hover:bg-white focus:border-green-400"      
-      />
-      <SendButton />
+    <form autoComplete="off" onSubmit={handleSubmit} className="absolute inset-x-0 bottom-0 mb-3 mx-auto" style={{width: '95%'}}>
+      <div className="relative w-full">
+        <input id="chat-input" type="text" onChange={handleChange} placeholder="Send a message"
+          className="transition-colors duration-200 ease-in-out bg-gray-200 appearance-none border-2 border-transparent rounded h-8 w-full px-2 leading-tight focus:outline-none hover:bg-white focus:border-green-400"      
+        />
+        <SendButton />
+      </div>
     </form>
   );
   
@@ -125,7 +127,7 @@ const ChatInput = (props) => {
 
 const SendButton = () => {
   return (
-    <button type="button">
+    <button type="button" className="absolute right-0 text-black mt-1">
       <svg className="fill-current mr-2 hover:text-customgreen" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
         <path d="M0 0h24v24H0z" fill="none" />
         <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
@@ -136,9 +138,8 @@ const SendButton = () => {
 
 const MessageList = (props) => {
   const messages = props.messages;
-  var listItems = [];
 
-  listItems = messages.map((m, idx) => {
+  var listItems = messages.map((m, idx) => {
     return (
       <li key={idx}>
         <Message user={m.user} messageString={m.messageString} time={m.time} />
