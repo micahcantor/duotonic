@@ -1,12 +1,13 @@
 /* eslint-disable react/prop-types */
 import React, { useState } from "react";
-import SongInfo from "./song_info.jsx"
+import SongInfo from "./song_info.jsx";
+import ScaleLoader from "react-spinners/ScaleLoader";
 import "../styles.css";
 
 class SearchBar extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { searchResults: [], showResults: false, currentTimer: null };
+    this.state = { searchResults: [], showResults: false, currentTimer: null, loading: false };
     this.closeResults = this.closeResults.bind(this);
     this.handleChange = this.handleChange.bind(this);
   }
@@ -38,7 +39,7 @@ class SearchBar extends React.Component {
   }
 
   async handleChange(e) {
-
+    this.setState({loading: true})
     // show the search results box is not empty
     const initial = e.target.value;
     if (initial.length > 0) {
@@ -64,7 +65,9 @@ class SearchBar extends React.Component {
           const response = await this.searchSpotify(query);
           this.handleSearchResults(response);
         }
-      }, 1000)
+
+        this.setState({loading: false})
+      }, 750)
     });
     
   }
@@ -72,13 +75,13 @@ class SearchBar extends React.Component {
   render() {
     return (
       <>
-        <div className="relative">
+        <div className="relative z-20">
           <input id="search-input" type="text" placeholder="Song search" onChange={this.handleChange} 
-              className="transition-colors duration-200 ease-in-out bg-gray-200 appearance-none border-2 border-transparent rounded w-full mb-5 py-3 px-4 text-gray-700 leading-tight focus:outline-none hover:bg-white focus:border-green-400"  
+              className="transition-colors duration-200 ease-in-out bg-gray-200 appearance-none border-2 border-transparent rounded w-full mb-4 py-3 px-4 text-gray-700 leading-tight focus:outline-none hover:bg-white focus:border-green-400"  
           />
           <CloseButton onClick={this.closeResults}/>
         </div>
-        <SearchResults show={this.state.showResults} songs={this.state.searchResults} onAdd={this.props.onAdd} closeResults={this.closeResults}/>
+        <SearchResults show={this.state.showResults} songs={this.state.searchResults} onAdd={this.props.onAdd} closeResults={this.closeResults} loading={this.state.loading}/>
       </>
     );
   }
@@ -91,7 +94,8 @@ const SearchResults = (props) => {
 
   if (props.show) {
     return (
-      <div className="z-10 rounded bg-gray-800 w-full h-full overflow-y-auto mb-4 -mt-5">
+      <div className={`relative z-0 rounded bg-gray-800 w-full h-full overflow-y-auto mb-4 -mt-5 flex flex-col items-center ${props.loading ? "justify-center" : ""}`}>
+        <ScaleLoader height="150" width="12" color="#1DB954" loading={props.loading} />
         {resultList}
       </div>
     )
