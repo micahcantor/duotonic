@@ -13,6 +13,7 @@
   bottom: 0;
   left: 0;
   overflow: auto;
+  z-index: 100;
 }
 
 [data-reach-dialog-content] {
