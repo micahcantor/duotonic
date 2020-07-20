@@ -79,7 +79,7 @@ class SearchBar extends React.Component {
           <input id="search-input" type="text" placeholder="Song search" onChange={this.handleChange} 
               className="transition-colors duration-200 ease-in-out bg-gray-200 appearance-none border-2 border-transparent rounded w-full mb-4 py-3 px-4 text-gray-700 leading-tight focus:outline-none hover:bg-white focus:border-green-400"  
           />
-          <CloseButton onClick={this.closeResults}/>
+          <CloseButton onClick={this.closeResults} showResults={this.state.showResults}/>
         </div>
         <SearchResults show={this.state.showResults} songs={this.state.searchResults} onAdd={this.props.onAdd} closeResults={this.closeResults} loading={this.state.loading}/>
       </>
@@ -119,9 +119,10 @@ const SearchItem = (props) => {
 }
 
 const CloseButton = (props) => {
+  const shouldDisplay = props.showResults ? "block" : "hidden"
   return (
-    <button type="button" onClick={props.onClick}>
-      <svg className="text-black stroke-current hover:text-customgreen w-6 h-6 m-3 absolute top-0 right-0" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24">
+    <button className={`${shouldDisplay}`} type="button" onClick={props.onClick}>
+      <svg className="text-black stroke-current hover:text-customgreen w-6 h-6 my-3 mr-6 absolute top-0 right-0" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24">
         <path d="M6 18L18 6M6 6l12 12"></path>
       </svg>
     </button>
