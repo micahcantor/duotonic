@@ -9,12 +9,14 @@ class Chat extends React.Component {
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.state = { value: "", messages: [] };
-    this.user = "Anonymous";
+    this.username = "Anonymous";
     this.wsURL = "ws://localhost:3030";
     this.ws = new WebSocket(this.wsURL);
+    this.messageList = null;
   }
 
   componentDidMount() {
+    this.messageList = document.getElementById("messageList");
     this.scrollToBottom(); // scroll to bottom of messages
 
     this.ws.onopen = () => {
@@ -53,7 +55,7 @@ class Chat extends React.Component {
       const timeFormatted =
         timeSent[0].substring(0, timeSent[0].length - 3) + " " + timeSent[1];
       const message = {
-        user: this.user,
+        user: this.username,
         messageString: this.state.value,
         time: timeFormatted,
       };
@@ -62,7 +64,9 @@ class Chat extends React.Component {
       console.log("message sent to server");
 
       this.addMessage(message);
+
       document.getElementById("chat-input").value = "";
+      this.setState({value: ""})
     }
   }
 
@@ -75,8 +79,8 @@ class Chat extends React.Component {
   }
 
   scrollToBottom() {
-    /* Utility function that scrolls to dummy div at the bottom of the message list */
-    this.messagesEnd.scrollIntoView({ behavior: "smooth" });
+    /* Utility function that scrolls to the bottom of the message list */
+    this.messageList.scrollTop = this.messageList.scrollHeight;
   }
 
   render() {
@@ -88,13 +92,8 @@ class Chat extends React.Component {
           </p>
           <SwapIcon chatActive={true} />
         </div>
-        <div className="absolute overflow-y-auto w-full scrollbar" style={{ height: "75%" }}>
+        <div id="messageList" className="absolute overflow-y-auto w-full scrollbar" style={{ height: "75%" }}>
           <MessageList messages={this.state.messages} />
-          <div className="flow-left clear-both"
-            ref={(el) => {
-              this.messagesEnd = el;
-            }}
-          ></div>
         </div>
         <ChatInput onChange={this.handleChange} onSubmit={this.handleSubmit} />
       </div>
@@ -116,7 +115,7 @@ const ChatInput = (props) => {
     <form autoComplete="off" onSubmit={handleSubmit} className="absolute inset-x-0 bottom-0 mb-3 mx-auto" style={{width: '95%'}}>
       <div className="relative w-full">
         <input id="chat-input" type="text" onChange={handleChange} placeholder="Send a message"
-          className="transition-colors duration-200 ease-in-out bg-gray-200 appearance-none border-2 border-transparent rounded h-8 w-full px-2 leading-tight focus:outline-none hover:bg-white focus:border-green-400"      
+          className="text-black transition-colors duration-200 ease-in-out bg-gray-200 appearance-none border-2 border-transparent rounded h-8 w-full px-2 leading-tight focus:outline-none hover:bg-white focus:border-green-400"      
         />
         <SendButton />
       </div>
