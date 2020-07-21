@@ -48,8 +48,22 @@ const refreshAccessToken = async (db, id) => {
             'Authorization': `Basic ${credsBase64}`
         }
     });
-    
+
     return response.data.access_token;
+}
+
+const shouldRefreshToken = async (db, id) => {
+
+    const sessionInfo = await db.collection('sessions').findOne({_id: id });
+    const last_update = sessionInfo.last_update;
+    const current_time = new Date().getTime();
+    const ONE_HOUR = 3600 * 1000;
+
+    if (current_time - last_update > ONE_HOUR) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 const init = async () => {
@@ -112,7 +126,11 @@ const init = async () => {
                     throw Boom.unauthorized();
                 }
 
-                const result = await db.collection('sessions').insertOne({ auth: request.auth });
+                const result = await db.collection('sessions').insertOne({ 
+                    auth: request.auth,
+                    last_update: new Date()  
+                });
+
                 if (result) {
                     const id = result.ops[0]._id.toString();
                     h.state('sessionId', id);
@@ -134,8 +152,20 @@ const init = async () => {
                     throw Boom.unauthorized('Must have a session cookie.');
                 }
                 
+                var token;
                 const id = ObjectId(request.state.sessionId);
-                const token = await refreshAccessToken(db, id);
+                const current_time = new Date().getTime();
+                const shouldRefresh = await shouldRefreshToken(db, id);
+                if (shouldRefresh) {
+                    token = await refreshAccessToken(db, id);
+                    await db.collection('sessions').updateOne({ _id: id }, { $set: {last_update: current_time} })
+                    console.log("refreshed access token")
+                } else {
+                    const sessionInfo = await db.collection('sessions').findOne({ _id: id });
+                    token = sessionInfo.auth.artifacts.access_token;
+                    console.log("got access token")
+                }
+
                 if (token) {
                     try {
                         const response = await requestSpotify(request.params.endpoint, 'get', request.query, token);
