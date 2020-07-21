@@ -13,11 +13,10 @@
     "@hapi/bell": "^12.0.1",
     "@hapi/boom": "^9.1.0",
     "@hapi/hapi": "^19.1.1",
-    "@hapi/joi": "^17.1.1",
-    "@hapi/yar": "^10.1.0",
     "axios": "^0.19.2",
     "dotenv": "^8.2.0",
     "hapi-require-https": "^5.0.0",
+    "mongodb": "^3.5.9",
     "qs": "^6.9.4"
   },
   "devDependencies": {
