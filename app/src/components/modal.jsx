@@ -1,67 +1,19 @@
+/* eslint-disable react/prop-types */
 import React from "react";
 import "../styles.css";
 import { Dialog } from "@reach/dialog";
 import "../modal_styles.css";
 
-const ModalTrigger = (props) => {
-  const [showDialog, setShowDialog] = React.useState(false);
-  const open = () => setShowDialog(true);
-  const close = () => setShowDialog(false);
-  var modalBody = null;
-  var buttonType = null;
-  var className = "inline-block text-center mt-64 rounded h-auto";
-
-  switch (props.buttonText) {
-    case "Get a Link":
-      modalBody = <GiveLink />;
-      buttonType = <TriggerButton open={open} buttonText={props.buttonText} mobile={props.mobile}/>;
-      break;
-    case "Go Random":
-      modalBody = <FindRandom />;
-      buttonType = <TriggerButton open={open} buttonText={props.buttonText} mobile={props.mobile}/>;
-      break;
-    case "Hamburger":
-      modalBody = <Mobile close={close}/>;
-      buttonType = <HamburgerButton open={open} />;
-      className = "h-full text-left";
-      break;
-  }
-
+export const Modal = ({showDialog, close, modalBody, mobile}) => {
+  const className = mobile ? "w-full h-full text-left" : "inline-block text-center mt-64 rounded h-auto";
   return (
-    <div >
-      {buttonType}
-      <Dialog isOpen={showDialog} onDismiss={close} aria-label="dialog" className={className}>
-        {modalBody}
-      </Dialog>
-    </div>
+    <Dialog isOpen={showDialog} onDismiss={close} aria-label="dialog" className={className}>
+      {modalBody}
+    </Dialog>
   );
 };
 
-const TriggerButton = (props) => {
-  var className = "inline-block text-sm lowercase font-mono px-3 py-2 leading-none border rounded hover:text-customgreen hover:border-customgreen mt-4 mx-2 lg:mt-0"
-  if (props.mobile)
-    className = "hover:text-customgreen";
-
-  return (
-    <button onClick={props.open}>
-      <div className={className}>
-        {props.buttonText}  
-      </div>
-    </button>
-  );
-};
-
-const HamburgerButton = (props) => {
-  return (
-    <button type="button" onClick={props.open} className="flex items-center px-3 py-2 text-white hover:text-customgreen">
-        <svg className="fill-current h-5 w-5" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-            <title>Menu</title><path d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z"/>
-        </svg>
-    </button>
-  );
-}
-
-const GiveLink = (props) => {
+export const GiveLink = (props) => {
   
   const onCopyClick = () => {
     navigator.clipboard.writeText("link.url/link"); // switch for this.props.shareUrl
@@ -86,7 +38,7 @@ const GiveLink = (props) => {
   );
 }
 
-const FindRandom = () => {
+export const FindRandom = () => {
   return (
     <div className="flex flex-col items-center font-semibold text-2xl md:text-4xl">
       <span> Pairing you up... </span>
@@ -95,7 +47,19 @@ const FindRandom = () => {
   );
 };
 
-const Mobile = (props) => {
+const NotAuthorized = () => {
+  const onClick = () => {}
+  return (
+    <div className="flex flex-col item-center font-semibold text-2xl md:text-4xl">
+      <span> Looks like you haven't connected your Spotify account yet.</span>
+      <button onClick={onClick} className="rounded bg-customgreen text-white" type="button">
+        Connect Now
+      </button>
+    </div>
+  );
+}
+
+export const Mobile = (props) => {
   return (
     <div className="relative">
       <button onClick={() => props.close()} type="button" className="inset-y-0 right-0 absolute w-8 h-8">
@@ -109,14 +73,25 @@ const Mobile = (props) => {
 }
 
 const MobileMenu = () => {
+
+  const [showRandom, setShowRandom] = React.useState(false);
+  const openRandom = () => setShowRandom(true);
+  const closeRandom = () => setShowRandom(false);
+
+  const [showLink, setShowLink] = React.useState(false);
+  const openLink = () => setShowLink(true);
+  const closeLink = () => setShowLink(false); 
+
   return (
     <div className="text-3xl font-mono lowercase pt-6">
-      <button type="button" className="hover:text-customgreen">
-        <div> <ModalTrigger buttonText="Get a Link" mobile={true}/></div>
+      <button onClick={openLink} type="button" className="hover:text-customgreen">
+        Get a Link
+        <Modal modalBody={<GiveLink shareUrl="link" />} showDialog={showLink} close={closeLink} mobile={false}/>
       </button>
       <div className="my-2 w-full h-px bg-gray-300"></div>
-      <button type="button" className="hover:text-customgreen">
-        <div> <ModalTrigger buttonText="Go Random" mobile={true}/></div>
+      <button onClick={openRandom} type="button" className="hover:text-customgreen">
+        Go Random
+        <Modal modalBody={<FindRandom />} showDialog={showRandom} close={closeRandom} mobile={false}/>
       </button>
       <div className="my-2 w-full h-px bg-gray-300"></div>
       <div className="text-2xl hover:text-customgreen"> Github </div>
@@ -125,5 +100,3 @@ const MobileMenu = () => {
     </div>
   );
 }
-
-export default ModalTrigger;
