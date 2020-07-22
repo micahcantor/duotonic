@@ -4,6 +4,9 @@ module.exports = {
     extend: {
       gridTemplateRows: {
         'headerStack': 'auto 1fr'
+      },
+      colors: {
+        primary: '#1DB954'
       }
     },
   },
