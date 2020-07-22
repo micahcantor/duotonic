@@ -49,7 +49,7 @@ const Header = () => {
 const NavButton = (props) => {
   return (
     <button onClick={props.open}>
-      <div className="inline-block text-sm lowercase font-mono px-3 py-2 leading-none border rounded hover:text-customgreen hover:border-customgreen mt-4 mx-2 lg:mt-0">
+      <div className="inline-block text-sm lowercase font-mono px-3 py-2 leading-none border-2 rounded hover:text-customgreen hover:border-customgreen mt-4 mx-2 lg:mt-0">
         {props.buttonText}
       </div>
     </button>

@@ -34,9 +34,8 @@ const Queue = (props) => {
 
 const QueueItem = (props) => {
   return (
-    <div className="p-3 flex text-gray-300 flex-no-wrap items-center bg-gray-800 border-b-2 border-gray-600 hover:border-customgreen ">
+    <div className="ml-2 p-3 flex text-gray-300 flex-no-wrap items-center bg-gray-800 border-b-2 border-gray-600 hover:border-customgreen ">
       <SongInfo song={props.song} />
-      
     </div>
   );
 };
