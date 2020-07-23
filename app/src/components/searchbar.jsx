@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import SongInfo from "./song_info.jsx";
 import ScaleLoader from "react-spinners/ScaleLoader";
+import { searchSpotify } from "../api.js";
 import "../styles.css";
 
 class SearchBar extends React.Component {
@@ -12,21 +13,13 @@ class SearchBar extends React.Component {
     this.handleChange = this.handleChange.bind(this);
   }
 
-  async searchSpotify(query) {
-    const api = "http://localhost:3000/api/spotify/search?q=";
-    const url = api + encodeURIComponent(query) + "&type=track&limit=10";
-    const response = await fetch(url, { credentials: "include" });
-    const json = await response.json();
-    console.log("response received for " + query)
-    return json;
-  }
-
   handleSearchResults(response) {
     const tracks = response.tracks.items.map(track => {
       return {
         name: track.name,
         artists: track.artists.map(a => a.name).reduce((acc, curr) => acc + ", " + curr),
         coverUrl: track.album.images[0].url,
+        uri: track.uri,
       }
     });
 
@@ -51,7 +44,6 @@ class SearchBar extends React.Component {
     // clear the timer currently held in state, if it exists
     // this prevents multiple requests within 1 second being sent to the search api
     if (this.state.currentTimer != null) {
-      console.log("clearing timer " + this.state.currentTimer)
       clearTimeout(this.state.currentTimer)
     }
     
@@ -62,7 +54,7 @@ class SearchBar extends React.Component {
       currentTimer: setTimeout(async () => {
         const query = document.getElementById("search-input").value
         if (query != "") {
-          const response = await this.searchSpotify(query);
+          const response = await searchSpotify(query);
           this.handleSearchResults(response);
         }
 
@@ -75,12 +67,12 @@ class SearchBar extends React.Component {
   render() {
     return (
       <>
-        <div className="relative z-20">
+        <form onSubmit={e => e.preventDefault()} autoComplete="off" className="relative z-20">
           <input id="search-input" type="text" placeholder="Song search" onChange={this.handleChange} 
-              className="transition-colors duration-200 ease-in-out bg-gray-200 appearance-none border-2 border-transparent rounded w-full mb-4 py-3 px-4 text-gray-700 leading-tight focus:outline-none hover:bg-white focus:border-green-400"  
+            className="transition-colors duration-200 ease-in-out bg-gray-200 appearance-none border-2 border-transparent rounded w-full mb-4 py-3 px-4 text-gray-700 leading-tight focus:outline-none hover:bg-white focus:border-green-400"  
           />
           <CloseButton onClick={this.closeResults} showResults={this.state.showResults}/>
-        </div>
+        </form>
         <SearchResults show={this.state.showResults} songs={this.state.searchResults} onAdd={this.props.onAdd} closeResults={this.closeResults} loading={this.state.loading}/>
       </>
     );
@@ -94,8 +86,8 @@ const SearchResults = (props) => {
 
   if (props.show) {
     return (
-      <div className={`relative z-0 rounded bg-gray-800 w-full h-full overflow-y-auto mb-4 -mt-5 text-center`}>
-        <ScaleLoader css="margin-top: -20px; margin-bottom: -20px" height="50" width="8" color="#1DB954" loading={props.loading} />
+      <div className="min-h-1/2 relative z-0 rounded bg-gray-800 w-full h-full overflow-y-auto mb-4 -mt-5 text-center">
+        <ScaleLoader css="margin-top: -20px; margin-bottom: -20px" height="50px" width="10px" color="#1DB954" loading={props.loading} />
         {resultList}
       </div>
     )
@@ -119,7 +111,7 @@ const SearchItem = (props) => {
 }
 
 const CloseButton = (props) => {
-  const shouldDisplay = props.showResults ? "block" : "hidden"
+  const shouldDisplay = props.showResults ? "block" : "hidden";
   return (
     <button className={`${shouldDisplay}`} type="button" onClick={props.onClick}>
       <svg className="text-black stroke-current hover:text-customgreen w-6 h-6 my-3 mr-6 absolute top-0 right-0" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24">

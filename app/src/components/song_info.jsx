@@ -12,6 +12,7 @@ const SongInfo = (props) => {
           {props.song.artists}
         </span>
         <span id="album">{props.song.album}</span>
+        <span id="uri" className="hidden">{props.song.uri}</span>
       </div>
     </div>
   );
