@@ -20,14 +20,28 @@ const tls = (process.env.TLS_ENABLED === 'true') ? {
 } : undefined;
 
 const requestSpotify = (endpoint, method, query, accessToken) => {
-
+    
     return Axios({
-        method,
+        method: method,
         url: 'https://api.spotify.com/v1/' + endpoint,
         headers: { 'Authorization': `Bearer ${accessToken}` },
-        params: query
+        params: query,
     });
 };
+
+const requestSpotifyPayload = (endpoint, method, data, query, accessToken) => {
+
+    return Axios({
+        method: method,
+        url: 'https://api.spotify.com/v1/' + endpoint,
+        headers: { 
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json' 
+        },
+        params: query,
+        data: JSON.stringify(data)
+    })
+}
 
 const refreshAccessToken = async (db, id) => {
 
@@ -54,7 +68,7 @@ const refreshAccessToken = async (db, id) => {
 
 const shouldRefreshToken = async (db, id) => {
 
-    const sessionInfo = await db.collection('sessions').findOne({_id: id });
+    const sessionInfo = await db.collection('sessions').findOne({ _id: id });
     const last_update = sessionInfo.last_update;
     const current_time = new Date().getTime();
     const ONE_HOUR = 3600 * 1000;
@@ -109,7 +123,15 @@ const init = async () => {
         password: process.env.COOKIE_PASSWORD,
         clientId: process.env.SPOTIFY_CLIENT_ID,
         clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
-        isSecure: false
+        isSecure: false,
+        scope(request) {
+
+            const scopes = ['user-read-private', 'user-read-email', 'user-modify-playback-state'];
+            if (request.query.wantsWebPlayback) {
+                scopes.push('streaming');
+            }
+            return scopes;
+        } 
     });
 
     server.route({
@@ -144,20 +166,53 @@ const init = async () => {
 
     server.route({
         method: ['GET'],
+        path: '/auth/spotify/access-token',
+        options: {
+            handler: async (request, h) => {
+                if (!request.state.sessionId) {
+                    throw Boom.unauthorized('Must have a session cookie.');
+                }
+
+                var token;
+                const id = ObjectId(request.state.sessionId);
+                const shouldRefresh = await shouldRefreshToken(db, id);
+
+                if (shouldRefresh) {
+                    token = await refreshAccessToken(db, id);
+                    const current_time = new Date().getTime();
+                    await db.collection('sessions').updateOne({ _id: id }, { $set: {last_update: current_time} })
+                    console.log("refreshed access token")
+                } else {
+                    const sessionInfo = await db.collection('sessions').findOne({ _id: id });
+                    token = sessionInfo.auth.artifacts.access_token;
+                    console.log("got access token")
+                }
+
+                if (token) { 
+                    return { access_token: token }
+                }
+
+                throw Boom.unauthorized('Session ID not found in database.');
+            }
+        }
+    })
+
+    server.route({
+        method: ['GET', 'PUT'],
         path: '/api/spotify/{endpoint*}',
         options: {
-            handler: async function (request, h) {
-                
+            handler: async function (request, h) {      
                 if (!request.state.sessionId) {
                     throw Boom.unauthorized('Must have a session cookie.');
                 }
                 
                 var token;
                 const id = ObjectId(request.state.sessionId);
-                const current_time = new Date().getTime();
                 const shouldRefresh = await shouldRefreshToken(db, id);
+
                 if (shouldRefresh) {
                     token = await refreshAccessToken(db, id);
+                    const current_time = new Date().getTime();
                     await db.collection('sessions').updateOne({ _id: id }, { $set: {last_update: current_time} })
                     console.log("refreshed access token")
                 } else {
@@ -168,10 +223,17 @@ const init = async () => {
 
                 if (token) {
                     try {
-                        const response = await requestSpotify(request.params.endpoint, 'get', request.query, token);
+                        var response;
+                        if (request.payload) {
+                            response = await requestSpotifyPayload(request.params.endpoint, request.method, request.payload, request.query, token)
+                        } else {
+                            response = await requestSpotify(request.params.endpoint, request.method, request.query, token);
+                        }
+                        
                         return await JSON.stringify(response.data);
                     }
                     catch (error) {
+                        console.log(error.response.data.error)
                         throw Boom.badRequest('Third-party API request failed.');
                     }
                 }
