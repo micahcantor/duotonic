@@ -4,7 +4,7 @@
   "description": "",
   "private": true,
   "scripts": {
-    "start": "nodemon src/index.js"
+    "start": "nodemon --ignore 'node_modules/' src/index.js"
   },
   "keywords": [],
   "author": "",
@@ -24,5 +24,8 @@
     "@hapi/eslint-plugin-hapi": "^4.3.5",
     "eslint": "^7.1.0",
     "nodemon": "^2.0.4"
+  },
+  "nodemonConfig": {
+    "ignore": ["node_modules/**/*"]
   }
 }

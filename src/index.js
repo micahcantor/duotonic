@@ -39,7 +39,7 @@ const requestSpotifyPayload = (endpoint, method, data, query, accessToken) => {
             'Content-Type': 'application/json'
         },
         params: query,
-        data: JSON.stringify(data)
+        data
     });
 };
 
@@ -184,7 +184,8 @@ const init = async () => {
                     const current_time = new Date().getTime();
                     await db.collection('sessions').updateOne({ _id: id }, { $set: { last_update: current_time } });
                     console.log('refreshed access token');
-                } else {
+                }
+                else {
                     const sessionInfo = await db.collection('sessions').findOne({ _id: id });
                     token = sessionInfo.auth.artifacts.access_token;
                     console.log('got access token');
@@ -200,7 +201,7 @@ const init = async () => {
     });
 
     server.route({
-        method: ['GET', 'PUT'],
+        method: ['GET', 'PUT', 'POST'],
         path: '/api/spotify/{endpoint*}',
         options: {
             handler: async function (request, h) {
@@ -218,7 +219,8 @@ const init = async () => {
                     const current_time = new Date().getTime();
                     await db.collection('sessions').updateOne({ _id: id }, { $set: { last_update: current_time } });
                     console.log('refreshed access token');
-                } else {
+                }
+                else {
                     const sessionInfo = await db.collection('sessions').findOne({ _id: id });
                     token = sessionInfo.auth.artifacts.access_token;
                     console.log('got access token');
@@ -229,13 +231,15 @@ const init = async () => {
                         let response;
                         if (request.payload) {
                             response = await requestSpotifyPayload(request.params.endpoint, request.method, request.payload, request.query, token);
-                        } else {
+                        }
+                        else {
                             response = await requestSpotify(request.params.endpoint, request.method, request.query, token);
                         }
 
                         return await JSON.stringify(response.data);
                     }
                     catch (error) {
+                        console.log(request.url);
                         console.log(error.response.data.error);
                         throw Boom.badRequest('Third-party API request failed.');
                     }
