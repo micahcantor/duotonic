@@ -3,15 +3,17 @@
 import React from "react";
 import "../styles.css";
 import SongInfo from "./song_info.jsx"
-import { startSong, pauseSong, resumeSong } from "../api.js";
+import { startSong, pauseSong, resumeSong, nextSong, previousSong } from "../api.js";
 import { SliderInput, SliderTrack, SliderTrackHighlight, SliderHandle, } from "@reach/slider";
 import "../slider_styles.css";
 
 class Player extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { isPaused: true, songStarted: false }
-    this.handlePauseChange = this.handlePauseChange.bind(this)
+    this.state = { isPaused: true, songStarted: false };
+    this.handlePauseChange = this.handlePauseChange.bind(this);
+    this.onLeftSkip = this.onLeftSkip.bind(this);
+    this.onRightSkip = this.onRightSkip.bind(this);
   }
 
   handlePauseChange() {
@@ -30,6 +32,14 @@ class Player extends React.Component {
     this.setState({ songStarted: true });
   }
 
+  async onLeftSkip() {
+    await previousSong(this.props.deviceID)
+  }
+
+  async onRightSkip() {
+    await nextSong(this.props.deviceID)
+  }
+
   render() {
     return (
       <div className="flex overflow-hidden flex-col border-t-2 border-gray-500 bg-gray-900 h-22">
@@ -40,7 +50,9 @@ class Player extends React.Component {
               : null
             }
           </div>
-          <PlaybackControls isPaused={this.state.isPaused} onPauseChange={this.handlePauseChange} songInQueue={this.props.songInQueue} />
+          <PlaybackControls isPaused={this.state.isPaused} onPauseChange={this.handlePauseChange} 
+            onLeftSkip={this.onLeftSkip} onRightSkip={this.onRightSkip} songInQueue={this.props.songInQueue} />
+
           <VolumeSlider />
         </div>
         {this.props.songInQueue
@@ -50,16 +62,14 @@ class Player extends React.Component {
       </div>
     );
   }
-
-
 }
 
 const PlaybackControls = (props) => {
   return (
     <div className={`flex justify-center text-white ${props.songInQueue ? "mx-auto" : ""}`}>
-      <LeftSkip />
+      <LeftSkip onLeftSkip={props.onLeftSkip}/>
       <PausePlay isPaused={props.isPaused} onPauseChange={props.onPauseChange} />
-      <RightSkip />
+      <RightSkip onRightSkip={props.onRightSkip}/>
     </div>
   );
 };
@@ -97,12 +107,14 @@ class ProgressBar extends React.Component {
   }
 
   render() {
-    if (!this.props.isPaused && !this.state.progressActive)
+    if (!this.props.isPaused && !this.state.progressActive) {
       // if song is playing and the progress bar is not already active
       this.advanceProgress();
-    else if (this.props.isPaused && this.state.progressActive)
+    }
+    else if (this.props.isPaused && this.state.progressActive) {
       // if the song is paused and the progress bar is active
       this.pauseProgress();
+    }
 
     const progress = (this.state.elapsed / this.props.runtime) * 100; // elapsed / runtime as a percentage
     if (progress == 100) this.pauseProgress(); // stops progress bar at 100%
@@ -158,9 +170,9 @@ const PlayIcon = () => {
   );
 };
 
-const RightSkip = () => {
+const RightSkip = ({ onRightSkip }) => {
   return (
-    <button type="button">
+    <button type="button" onClick={onRightSkip}>
       <svg className="w-12 h-12 stroke-current hover:text-customgreen" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth=".75" viewBox="0 0 24 24">
         <path d="M9 5l7 7-7 7"> </path>
       </svg>
@@ -168,9 +180,9 @@ const RightSkip = () => {
   );
 };
 
-const LeftSkip = () => {
+const LeftSkip = ({ onLeftSkip }) => {
   return (
-    <button type="button">
+    <button type="button" onClick={onLeftSkip}>
       <svg className="w-12 h-12 stroke-current hover:text-customgreen" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth=".75" viewBox="0 0 24 24" >
         <path d="M15 19l-7-7 7-7"></path>
       </svg>

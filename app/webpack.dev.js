@@ -7,4 +7,7 @@ module.exports = merge(common, {
     devServer: {
         contentBase: './dist',
     },
+    watchOptions: {
+        ignored: /node_modules/
+    }
 });

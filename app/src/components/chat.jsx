@@ -66,7 +66,7 @@ class Chat extends React.Component {
       this.addMessage(message);
 
       document.getElementById("chat-input").value = "";
-      this.setState({value: ""})
+      this.setState({ value: "" })
     }
   }
 

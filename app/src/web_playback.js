@@ -1,4 +1,4 @@
-import { getAccessToken } from "./api.js"
+import { getAccessToken } from "./api.js";
 import Bowser from "bowser";
 
 const token = getAccessToken();
@@ -11,53 +11,62 @@ export const addSDKScript = () => {
   const webSDK = document.createElement("script");
   webSDK.setAttribute("src", "https://sdk.scdn.co/spotify-player.js");
   body.insertBefore(webSDK, body.children[1]);
-}
+};
 
 export const isPlaybackCapable = () => {
   const browser = Bowser.getParser(window.navigator.userAgent);
   const supported = browser.satisfies({
     windows: {
       "internet explorer": ">11",
-      "firefox": ">2",
-      "chrome": ">1.0.154",
-      "edge": ">20.10240"
+      firefox: ">2",
+      chrome: ">1.0.154",
+      edge: ">20.10240",
     },
     macos: {
       "internet explorer": ">11",
-      "firefox": ">2",
-      "chrome": ">1.0.154",
-      "edge": ">20.10240"
+      firefox: ">2",
+      chrome: ">1.0.154",
+      edge: ">20.10240",
     },
     linux: {
       "internet explorer": ">11",
-      "firefox": ">2",
-      "chrome": ">1.0.154",
-      "chromium": ">1",
-      "edge": ">20.10240"
-    }
-  })
+      firefox: ">2",
+      chrome: ">1.0.154",
+      chromium: ">1",
+      edge: ">20.10240",
+    },
+  });
   if (supported === null) {
     return false;
   } else {
     return supported;
   }
-}
+};
 
 const createEventHandlers = async () => {
-  player.on('initialization_error', e => { console.error(e); });
-  player.on('authentication_error', e => { console.error(e); });
-  player.on('account_error', e => { console.error(e); });
-  player.on('playback_error', e => { console.error(e); });
+  player.on("initialization_error", (e) => {
+    console.error(e);
+  });
+  player.on("authentication_error", (e) => {
+    console.error(e);
+  });
+  player.on("account_error", (e) => {
+    console.error(e);
+  });
+  player.on("playback_error", (e) => {
+    console.error(e);
+  });
 
   // Playback status updates
-  player.on('player_state_changed', state => { console.log(state); });
+  player.on("player_state_changed", (state) => {
+    console.log(state);
+  });
 
   // Ready
-  player.addListener('ready', ({ device_id }) => {
+  player.addListener("ready", ({ device_id }) => {
     device = device_id;
-  })
-  
-}
+  });
+};
 
 const checkForPlayer = async () => {
   if (window.Spotify !== null) {
@@ -66,7 +75,7 @@ const checkForPlayer = async () => {
     player = new window.Spotify.Player({
       name: "Pass the AUX",
       /* this looks weird but is just boilerplate for initializing the player */
-      getOAuthToken: callback => {
+      getOAuthToken: (callback) => {
         callback(token);
       },
     });
@@ -74,10 +83,10 @@ const checkForPlayer = async () => {
     createEventHandlers();
     player.connect();
   }
-}
+};
 
 export const initPlayer = async () => {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     checkPlayerInterval = setInterval(() => {
       checkForPlayer();
       const checkIDInterval = setInterval(() => {
@@ -85,8 +94,7 @@ export const initPlayer = async () => {
           resolve(device);
           clearInterval(checkIDInterval);
         }
-      }, 250)
-    }, 1000)
-  })
-    
-}
+      }, 250);
+    }, 1000);
+  });
+};

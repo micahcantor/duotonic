@@ -4,36 +4,7 @@ export const searchSpotify = async (query) => {
     const url = api + encodeURIComponent(query) + "&type=track&limit=10";
     const response = await fetch(url, { credentials: "include" });
     const json = await response.json();
-    console.log("response received for " + query)
     return json;
-}
-
-export const startSong = async (device_id, uri) => {
-    const api = "http://localhost:3000/api/spotify/me/player/play?device_id=" + device_id;
-    await fetch(api, { 
-        method: "PUT", 
-        body: JSON.stringify({ uris: [uri] }),
-        credentials: "include" ,
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    });
-}
-
-export const resumeSong = async (device_id) => {
-    const api = "http://localhost:3000/api/spotify/me/player/play?device_id=" + device_id;
-    await fetch(api, {
-        method: "PUT",
-        credentials: "include"
-    })
-}
-
-export const pauseSong = async (device_id) => {
-    const api = "http://localhost:3000/api/spotify/me/player/pause?device_id=" + device_id;
-    await fetch(api, {
-        method: "PUT",
-        credentials: "include"
-    });
 }
 
 export const getAccessToken = async () => {
@@ -41,4 +12,52 @@ export const getAccessToken = async () => {
     const response = await fetch(api, { credentials: "include" });
     const json = await response.json();
     return json.access_token;
+}
+
+const reqPlayer = async (device_id, endpoint, method) => {
+    const api = `http://localhost:3000/api/spotify/me/player/${endpoint}?device_id=${device_id}`;
+    await fetch(api, {
+        method: method,
+        credentials: "include"
+    });
+}
+
+const reqPlayerPayload = async (device_id, data, endpoint, method) => {
+    const api = `http://localhost:3000/api/spotify/me/player/${endpoint}?device_id=${device_id}`;
+    await fetch (api, {
+        method: method,
+        body: JSON.stringify(data),
+        credentials: "include",
+        headers: { 'Content-Type': 'application/json' }
+    })
+}
+
+export const startSong = async (device_id, uri) => {
+    // sending uri with request starts the song
+    await reqPlayerPayload(device_id, { uris: [uri] }, "play", "PUT")
+}
+
+export const resumeSong = async (device_id) => {
+    // no uri sent so this resumes the song
+    await reqPlayer(device_id, "play", "PUT")
+}
+
+export const pauseSong = async (device_id) => {
+    await reqPlayer(device_id, "pause", "PUT")
+}
+
+export const nextSong = async (device_id) => {
+    await reqPlayer(device_id, "next", "POST")
+}
+
+export const previousSong = async (device_id) => {
+    await reqPlayer(device_id, "previous", "POST")
+}
+
+export const addToQueue = async (device_id, uri) => {
+    const api = `http://localhost:3000/api/spotify/me/player/queue?device_id=${device_id}&uri=${uri}`;
+    await fetch (api, {
+        method: "POST",
+        credentials: "include"
+    })
 }

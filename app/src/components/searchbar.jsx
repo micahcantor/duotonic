@@ -10,7 +10,7 @@ class SearchBar extends React.Component {
     super(props);
     this.state = { searchResults: [], showResults: false, currentTimer: null, loading: false };
     this.closeResults = this.closeResults.bind(this);
-    this.handleChange = this.handleChange.bind(this);
+    this.handleInputChange = this.handleInputChange.bind(this);
   }
 
   handleSearchResults(response) {
@@ -31,7 +31,7 @@ class SearchBar extends React.Component {
     document.getElementById("search-input").value = "";
   }
 
-  async handleChange(e) {
+  async handleInputChange(e) {
     this.setState({loading: true})
     // show the search results box is not empty
     const initial = e.target.value;
@@ -68,7 +68,7 @@ class SearchBar extends React.Component {
     return (
       <>
         <form onSubmit={e => e.preventDefault()} autoComplete="off" className="relative z-20">
-          <input id="search-input" type="text" placeholder="Song search" onChange={this.handleChange} 
+          <input id="search-input" type="text" placeholder="Song search" onChange={this.handleInputChange} 
             className="transition-colors duration-200 ease-in-out bg-gray-200 appearance-none border-2 border-transparent rounded w-full mb-4 py-3 px-4 text-gray-700 leading-tight focus:outline-none hover:bg-white focus:border-green-400"  
           />
           <CloseButton onClick={this.closeResults} showResults={this.state.showResults}/>
@@ -86,7 +86,7 @@ const SearchResults = (props) => {
 
   if (props.show) {
     return (
-      <div className="min-h-1/2 relative z-0 rounded bg-gray-800 w-full h-full overflow-y-auto mb-4 -mt-5 text-center">
+      <div className="min-h-1/2 relative z-0 rounded bg-gray-800 w-full h-full overflow-y-auto mb-4 -mt-5 text-center scrollbar">
         <ScaleLoader css="margin-top: -20px; margin-bottom: -20px" height="50px" width="10px" color="#1DB954" loading={props.loading} />
         {resultList}
       </div>
@@ -96,10 +96,10 @@ const SearchResults = (props) => {
 }
 
 const SearchItem = (props) => {
-  const [inQueue, addToQueue] = useState(false)
+  const [inQueue, setInQueue] = useState(false);
   const handleClick = (e) => {
-    props.onAdd(e)
-    addToQueue(true)
+    props.onAdd(e);
+    setInQueue(true);
   }
 
   return (
