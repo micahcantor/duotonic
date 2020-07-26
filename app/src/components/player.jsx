@@ -3,65 +3,30 @@
 import React from "react";
 import "../styles.css";
 import SongInfo from "./song_info.jsx"
-import { startSong, pauseSong, resumeSong, nextSong, previousSong } from "../api.js";
 import { SliderInput, SliderTrack, SliderTrackHighlight, SliderHandle, } from "@reach/slider";
 import "../slider_styles.css";
 
-class Player extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { isPaused: true, songStarted: false };
-    this.handlePauseChange = this.handlePauseChange.bind(this);
-    this.onLeftSkip = this.onLeftSkip.bind(this);
-    this.onRightSkip = this.onRightSkip.bind(this);
-  }
-
-  handlePauseChange() {
-    this.setState((state) => ({
-      isPaused: !state.isPaused, // flip paused bool state
-    }))
-
-    if (this.state.isPaused && !this.state.songStarted) {
-      startSong(this.props.deviceID, this.props.song.uri);
-    } else if (this.state.isPaused && this.state.songStarted) {
-      resumeSong(this.props.deviceID);
-    } else {
-      pauseSong(this.props.deviceID);
-    }
-
-    this.setState({ songStarted: true });
-  }
-
-  async onLeftSkip() {
-    await previousSong(this.props.deviceID)
-  }
-
-  async onRightSkip() {
-    await nextSong(this.props.deviceID)
-  }
-
-  render() {
-    return (
-      <div className="flex overflow-hidden flex-col border-t-2 border-gray-500 bg-gray-900 h-22">
-        <div className="flex relative mx-auto mt-1 items-center" style={{ width: "95%" }}>
-          <div className="absolute left-0">
-            {this.props.songInQueue
-              ? <SongInfo song={this.props.song} />
-              : null
-            }
-          </div>
-          <PlaybackControls isPaused={this.state.isPaused} onPauseChange={this.handlePauseChange} 
-            onLeftSkip={this.onLeftSkip} onRightSkip={this.onRightSkip} songInQueue={this.props.songInQueue} />
-
-          <VolumeSlider />
+const Player = (props) => {
+  return (
+    <div className="flex overflow-hidden flex-col border-t-2 border-gray-500 bg-gray-900 h-22">
+      <div className="flex w-full relative mx-auto mt-1 items-center">
+        <div className="absolute left-0 ml-3">
+          {props.songInQueue
+            ? <SongInfo song={props.song} />
+            : null
+          }
         </div>
-        {this.props.songInQueue
-          ? <ProgressBar isPaused={this.state.isPaused} runtime={this.props.song.runtime} />
-          : null
-        }
+        <PlaybackControls isPaused={props.isPaused} onPauseChange={props.handlePauseChange} 
+          onLeftSkip={props.onLeftSkip} onRightSkip={props.onRightSkip} songInQueue={props.songInQueue} />
+
+        <VolumeSlider />
       </div>
-    );
-  }
+      {props.songInQueue
+        ? <ProgressBar isPaused={props.isPaused} runtime={props.song.runtime} />
+        : null
+      }
+    </div>
+  );
 }
 
 const PlaybackControls = (props) => {
@@ -132,7 +97,7 @@ class ProgressBar extends React.Component {
 const VolumeSlider = () => {
   /* Later on the value state of the slider will be lifted up so it can be referenced by the audio playing component. */
   return (
-    <div className="hidden lg:flex items-center text-gray-500 absolute right-0 -mt-1">
+    <div className="hidden lg:flex items-center text-gray-500 absolute right-0 -mt-1 mr-3">
       <svg className="w-4 h-4 mr-2 mt-2 stroke-current" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24">
         <path d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" clipRule="evenodd"></path>
         <path d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"></path>
@@ -151,7 +116,6 @@ const VolumeSlider = () => {
     </div>
   );
 }
-
 
 const PauseIcon = () => {
   return (
