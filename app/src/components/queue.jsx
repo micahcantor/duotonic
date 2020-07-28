@@ -9,7 +9,7 @@ import "../styles.css";
 
 const Queue = (props) => {
   const songs = props.songs;
-
+  
   // Iterate over song array and create new array of QueueItems
   const songList = songs.map((song, index) => {
     return <QueueItem key={index} song={song} />
