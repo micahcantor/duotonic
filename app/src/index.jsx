@@ -16,6 +16,7 @@ const PlayerPage = () => {
   const [deviceID, setDeviceID] = useState(null);
   const songInQueue = songs.length > 0; // bool that is true if there is a song in the queue
 
+  // on mount, check if the user's device is capable of web playback, and if so set it up
   useEffect(() => {
     if (isPlaybackCapable()) {
       addSDKScript();
@@ -34,6 +35,8 @@ const PlayerPage = () => {
       uri: parentNode.children[1].children[3].innerText,
     };
 
+    // the first song is played immediately and isn't added to the queue
+    // spotify automatically adds the first song played to the queue
     if (songs.length == 0) {
       await startSong(deviceID, newQueueItem.uri);
     }
@@ -41,6 +44,7 @@ const PlayerPage = () => {
       await addToQueue(deviceID, newQueueItem.uri);
     }
 
+    // update songs state afterwards to avoid stale state issues
     updateSongs(songs.concat(newQueueItem));
   };
 
