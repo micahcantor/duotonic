@@ -2,9 +2,10 @@ import { getAccessToken } from "./api.js";
 import Bowser from "bowser";
 
 const token = getAccessToken();
-var checkPlayerInterval;
-var player;
+var insertPlayerInterval;
 var device;
+
+export var player;
 
 export const addSDKScript = () => {
   const body = document.getElementById("body");
@@ -59,7 +60,7 @@ const createEventHandlers = async () => {
 
   // Playback status updates
   player.on("player_state_changed", (state) => {
-    console.log(state);
+    //console.log(state);
   });
 
   // Ready
@@ -68,9 +69,9 @@ const createEventHandlers = async () => {
   });
 };
 
-const checkForPlayer = async () => {
+const insertPlayer = async () => {
   if (window.Spotify !== null) {
-    clearInterval(checkPlayerInterval); // clear the interval once found
+    clearInterval(insertPlayerInterval); // clear the interval once found
 
     player = new window.Spotify.Player({
       name: "Pass the AUX",
@@ -87,14 +88,17 @@ const checkForPlayer = async () => {
 
 export const initPlayer = async () => {
   return new Promise((resolve) => {
-    checkPlayerInterval = setInterval(() => {
-      checkForPlayer();
-      const checkIDInterval = setInterval(() => {
+    insertPlayerInterval = setInterval(() => {
+      insertPlayer();
+
+      const getDeviceIDInterval = setInterval(() => {
         if (device != null) {
-          resolve(device);
-          clearInterval(checkIDInterval);
+          const playerData = { deviceID: device, player: player }
+          resolve(playerData);
+          clearInterval(getDeviceIDInterval);
         }
       }, 250);
+
     }, 1000);
   });
 };

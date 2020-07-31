@@ -15,6 +15,7 @@ const PlayerPage = () => {
   const [songs, updateSongs] = useState([]);
   const [isPaused, setIsPaused] = useState(true);
   const [songStarted, setSongStarted] = useState(false);
+  const [webPlayer, setWebPlayer] = useState(null);
   const [deviceID, setDeviceID] = useState(null);
   const songInQueue = songs.length > 0; // bool that is true if there is a song in the queue
 
@@ -22,11 +23,23 @@ const PlayerPage = () => {
   useEffect(() => {
     if (isPlaybackCapable()) {
       addSDKScript();
-      initPlayer().then((id) => {
-        setDeviceID(id);
-      });
+      initPlayer().then((playerData) => {
+        setDeviceID(playerData.deviceID);
+        setWebPlayer(playerData.player)
+       });
     }
   }, []);
+
+  useEffect(() => {
+    if (webPlayer) {
+      webPlayer.on("player_state_changed", (state) => {
+        const currentSong = state.track_window.current_track;
+        if (songs.length > 0 && state.position === 0 && songs[0].uri !== currentSong.uri) {
+          
+        }
+      });
+    }
+  }, [webPlayer])
 
   const onAdd = async (e) => {
     const parentNode = e.target.closest("#result-parent").firstChild;
@@ -48,7 +61,7 @@ const PlayerPage = () => {
     }
 
     // update songs state afterwards to avoid stale state issues
-    updateSongs(songs.concat(newQueueItem));
+    updateSongs(songs => songs.concat(newQueueItem));
   };
 
   const handlePauseChange = () => {
