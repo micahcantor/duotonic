@@ -3,9 +3,20 @@ import React from "react";
 import "../styles.css";
 import { Dialog } from "@reach/dialog";
 import "../modal_styles.css";
+import ScaleLoader from "react-spinners/ScaleLoader";
 
-export const Modal = ({showDialog, close, modalBody, mobile}) => {
+export const Modal = ({showDialog, close, body, mobile, loading, deviceName, apiLink}) => {
   const className = mobile ? "w-full h-full text-left" : "inline-block text-center mt-64 rounded h-auto";
+  var modalBody;
+  switch(body) {
+    case "SignIn":
+      modalBody = <SignIn apiLink={apiLink} />
+      break;
+    case "DeviceSearch":
+      modalBody = <DeviceSearch loading={loading} deviceName={deviceName} />
+      break;
+  }
+
   return (
     <Dialog isOpen={showDialog} onDismiss={close} aria-label="dialog" className={className}>
       {modalBody}
@@ -16,7 +27,7 @@ export const Modal = ({showDialog, close, modalBody, mobile}) => {
 export const GiveLink = (props) => {
   
   const onCopyClick = () => {
-    navigator.clipboard.writeText("link.url/link"); // switch for this.props.shareUrl
+    navigator.clipboard.writeText("link.url/link"); // switch for props.shareUrl
   }
 
   return (
@@ -47,14 +58,35 @@ export const FindRandom = () => {
   );
 };
 
-const NotAuthorized = () => {
-  const onClick = () => {}
+export const SignIn = ( { apiLink }) => {
   return (
-    <div className="flex flex-col item-center font-semibold text-2xl md:text-4xl">
-      <span> Looks like you haven't connected your Spotify account yet.</span>
-      <button onClick={onClick} className="rounded bg-customgreen text-white" type="button">
-        Connect Now
-      </button>
+    <div className="flex flex-col font-mono text-2xl space-y-2 -mt-2">
+      <span className="uppercase border-b-2 border-gray-500 text-left"> Sign In</span>
+      <span>Looks like you haven't connected Pass the AUX to Spotify yet. Click below to sign in.</span>
+      <span className="text-xl text-gray-400 pb-2">Only available for Spotify Premium users</span>
+      <div className="inline-block self-center rounded bg-customgreen text-white px-6 pt-1">
+        <a href={apiLink}> Sign in with Spotify</a>
+      </div>
+    </div>
+  );
+}
+
+export const DeviceSearch = (props) => {
+  return (
+    <div className="flex flex-col font-mono text-2xl space-y-2 -mt-2 -mb-4">
+      <span className="text-left uppercase border-b-2 border-gray-500"> Connect a Device</span>
+      {props.loading
+        ? <span> Open the Spotify app on your phone so Pass the AUX can connect to it</span>
+        : <span> Now connected to '{props.deviceName}', you're ready to go</span>
+      }
+      
+      <div className="flex flex-col items-center">
+        <ScaleLoader color="#1DB954" loading={props.loading}/>
+        {props.loading 
+          ? <span className="text-gray-500 text-xl"> searching for devices...</span>
+          : <CheckMark />
+        }
+      </div>
     </div>
   );
 }
@@ -99,4 +131,12 @@ const MobileMenu = () => {
       <div className="text-2xl hover:text-customgreen"> About </div>
     </div>
   );
+}
+
+const CheckMark = () => {
+  return (
+    <svg className="text-customgreen mr-2 w-20 h-20 stroke-current" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" viewBox="0 0 24 24">
+        <path d="M5 13l4 4L19 7"></path>
+    </svg>
+  )
 }
