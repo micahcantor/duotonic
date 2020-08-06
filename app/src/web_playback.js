@@ -1,7 +1,6 @@
 import { getAccessToken } from "./api.js";
 import Bowser from "bowser";
 
-const token = getAccessToken();
 var insertPlayerInterval;
 var device;
 
@@ -37,14 +36,14 @@ export const isPlaybackCapable = () => {
       edge: ">20.10240",
     },
   });
-  if (supported === null) {
+  if (supported == null) {
     return false;
   } else {
     return supported;
   }
 };
 
-const createEventHandlers = async () => {
+const createEventHandlers = () => {
   player.on("initialization_error", (e) => {
     console.error(e);
   });
@@ -70,9 +69,10 @@ const createEventHandlers = async () => {
 };
 
 const insertPlayer = async () => {
-  if (window.Spotify !== null) {
+  if (window.Spotify != null) {
     clearInterval(insertPlayerInterval); // clear the interval once found
 
+    const token = await getAccessToken();
     player = new window.Spotify.Player({
       name: "Pass the AUX",
       /* this looks weird but is just boilerplate for initializing the player */
@@ -99,6 +99,6 @@ export const initPlayer = async () => {
         }
       }, 250);
 
-    }, 1000);
+    }, 250);
   });
 };

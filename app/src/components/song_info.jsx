@@ -13,6 +13,7 @@ const SongInfo = (props) => {
         </span>
         <span id="album">{props.song.album}</span>
         <span id="uri" className="hidden">{props.song.uri}</span>
+        <span id="runtime" className="hidden">{props.song.runtime}</span>
       </div>
     </div>
   );

@@ -20,6 +20,7 @@ class SearchBar extends React.Component {
         artists: track.artists.map(a => a.name).reduce((acc, curr) => acc + ", " + curr),
         coverUrl: track.album.images[0].url,
         uri: track.uri,
+        runtime: track.duration_ms,
       }
     });
 
