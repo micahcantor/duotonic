@@ -15,7 +15,7 @@ export const getAccessToken = async () => {
 }
 
 const reqPlayer = async (device_id, endpoint, method) => {
-    const api = `http://localhost:3000/api/spotify/me/player/${endpoint}?device_id=${device_id}`;
+    const api = `http://localhost:3000/api/spotify/me/player/${endpoint}`;
     await fetch(api, {
         method: method,
         credentials: "include"
@@ -52,6 +52,20 @@ export const nextSong = async (device_id) => {
 
 export const previousSong = async (device_id) => {
     await reqPlayer(device_id, "previous", "POST")
+}
+
+export const setVolume = async (device_id, volume_percent) => {
+    const api = `http://localhost:3000/api/spotify/me/player/volume?device_id=${device_id}&volume_percent=${volume_percent}`;
+    await fetch (api, {
+        method: "PUT",
+        credentials: "include"
+    })
+}
+
+export const getDevices = async () => {
+    const response = await fetch("http://localhost:3000/api/spotify/me/player/devices", { credentials: "include" });
+    const json = await response.json();
+    return json.devices;
 }
 
 export const addToQueue = async (device_id, uri) => {
