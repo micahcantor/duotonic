@@ -1,16 +1,32 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable prefer-destructuring */
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "../styles.css";
 import SongInfo from "./song_info.jsx"
-import { SliderInput, SliderTrack, SliderTrackHighlight, SliderHandle, } from "@reach/slider";
+import { SliderInput, SliderTrack, SliderTrackHighlight, SliderHandle, SliderMarker, } from "@reach/slider";
 import "../slider_styles.css";
+import { setVolume } from "../api";
+import { ProgressBar } from "./progress_bar.jsx";
 
 const Player = (props) => {
+
+  const [runtime, setRuntime] = useState(100);
+
+  useEffect(() => {
+    if (props.song) {
+      setRuntime(props.song.runtime)
+    }
+  }, [props.song])
+
+  const onVolumeMouseUp = async (e) => {
+    const volume = parseInt(e.target.firstChild.children[1].getAttribute("aria-valuenow"));
+    await setVolume(props.device.id, volume)
+  }
+
   return (
     <div className="flex overflow-hidden flex-col border-t-2 border-gray-500 bg-gray-900 h-22">
       <div className="flex w-full relative mx-auto mt-1 items-center">
-        <div className="absolute left-0 ml-3">
+        <div className="ml-3">
           {props.songInQueue
             ? <SongInfo song={props.song} />
             : null
@@ -19,12 +35,12 @@ const Player = (props) => {
         <PlaybackControls isPaused={props.isPaused} onPauseChange={props.handlePauseChange} 
           onLeftSkip={props.onLeftSkip} onRightSkip={props.onRightSkip} songInQueue={props.songInQueue} />
 
-        <VolumeSlider />
+        {props.canControlVol
+          ? <VolumeSlider onMouseUp={onVolumeMouseUp}/>
+          : null
+        }
       </div>
-      {props.songInQueue
-        ? <ProgressBar isPaused={props.isPaused} runtime={props.song.runtime} />
-        : null
-      }
+      <ProgressBar isPaused={props.isPaused} runtime={runtime} />
     </div>
   );
 }
@@ -51,51 +67,7 @@ const PausePlay = (props) => {
   );
 }
 
-class ProgressBar extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { elapsed: 0, progressActive: false }; // elapsed: seconds of the song elapsed
-  } // progressActive: is the progress bar incrementing
-
-  advanceProgress() {
-    /* starts a repeating increment function and sets progress active to true*/
-    this.setState({ progressActive: true });
-    this.timerID = setInterval(
-      () => this.setState((state) => ({ elapsed: state.elapsed + 0.01 })), // increments elapsed
-      10 // every 10 ms
-    );
-  }
-
-  pauseProgress() {
-    this.setState({ progressActive: false });
-    clearInterval(this.timerID); // stops the interval when paused
-  }
-
-  render() {
-    if (!this.props.isPaused && !this.state.progressActive) {
-      // if song is playing and the progress bar is not already active
-      this.advanceProgress();
-    }
-    else if (this.props.isPaused && this.state.progressActive) {
-      // if the song is paused and the progress bar is active
-      this.pauseProgress();
-    }
-
-    const progress = (this.state.elapsed / this.props.runtime) * 100; // elapsed / runtime as a percentage
-    if (progress == 100) this.pauseProgress(); // stops progress bar at 100%
-
-    return (
-      <div className="flex shadow w-full h-2 bg-grey-light">
-        <div className="bg-customgreen leading-none py-1 rounded" style={{ width: progress + "%" }} >
-          {" "}
-        </div>
-      </div>
-    );
-  }
-}
-
-const VolumeSlider = () => {
-  /* Later on the value state of the slider will be lifted up so it can be referenced by the audio playing component. */
+const VolumeSlider = ({ onMouseUp }) => {
   return (
     <div className="hidden lg:flex items-center text-gray-500 absolute right-0 -mt-1 mr-3">
       <svg className="w-4 h-4 mr-2 mt-2 stroke-current" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24">
@@ -103,7 +75,7 @@ const VolumeSlider = () => {
         <path d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"></path>
       </svg>
 
-      <SliderInput className="w-32" min={0} max={100}>
+      <SliderInput className="w-32" min={0} max={100} onMouseUp={onMouseUp} defaultValue={100}>
         <SliderTrack>
           <SliderTrackHighlight />
           <SliderHandle className="hover:bg-customgreen hover:border-customgreen focus:bg-customgreen focus:border-customgreen" />
