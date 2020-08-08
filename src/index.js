@@ -73,6 +73,7 @@ const shouldRefreshToken = async (db, id) => {
     const current_time = new Date().getTime();
     const ONE_HOUR = 3600 * 1000;
 
+    console.log(current_time - last_update, ONE_HOUR, current_time - last_update > ONE_HOUR)
     if (current_time - last_update > ONE_HOUR) {
         return true;
     }
@@ -105,12 +106,17 @@ const init = async () => {
     });
 
     server.state('sessionId', {
-        ttl: null,
         isSecure: (process.env.TLS_ENABLED === 'true'),
-        isHttpOnly: true,
         path: '/',
         domain: process.env.HOST
     });
+
+    server.state('isAuthorized', {
+        isSecure: (process.env.TLS_ENABLED === 'true'),
+        isHttpOnly: false,
+        path: '/',
+        domain: process.env.HOST
+    }); 
 
     await server.register(Bell);
 
@@ -126,7 +132,7 @@ const init = async () => {
         isSecure: false,
         scope(request) {
 
-            const scopes = ['user-read-private', 'user-read-email', 'user-modify-playback-state'];
+            const scopes = ['user-read-private', 'user-read-email', 'user-modify-playback-state', 'user-read-playback-state'];
             if (request.query.wantsWebPlayback) {
                 scopes.push('streaming');
             }
@@ -143,12 +149,11 @@ const init = async () => {
                 mode: 'try',
                 strategy: 'spotify'
             },
-            handler: async function (request, h) {
-
+            handler: async (request, h) => {
                 if (!request.auth.isAuthenticated) {
+                    console.log(request.auth.error.message)
                     throw Boom.unauthorized();
                 }
-
                 const result = await db.collection('sessions').insertOne({
                     auth: request.auth,
                     last_update: new Date()
@@ -157,7 +162,8 @@ const init = async () => {
                 if (result) {
                     const id = result.ops[0]._id.toString();
                     h.state('sessionId', id);
-                    return { sessionId: id };
+                    h.state('isAuthorized', 'true');
+                    return h.redirect('http://localhost:8080');
                 }
 
                 throw Boom.badImplementation();
@@ -213,7 +219,7 @@ const init = async () => {
                 let token;
                 const id = ObjectId(request.state.sessionId);
                 const shouldRefresh = await shouldRefreshToken(db, id);
-
+                console.log("should refresh " + shouldRefresh)
                 if (shouldRefresh) {
                     token = await refreshAccessToken(db, id);
                     const current_time = new Date().getTime();
@@ -236,11 +242,11 @@ const init = async () => {
                             response = await requestSpotify(request.params.endpoint, request.method, request.query, token);
                         }
 
-                        return await JSON.stringify(response.data);
+                        return JSON.stringify(response.data);
                     }
                     catch (error) {
                         console.log(request.url);
-                        console.log(error.response.data.error);
+                        console.log(error.response);
                         throw Boom.badRequest('Third-party API request failed.');
                     }
                 }
