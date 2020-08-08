@@ -116,7 +116,7 @@ const init = async () => {
         isHttpOnly: false,
         path: '/',
         domain: process.env.HOST
-    }); 
+    });
 
     await server.register(Bell);
 
@@ -150,10 +150,12 @@ const init = async () => {
                 strategy: 'spotify'
             },
             handler: async (request, h) => {
+
                 if (!request.auth.isAuthenticated) {
-                    console.log(request.auth.error.message)
+                    console.log(request.auth.error.message);
                     throw Boom.unauthorized();
                 }
+
                 const result = await db.collection('sessions').insertOne({
                     auth: request.auth,
                     last_update: new Date()
@@ -219,7 +221,6 @@ const init = async () => {
                 let token;
                 const id = ObjectId(request.state.sessionId);
                 const shouldRefresh = await shouldRefreshToken(db, id);
-                console.log("should refresh " + shouldRefresh)
                 if (shouldRefresh) {
                     token = await refreshAccessToken(db, id);
                     const current_time = new Date().getTime();
@@ -246,7 +247,10 @@ const init = async () => {
                     }
                     catch (error) {
                         console.log(request.url);
-                        console.log(error.response);
+                        if (error.response.data) {
+                            console.log(error.response.data);
+                        }
+
                         throw Boom.badRequest('Third-party API request failed.');
                     }
                 }
