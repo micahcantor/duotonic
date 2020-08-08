@@ -5,15 +5,24 @@ import { Dialog } from "@reach/dialog";
 import "../modal_styles.css";
 import ScaleLoader from "react-spinners/ScaleLoader";
 
-export const Modal = ({showDialog, close, body, mobile, loading, deviceName, apiLink}) => {
+export const Modal = ({showDialog, close, body, mobile, loading, deviceName, apiLink, shareURL}) => {
   const className = mobile ? "w-full h-full text-left" : "inline-block text-center mt-64 rounded h-auto";
   var modalBody;
   switch(body) {
     case "SignIn":
-      modalBody = <SignIn apiLink={apiLink} />
+      modalBody = <SignIn apiLink={apiLink} />;
       break;
     case "DeviceSearch":
-      modalBody = <DeviceSearch loading={loading} deviceName={deviceName} />
+      modalBody = <DeviceSearch loading={loading} deviceName={deviceName} />;
+      break;
+    case "FindRandom":
+      modalBody = <FindRandom />;
+      break;
+    case "GiveLink":
+      modalBody = <GiveLink shareUrl={shareURL}/>;
+      break;
+    case "MobileMenu":
+      modalBody = <Mobile close={close} />;
       break;
   }
 
@@ -31,11 +40,12 @@ export const GiveLink = (props) => {
   }
 
   return (
-    <div className="flex flex-col items-center font-semibold text-2xl md:text-4xl">
-      <span className=""> Share this link with a friend: </span>
-      <div className="text-customgreen flex items-center">
+    <div className="flex flex-col font-mono space-y-2 text-2xl -mt-2">
+      <span className="uppercase border-b-2 border-gray-500 text-left"> Share</span>
+      <span className=""> Give this link to a friend: </span>
+      <div className="text-customgreen flex justify-center items-center">
         <p className="font-semibold text-customgreen mr-4" id="share_link">
-          link.url/link {props.shareUrl}
+          <a href={props.shareURL}>link.com/link</a>
         </p>
         <button onClick={onCopyClick} type="button">
           <svg fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" 
@@ -51,14 +61,17 @@ export const GiveLink = (props) => {
 
 export const FindRandom = () => {
   return (
-    <div className="flex flex-col items-center font-semibold text-2xl md:text-4xl">
-      <span> Pairing you up... </span>
-      <span> Loading </span>
+    <div className="flex flex-col font-mono text-2xl space-y-2 -mt-2">
+      <span className="uppercase border-b-2 border-gray-500 text-left"> Go Random</span>
+      <div className="flex flex-col items-center text-2xl mt-2 space-y-2">
+        <span >Pairing you up, this shouldn't take long</span>
+        <ScaleLoader color="#1DB954" loading={true}/>
+      </div>
     </div>
   );
 };
 
-export const SignIn = ( { apiLink }) => {
+export const SignIn = ({ apiLink }) => {
   return (
     <div className="flex flex-col font-mono text-2xl space-y-2 -mt-2">
       <span className="uppercase border-b-2 border-gray-500 text-left"> Sign In</span>
@@ -118,12 +131,12 @@ const MobileMenu = () => {
     <div className="text-3xl font-mono lowercase pt-6">
       <button onClick={openLink} type="button" className="hover:text-customgreen">
         Get a Link
-        <Modal modalBody={<GiveLink shareUrl="link" />} showDialog={showLink} close={closeLink} mobile={false}/>
+        <Modal body="GiveLink" shareURL="link" showDialog={showLink} close={closeLink} mobile={false}/>
       </button>
       <div className="my-2 w-full h-px bg-gray-300"></div>
       <button onClick={openRandom} type="button" className="hover:text-customgreen">
         Go Random
-        <Modal modalBody={<FindRandom />} showDialog={showRandom} close={closeRandom} mobile={false}/>
+        <Modal body="FindRandom" showDialog={showRandom} close={closeRandom} mobile={false}/>
       </button>
       <div className="my-2 w-full h-px bg-gray-300"></div>
       <div className="text-2xl hover:text-customgreen"> Github </div>

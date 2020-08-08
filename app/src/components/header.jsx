@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import React from "react";
-import { Modal, FindRandom, GiveLink, Mobile } from "./modal.jsx";
+import { Modal } from "./modal.jsx";
 import "../styles.css";
 
 const Header = () => {
@@ -23,7 +23,7 @@ const Header = () => {
       </div>
       <div className="block lg:hidden">
         <HamburgerButton open={openMobile}/>
-        <Modal modalBody={<Mobile close={closeMobile}/>} showDialog={showMobile} close={closeMobile} mobile={true}/>
+        <Modal body="MobileMenu" showDialog={showMobile} close={closeMobile} mobile={true}/>
       </div>
       <div className="font-mono hidden w-full block flex-grow lg:flex lg:items-center lg:w-auto">
         <div className="text-sm lg:flex-grow">
@@ -36,10 +36,10 @@ const Header = () => {
         </div>
         <div className="flex mx-2">
           <NavButton open={openRandom} buttonText="Go Random"/>
-          <Modal modalBody={<FindRandom />} showDialog={showRandom} close={closeRandom} mobile={false}/>
+          <Modal body="FindRandom" showDialog={showRandom} close={closeRandom} mobile={false}/>
 
           <NavButton open={openLink} buttonText="Get a Link"/>
-          <Modal modalBody={<GiveLink shareUrl="link" />} showDialog={showLink} close={closeLink} mobile={false}/>
+          <Modal body="GiveLink" shareURL="link" showDialog={showLink} close={closeLink} mobile={false}/>
         </div>
       </div>
     </nav>

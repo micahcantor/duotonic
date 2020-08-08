@@ -33,21 +33,15 @@ const PlayerPage = () => {
   // on mount, check if the user's device is capable of web playback, and if so set it up
   useEffect(() => {
     const wrapper = async () => {
-      if (false) { //isPlaybackCapable
-        if (isAuthorized) {
-          addSDKScript();
+      if (isAuthorized) {
+        if (playbackCapable) {
+          /* addSDKScript();
           const playerData = await initPlayer();
           setDevice(playerData.deviceID);
-          setWebPlayer(playerData.player);
+          setWebPlayer(playerData.player); */
         }
         else {
-          setModalBody("SignIn");
-        }
-      }
-      else {
-        if (isAuthorized) {
           setModalBody("DeviceSearch");
-
           const searchForDevices = setInterval(() => {
             getDevices().then(devices => {
               if (devices && devices.length > 0) {
@@ -58,10 +52,9 @@ const PlayerPage = () => {
             })
           }, 2000)
         }
-        else {
-          setModalBody("SignIn");
-        }
-        
+      }
+      else {
+        setModalBody("SignIn")
       }
 
       const almost_one_hour = 55 * 60000; // 55 mins
