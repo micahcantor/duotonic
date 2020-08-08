@@ -23,7 +23,7 @@ const PlayerPage = () => {
   
   const [modalBody, setModalBody] = useState("");
   const [showModal, setShowModal] = useState(true);
-  const closeSignIn = () => setShowModal(false);
+  const closeModal = () => setShowModal(false);
   
   const songInQueue = songs.length > 0; // bool that is true if there is a song in the queue
   const isAuthorized = document.cookie === "isAuthorized=true";
@@ -35,10 +35,11 @@ const PlayerPage = () => {
     const wrapper = async () => {
       if (isAuthorized) {
         if (playbackCapable) {
-          /* addSDKScript();
+          setShowModal(false);
+          addSDKScript();
           const playerData = await initPlayer();
           setDevice(playerData.deviceID);
-          setWebPlayer(playerData.player); */
+          setWebPlayer(playerData.player);
         }
         else {
           setModalBody("DeviceSearch");
@@ -88,11 +89,11 @@ const PlayerPage = () => {
     // the first song is played immediately and isn't added to the queue
     // spotify automatically adds the first song played to the queue
     if (songs.length == 0) {
-      await startSong(device.id, newQueueItem.uri);
+      await startSong(device, newQueueItem.uri);
       setIsPaused(false);
     }
     else {
-      await addToQueue(device.id, newQueueItem.uri);
+      await addToQueue(device, newQueueItem.uri);
     }
 
     // update songs state afterwards to avoid stale state issues
@@ -103,23 +104,23 @@ const PlayerPage = () => {
     setIsPaused(isPaused => !isPaused);
 
     if (isPaused && !songStarted) {
-      startSong(device.id, songs[0].uri);
+      startSong(device, songs[0].uri);
     } else if (isPaused && songStarted) {
-      resumeSong(device.id);
+      resumeSong(device);
     } else {
-      pauseSong(device.id);
+      pauseSong(device);
     }
 
     setSongStarted(true);
   }
 
   const onLeftSkip = async () => {
-    await previousSong(device.id);
+    await previousSong(device);
     setIsPaused(false);
   }
 
   const onRightSkip = async () => {
-    await nextSong(device.id); // moves to the next song in spotify queue
+    await nextSong(device); // moves to the next song in spotify queue
     setIsPaused(false);      // start the song in case previous song was paused
 
     // removes the first song from the queue list and returns the new list
@@ -129,7 +130,7 @@ const PlayerPage = () => {
   return (
     <>
       <Modal body={modalBody} loading={deviceSearching} deviceName={device? device.name : ""}
-        showDialog={showModal} close={closeSignIn} mobile={false} apiLink={signInLink} />
+        showDialog={showModal} close={closeModal} mobile={false} apiLink={signInLink} />
 
       <div className="grid grid-rows-pancake text-white w-screen h-screen bg-gray-900 overflow-hidden">
         <Header />
