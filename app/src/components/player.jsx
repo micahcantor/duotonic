@@ -9,12 +9,14 @@ import { setVolume } from "../api";
 import { ProgressBar } from "./progress_bar.jsx";
 
 const Player = (props) => {
-
-  const [runtime, setRuntime] = useState(100);
+  const [runtime, setRuntime] = useState(null);
 
   useEffect(() => {
     if (props.song) {
-      setRuntime(props.song.runtime)
+      setRuntime(props.song.runtime);
+    } 
+    else {
+      setRuntime(null);
     }
   }, [props.song])
 
@@ -26,7 +28,7 @@ const Player = (props) => {
   return (
     <div className="flex overflow-hidden flex-col border-t-2 border-gray-500 bg-gray-900 h-22">
       <div className="flex w-full relative mx-auto mt-1 items-center">
-        <div className="ml-3">
+        <div className="ml-3 lg:absolute">
           {props.songInQueue
             ? <SongInfo song={props.song} />
             : null
@@ -40,7 +42,7 @@ const Player = (props) => {
           : null
         }
       </div>
-      <ProgressBar isPaused={props.isPaused} runtime={runtime} />
+      <ProgressBar song={props.song} isPaused={props.isPaused} runtime={runtime} deviceID={props.device ? props.device.id : ""} onProgressComplete={props.onProgressComplete}/>
     </div>
   );
 }
