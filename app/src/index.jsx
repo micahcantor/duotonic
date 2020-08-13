@@ -9,7 +9,7 @@ import Queue from "./components/queue.jsx";
 import Chat from "./components/chat.jsx";
 import Header from "./components/header.jsx";
 import { Modal } from "./components/modal.jsx"
-import { addToQueue, startSong, pauseSong, resumeSong, nextSong, previousSong, getDevices, getAccessToken } from "./api.js"
+import { addToQueue, startSong, pauseSong, resumeSong, nextSong, previousSong, getDevices, getAccessToken, enterRoom } from "./api.js"
 import { addSDKScript, isPlaybackCapable, initPlayer } from "./web_playback.js";
 
 const PlayerPage = () => {
@@ -18,6 +18,7 @@ const PlayerPage = () => {
   const [songStarted, setSongStarted] = useState(false);
   const [webPlayer, setWebPlayer] = useState(null);
 
+  const [signInLink, setSignInLink] = useState("");
   const [device, setDevice] = useState(null);
   const [deviceSearching, setDeviceSearching] = useState(true);
   
@@ -26,45 +27,11 @@ const PlayerPage = () => {
   const closeModal = () => setShowModal(false);
   
   const songInQueue = songs.length > 0; // bool that is true if there is a song in the queue
-  const isAuthorized = document.cookie === "isAuthorized=true";
-  const playbackCapable = isPlaybackCapable();
-  const signInLink = `http://localhost:3000/auth/spotify${playbackCapable ? '?wantsWebPlayback=true' : null}`
-   
+
   // on mount, check if the user's device is capable of web playback, and if so set it up
   useEffect(() => {
-    const wrapper = async () => {
-      if (isAuthorized) {
-        if (playbackCapable) {
-          setShowModal(false);
-          addSDKScript();
-          const playerData = await initPlayer();
-          setDevice(playerData.deviceID);
-          setWebPlayer(playerData.player);
-        }
-        else {
-          setModalBody("DeviceSearch");
-          const searchForDevices = setInterval(() => {
-            getDevices().then(devices => {
-              if (devices && devices.length > 0) {
-                setDevice(devices[0]);
-                setDeviceSearching(false);
-                clearInterval(searchForDevices);
-              }
-            })
-          }, 2000)
-        }
-      }
-      else {
-        setModalBody("SignIn")
-      }
-
-      const almost_one_hour = 55 * 60000; // 55 mins
-      // refresh the access token roughly every hour if the user has not left the page
-      setInterval(() => {
-        getAccessToken();
-      }, almost_one_hour)
-    }
-    wrapper();
+    setup();
+    setRefreshTimer();
   }, []);
 
   useEffect(() => {
@@ -74,7 +41,52 @@ const PlayerPage = () => {
         console.log(currentSong);
       });
     }
-  }, [webPlayer])
+  }, [webPlayer]);
+
+  const setup = async () => {
+    const isAuthorized = document.cookie === "isAuthorized=true";
+    const playbackCapable = isPlaybackCapable();
+    setSignInLink(`http://localhost:3000/auth/spotify${playbackCapable ? '?wantsWebPlayback=true' : ""}`)
+
+    if (isAuthorized && playbackCapable) {
+      setShowModal(false);
+      addSDKScript();
+      const playerData = await initPlayer();
+      setDeviceSearching(false);
+      setDevice(playerData.device);
+      setWebPlayer(playerData.player);
+    }
+    else if (isAuthorized && !playbackCapable) {
+      setModalBody("DeviceSearch");
+      const searchForDevices = setInterval(() => {
+        getDevices().then(devices => {
+          if (devices && devices.length > 0) {
+            setDevice(devices[0]);
+            setDeviceSearching(false);
+            clearInterval(searchForDevices);
+          }
+        })
+      }, 2000)
+    }
+    else {
+      setModalBody("SignIn")
+    }
+
+    const queryParams = new URLSearchParams(window.location.search);
+    const roomID = queryParams.get("room");
+    if (isAuthorized && roomID) {
+      console.log('entering room', roomID)
+      await enterRoom(roomID);
+    }
+  }
+
+  const setRefreshTimer = () => {
+    // refresh the access token roughly every hour if the user has not left the page
+    const almost_one_hour = 55 * 60000; // 55 mins
+    setInterval(() => {
+      getAccessToken();
+    }, almost_one_hour);
+  }
 
   const onAdd = async (e) => {
     const parentNode = e.target.closest("#result-parent").firstChild;
@@ -89,11 +101,11 @@ const PlayerPage = () => {
     // the first song is played immediately and isn't added to the queue
     // spotify automatically adds the first song played to the queue
     if (songs.length == 0) {
-      await startSong(device, newQueueItem.uri);
+      await startSong(device.id, newQueueItem.uri);
       setIsPaused(false);
     }
     else {
-      await addToQueue(device, newQueueItem.uri);
+      await addToQueue(device.id, newQueueItem.uri);
     }
 
     // update songs state afterwards to avoid stale state issues
@@ -104,26 +116,30 @@ const PlayerPage = () => {
     setIsPaused(isPaused => !isPaused);
 
     if (isPaused && !songStarted) {
-      startSong(device, songs[0].uri);
+      startSong(device.id, songs[0].uri);
     } else if (isPaused && songStarted) {
-      resumeSong(device);
+      resumeSong(device.id);
     } else {
-      pauseSong(device);
+      pauseSong(device.id);
     }
 
     setSongStarted(true);
   }
 
   const onLeftSkip = async () => {
-    await previousSong(device);
+    await previousSong(device.id);
+    updateSongs(songs => songs.filter((s, i) => i !== songs.length - 1));
     setIsPaused(false);
   }
 
   const onRightSkip = async () => {
-    await nextSong(device); // moves to the next song in spotify queue
-    setIsPaused(false);      // start the song in case previous song was paused
-
+    await nextSong(device.id); // moves to the next song in spotify queue
     // removes the first song from the queue list and returns the new list
+    updateSongs(songs => songs.filter((s, i) => i > 0));
+    setIsPaused(false);
+  }
+
+  const onProgressComplete = () => {
     updateSongs(songs => songs.filter((s, i) => i > 0));
   }
 
@@ -133,7 +149,7 @@ const PlayerPage = () => {
         showDialog={showModal} close={closeModal} mobile={false} apiLink={signInLink} />
 
       <div className="grid grid-rows-pancake text-white w-screen h-screen bg-gray-900 overflow-hidden">
-        <Header />
+        <Header device={device} deviceSearching={deviceSearching}/>
         <div className="container flex flex-col mx-auto px-5 pt-4 overflow-y-auto scrollbar">
           <SearchBar onAdd={onAdd} />
           <div className="flex mb-4 h-full">
@@ -142,7 +158,7 @@ const PlayerPage = () => {
           </div>
         </div>
         <Player songInQueue={songInQueue} isPaused={isPaused} song={songs[0]} device={device} 
-          handlePauseChange={handlePauseChange} onLeftSkip={onLeftSkip} onRightSkip={onRightSkip}/>
+          handlePauseChange={handlePauseChange} onLeftSkip={onLeftSkip} onRightSkip={onRightSkip} onProgressComplete={onProgressComplete}/>
         
       </div>
     </>
