@@ -14,8 +14,57 @@ export const getAccessToken = async () => {
     return json.access_token;
 }
 
+export const getRoomID = async () => {
+    const api = "http://localhost:3000/rooms/share-link";
+    const response = await fetch(api, { credentials: "include" });
+    const json = await response.json();
+    return json.room_id;
+}
+
+export const enterRoom = async (roomID) => {
+    const api = `http://localhost:3000/rooms/enter?room=${roomID}`;
+    const response = await fetch(api, {
+        method: "PUT",
+        credentials: "include"
+    });
+    if (response.status === 400) {
+        console.log('invalid room #')
+    }
+}
+
+export const exitRoom = async () => {
+    const api = "http://localhost:3000/rooms/exit";
+    await fetch(api, {
+        method: "PUT",
+        credentials: "include"
+    });
+}
+
+export const enterQueue = async () => {
+    const api = "http://localhost:3000/rooms/queue/enter";
+    await fetch(api, {
+        method: "PUT",
+        credentials: "include"
+    });
+}
+
+export const exitQueue = async () => {
+    const api = "http://localhost:3000/rooms/queue/exit";
+    await fetch(api, {
+        method: "PUT",
+        credentials: "include"
+    });
+}
+
+export const findPartner = async () => {
+    const api = "http://localhost:3000/rooms/queue/pair";
+    const response = await fetch(api, { credentials: "include"});
+    const json = await response.json();
+    return json;
+}
+
 const reqPlayer = async (device_id, endpoint, method) => {
-    const api = `http://localhost:3000/api/spotify/me/player/${endpoint}`;
+    const api = `http://localhost:3000/api/spotify/me/player/${endpoint}/?device_id=${device_id}`;
     await fetch(api, {
         method: method,
         credentials: "include"
@@ -29,7 +78,7 @@ const reqPlayerPayload = async (device_id, data, endpoint, method) => {
         body: JSON.stringify(data),
         credentials: "include",
         headers: { 'Content-Type': 'application/json' }
-    })
+    });
 }
 
 export const startSong = async (device_id, uri) => {
@@ -73,5 +122,5 @@ export const addToQueue = async (device_id, uri) => {
     await fetch (api, {
         method: "POST",
         credentials: "include"
-    })
+    });
 }
