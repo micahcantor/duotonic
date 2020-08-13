@@ -5,7 +5,7 @@ import { Dialog } from "@reach/dialog";
 import "../modal_styles.css";
 import ScaleLoader from "react-spinners/ScaleLoader";
 
-export const Modal = ({showDialog, close, body, mobile, loading, deviceName, apiLink, shareURL}) => {
+export const Modal = ({showDialog, close, body, mobile, loading, deviceName, apiLink, shareURL, partnerSearching}) => {
   const className = mobile ? "w-full h-full text-left" : "inline-block text-center mt-64 rounded h-auto";
   var modalBody;
   switch(body) {
@@ -16,10 +16,10 @@ export const Modal = ({showDialog, close, body, mobile, loading, deviceName, api
       modalBody = <DeviceSearch loading={loading} deviceName={deviceName} />;
       break;
     case "FindRandom":
-      modalBody = <FindRandom />;
+      modalBody = <FindRandom loading={partnerSearching}/>;
       break;
     case "GiveLink":
-      modalBody = <GiveLink shareUrl={shareURL}/>;
+      modalBody = <GiveLink shareURL={shareURL}/>;
       break;
     case "MobileMenu":
       modalBody = <Mobile close={close} />;
@@ -44,12 +44,12 @@ export const GiveLink = (props) => {
       <span className="uppercase border-b-2 border-gray-500 text-left"> Share</span>
       <span className=""> Give this link to a friend: </span>
       <div className="text-customgreen flex justify-center items-center">
-        <p className="font-semibold text-customgreen mr-4" id="share_link">
-          <a href={props.shareURL}>link.com/link</a>
+        <p className="font-semibold text-customgreen mr-3 mt-3" id="share_link">
+          <a href={props.shareURL}>{props.shareURL}</a>
         </p>
-        <button onClick={onCopyClick} type="button">
+        <button onClick={onCopyClick} type="button" className="flex items-center">
           <svg fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" 
-            className="mt-1 w-10 h-10 text-white hover:text-customgreen stroke-current"
+            className="mt-1 w-8 h-8 text-white hover:text-customgreen stroke-current"
           >
             <path d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
           </svg>
@@ -59,13 +59,13 @@ export const GiveLink = (props) => {
   );
 }
 
-export const FindRandom = () => {
+export const FindRandom = ({ loading }) => {  
   return (
     <div className="flex flex-col font-mono text-2xl space-y-2 -mt-2">
       <span className="uppercase border-b-2 border-gray-500 text-left"> Go Random</span>
       <div className="flex flex-col items-center text-2xl mt-2 space-y-2">
-        <span >Pairing you up, this shouldn't take long</span>
-        <ScaleLoader color="#1DB954" loading={true}/>
+        <span> Pairing you up, this shouldn't take long</span>
+        <ScaleLoader color="#1DB954" loading={loading}/>
       </div>
     </div>
   );
