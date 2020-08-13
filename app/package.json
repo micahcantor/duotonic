@@ -50,6 +50,7 @@
         "@emotion/core": "^10.0.28",
         "@reach/dialog": "^0.10.3",
         "@reach/slider": "^0.10.3",
+        "@reach/tooltip": "^0.10.5",
         "bowser": "^2.10.0",
         "core-js": "^3.6.5",
         "react": "^16.13.1",
