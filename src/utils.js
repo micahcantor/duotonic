@@ -62,4 +62,29 @@ const shouldRefreshToken = async (db, id) => {
     return false;
 };
 
-module.exports = { requestSpotifyPayload, requestSpotify, refreshAccessToken, shouldRefreshToken }
+const getUpdatedToken = async (db, id) => {
+    let token;
+    const shouldRefresh = await shouldRefreshToken(db, id);
+
+    if (shouldRefresh) {
+        token = await refreshAccessToken(db, id);
+        const current_time = new Date().getTime();
+        await db.collection('sessions').updateOne(
+            { _id: id },
+            { $set: { 
+                last_update: current_time, 
+                "auth.artifacts.access_token": token 
+            }}
+        );
+        console.log('refreshed access token');
+    }
+    else {
+        const sessionInfo = await db.collection('sessions').findOne({ _id: id });
+        token = sessionInfo.auth.artifacts.access_token;
+        console.log('got access token');
+    }
+
+    return token;
+}
+
+module.exports = { requestSpotifyPayload, requestSpotify, getUpdatedToken }

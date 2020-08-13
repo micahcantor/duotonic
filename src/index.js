@@ -7,11 +7,12 @@ const Fs = require('fs');
 const Hapi = require('@hapi/hapi');
 const Boom = require('@hapi/boom');
 const Bell = require('@hapi/bell');
+const Nes = require('@hapi/nes');
 const RequireHttps = require('hapi-require-https');
 const ObjectId = require('mongodb').ObjectId;
 
 const LoadDB = require('./db');
-const { requestSpotifyPayload, requestSpotify, refreshAccessToken, shouldRefreshToken } = require('./utils');
+const { requestSpotifyPayload, requestSpotify, getUpdatedToken } = require('./utils');
 
 const tls = (process.env.TLS_ENABLED === 'true') ? {
     cert: Fs.readFileSync(Path.resolve(__dirname, '../ssl/localhost.crt')),
@@ -39,6 +40,13 @@ const init = async () => {
         }
     });
 
+    // register plugins
+    await server.register(Bell);
+    await server.register(Nes);
+
+    // web socket endpoints for publishing updates to rooms
+    server.subscription('/rooms/{id}');
+
     server.state('sessionId', {
         isSecure: (process.env.TLS_ENABLED === 'true'),
         path: '/',
@@ -51,8 +59,6 @@ const init = async () => {
         path: '/',
         domain: process.env.HOST
     });
-
-    await server.register(Bell);
 
     if (process.env.TLS_ENABLED === 'true') {
         await server.register(RequireHttps);
@@ -98,8 +104,9 @@ const init = async () => {
 
                 if (result) {
                     const id = result.ops[0]._id.toString();
-                    h.state('sessionId', id);
+                    h.state('sessionId', id);           
                     h.state('isAuthorized', 'true');
+
                     return h.redirect('http://localhost:8080');
                 }
 
@@ -117,27 +124,8 @@ const init = async () => {
                 throw Boom.unauthorized('Must have a session cookie.');
             }
 
-            let token;
-            const id = ObjectId(request.state.sessionId);
-            const shouldRefresh = await shouldRefreshToken(db, id);
-
-            if (shouldRefresh) {
-                token = await refreshAccessToken(db, id);
-                const current_time = new Date().getTime();
-                await db.collection('sessions').updateOne(
-                    { _id: id },
-                    { $set: { 
-                        last_update: current_time,
-                        "auth.artifacts.access_token": token
-                    }}
-                );
-                console.log('refreshed access token');
-            }
-            else {
-                const sessionInfo = await db.collection('sessions').findOne({ _id: id });
-                token = sessionInfo.auth.artifacts.access_token;
-                console.log('got access token');
-            }
+            const userID = ObjectId(request.state.sessionId);
+            const token = await getUpdatedToken(db, userID);
 
             if (token) {
                 return { access_token: token };
@@ -156,27 +144,8 @@ const init = async () => {
                 throw Boom.unauthorized('Must have a session cookie.');
             }
 
-            let token;
-            const id = ObjectId(request.state.sessionId);
-            const shouldRefresh = await shouldRefreshToken(db, id);
-
-            if (shouldRefresh) {
-                token = await refreshAccessToken(db, id);
-                const current_time = new Date().getTime();
-                await db.collection('sessions').updateOne(
-                    { _id: id },
-                    { $set: { 
-                        last_update: current_time, 
-                        "auth.artifacts.access_token": token 
-                    }}
-                );
-                console.log('refreshed access token');
-            }
-            else {
-                const sessionInfo = await db.collection('sessions').findOne({ _id: id });
-                token = sessionInfo.auth.artifacts.access_token;
-                console.log('got access token');
-            }
+            const userID = ObjectId(request.state.sessionId);
+            const token = await getUpdatedToken(db, userID);
 
             if (token) {
                 try {
@@ -218,6 +187,7 @@ const init = async () => {
                     { _id: roomID },
                     { $addToSet: { user_ids: request.state.sessionId } } // adds user id only if it is not in the room already
                 );
+                server.publish(`/rooms/${roomID}`, { message: 'user entered'})
             }
             catch (error) {
                 console.log(error);
@@ -243,6 +213,7 @@ const init = async () => {
                     { user_ids: userID }, // where user_ids list contains this user's id
                     { $pull: { user_ids: userID } } // remove user's id from list
                 );
+                server.publish(`/rooms/${roomID}`, { message: 'user exited'})
             }
             catch (error) {
                 console.log(error);
@@ -257,6 +228,8 @@ const init = async () => {
         method: 'GET',
         path: '/rooms/share-link',
         handler: async (request, h) => {
+            /* This is one way to initialize a new room
+            A room is created when a user requests a share-able link */
 
             if (!request.state.sessionId) {
                 throw Boom.unauthorized('user must be authenticated');
@@ -268,14 +241,66 @@ const init = async () => {
             });
 
             if (result) {
-                const room_id = result.ops[0]._id.toString();
-                console.log('created new room', room_id);
-                return { room_id: room_id }
+                const roomID = result.ops[0]._id.toString();
+                console.log('created new room', roomID);
+                return { room_id: roomID }
             }
 
             throw Boom.badImplementation();
         }
     });
+
+    server.route({
+        method: 'GET',
+        path: '/rooms/queue/pair',
+        handler: async (request, h) => {
+            /* This is another way to initialize a new room
+            A room is created when two viable users are found that can be paired */
+
+            if (!request.state.sessionId) {
+                throw Boom.unauthorized('user must be authenticated');
+            }
+
+            const userID = ObjectId(request.state.sessionId);
+            const blockList = [userID];
+            
+            // find the first user in queue that is not in the blocklist
+            const match = await db.collection('sessions').findOne({ 
+                in_queue: true,
+                _id: { $nin: blockList } 
+            });
+            // check to see if the user has been added to a room by a match
+            const self = await db.collection('rooms').findOne({
+                user_ids: userID
+            })
+            // return if there are no matches and the requester is not in a room
+            if (!match && !self) {
+                return { message: 'no matches' }
+            }
+            // if the requester is in a room, return that room's id
+            else if (self) {
+                const selfID = self.ops[0]._id.toString();
+                return { room_id: selfID, message: 'success' }
+            }
+            // create a new room with the matched users
+            const result = await db.collection('rooms').insertOne({
+                user_ids: [userID, match._id]
+            });
+            // set in_queue to false for the matched users
+            await db.collection('sessions').updateMany(
+                { _id: { $in: [userID, match._id] } },
+                { $set: { in_queue: false } }
+            );
+
+            if (result) {
+                const roomID = result.ops[0]._id.toString();
+                console.log('created new room', roomID);
+                return { room_id: roomID, message: 'success' }
+            }
+
+            throw Boom.badImplementation();
+        }
+    })
 
     server.route({
         method: 'PUT',
@@ -324,54 +349,6 @@ const init = async () => {
             }
 
             return { message: 'success' };
-        }
-    })
-
-    server.route({
-        method: 'GET',
-        path: '/rooms/queue/pair',
-        handler: async (request, h) => {
-
-            if (!request.state.sessionId) {
-                throw Boom.unauthorized('user must be authenticated');
-            }
-
-            const userID = ObjectId(request.state.sessionId);
-            const blockList = [userID];
-            
-            // find the first user in queue that is not in the blocklist
-            const match = await db.collection('sessions').findOne({ 
-                in_queue: true,
-                _id: { $nin: blockList } 
-            });
-            // check to see if the user has been added to a room by a match
-            const self = await db.collection('rooms').findOne({
-                user_ids: userID
-            })
-            // return if there are no matches and the requester is not in a room
-            if (!match && !self) {
-                return { message: 'no matches' }
-            }
-            // if the requester is in a room, return that room's id
-            else if (self) {
-                return { room_id: self._id, message: 'success' }
-            }
-            // create a new room with the matched users
-            const result = await db.collection('rooms').insertOne({
-                user_ids: [userID, match._id]
-            });
-            // set in_queue to false for the matched users
-            await db.collection('sessions').updateMany(
-                { _id: { $in: [userID, match._id] } },
-                { $set: { in_queue: false } }
-            );
-
-            if (result) {
-                console.log('created new room', room_id);
-                return { room_id: result._id, message: 'success' }
-            }
-
-            throw Boom.badImplementation();
         }
     })
 
