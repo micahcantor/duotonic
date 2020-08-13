@@ -64,7 +64,10 @@ const createEventHandlers = () => {
 
   // Ready
   player.addListener("ready", ({ device_id }) => {
-    device = device_id;
+    device = {
+      id: device_id,
+      name: "Browser Playback"
+    }
   });
 };
 
@@ -92,8 +95,8 @@ export const initPlayer = async () => {
       insertPlayer();
 
       const getDeviceIDInterval = setInterval(() => {
-        if (device != null) {
-          const playerData = { deviceID: device, player: player }
+        if (device) {
+          const playerData = { device: device, player: player }
           resolve(playerData);
           clearInterval(getDeviceIDInterval);
         }
