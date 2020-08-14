@@ -1,12 +1,4 @@
 
-export const searchSpotify = async (query) => {
-    const api = "http://localhost:3000/api/spotify/search?q=";
-    const url = api + encodeURIComponent(query) + "&type=track&limit=10";
-    const response = await fetch(url, { credentials: "include" });
-    const json = await response.json();
-    return json;
-}
-
 export const getAccessToken = async () => {
     const api = "http://localhost:3000/auth/spotify/access-token";
     const response = await fetch(api, { credentials: "include" });
@@ -63,44 +55,35 @@ export const findPartner = async () => {
     return json;
 }
 
-const reqPlayer = async (device_id, endpoint, method) => {
-    const api = `http://localhost:3000/api/spotify/me/player/${endpoint}/?device_id=${device_id}`;
+const reqPlayer = async (device_id, endpoint, method, room_id) => {
+    const api = `http://localhost:3000/api/spotify/me/player/${endpoint}/?device_id=${device_id}&room=${room_id}`;
     await fetch(api, {
         method: method,
         credentials: "include"
     });
 }
 
-const reqPlayerPayload = async (device_id, data, endpoint, method) => {
-    const api = `http://localhost:3000/api/spotify/me/player/${endpoint}?device_id=${device_id}`;
+export const resumeSong = async (device_id, room_id) => {
+    // no uri sent so this resumes the song
+    await reqPlayer(device_id, "play", "PUT", room_id)
+}
+
+export const pauseSong = async (device_id, room_id) => {
+    await reqPlayer(device_id, "pause", "PUT", room_id)
+}
+
+export const nextSong = async (device_id, room_id, song_info) => {
+    const api = `http://localhost:3000/api/spotify/me/player/next?device_id=${device_id}&room=${room_id}`;
     await fetch (api, {
-        method: method,
-        body: JSON.stringify(data),
+        method: "POST",
+        body: JSON.stringify(song_info),
         credentials: "include",
         headers: { 'Content-Type': 'application/json' }
     });
 }
 
-export const startSong = async (device_id, uri) => {
-    // sending uri with request starts the song
-    await reqPlayerPayload(device_id, { uris: [uri] }, "play", "PUT")
-}
-
-export const resumeSong = async (device_id) => {
-    // no uri sent so this resumes the song
-    await reqPlayer(device_id, "play", "PUT")
-}
-
-export const pauseSong = async (device_id) => {
-    await reqPlayer(device_id, "pause", "PUT")
-}
-
-export const nextSong = async (device_id) => {
-    await reqPlayer(device_id, "next", "POST")
-}
-
-export const previousSong = async (device_id) => {
-    await reqPlayer(device_id, "previous", "POST")
+export const previousSong = async (device_id, room_id) => {
+    await reqPlayer(device_id, "previous", "POST", room_id)
 }
 
 export const setVolume = async (device_id, volume_percent) => {
@@ -117,10 +100,31 @@ export const getDevices = async () => {
     return json.devices;
 }
 
-export const addToQueue = async (device_id, uri) => {
-    const api = `http://localhost:3000/api/spotify/me/player/queue?device_id=${device_id}&uri=${uri}`;
+export const addToQueue = async (device_id, song_info, room_id) => {
+    const api = `http://localhost:3000/api/spotify/me/player/queue?device_id=${device_id}&uri=${song_info.uri}&room=${room_id}`;
     await fetch (api, {
         method: "POST",
-        credentials: "include"
+        body: JSON.stringify(song_info),
+        credentials: "include",
+        headers: { 'Content-Type': 'application/json' }
     });
+}
+
+export const startSong = async (device_id, song_info, room_id) => {
+    // sending uri with request starts the song
+    const api = `http://localhost:3000/api/spotify/me/player/play/?device_id=${device_id}&room=${room_id}`;
+    await fetch (api, {
+        method: method,
+        body: JSON.stringify(song_info),
+        credentials: "include",
+        headers: { 'Content-Type': 'application/json' }
+    });
+}
+
+export const searchSpotify = async (query) => {
+    const api = "http://localhost:3000/api/spotify/search?q=";
+    const url = api + encodeURIComponent(query) + "&type=track&limit=10";
+    const response = await fetch(url, { credentials: "include" });
+    const json = await response.json();
+    return json;
 }

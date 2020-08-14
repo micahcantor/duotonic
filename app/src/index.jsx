@@ -11,6 +11,7 @@ import Header from "./components/header.jsx";
 import { Modal } from "./components/modal.jsx"
 import { addToQueue, startSong, pauseSong, resumeSong, nextSong, previousSong, getDevices, getAccessToken, enterRoom } from "./api.js"
 import { addSDKScript, isPlaybackCapable, initPlayer } from "./web_playback.js";
+const Nes = require("@hapi/nes/lib/client")
 
 const PlayerPage = () => {
   const [songs, updateSongs] = useState([]);
@@ -19,6 +20,7 @@ const PlayerPage = () => {
   const [webPlayer, setWebPlayer] = useState(null);
 
   const [signInLink, setSignInLink] = useState("");
+  const [room, setRoom] = useState("");
   const [device, setDevice] = useState(null);
   const [deviceSearching, setDeviceSearching] = useState(true);
   
@@ -30,7 +32,9 @@ const PlayerPage = () => {
 
   // on mount, check if the user's device is capable of web playback, and if so set it up
   useEffect(() => {
-    setup();
+    const isAuthorized = document.cookie === "isAuthorized=true";
+    setupPlayer(isAuthorized);
+    initRoom(isAuthorized);
     setRefreshTimer();
   }, []);
 
@@ -43,8 +47,7 @@ const PlayerPage = () => {
     }
   }, [webPlayer]);
 
-  const setup = async () => {
-    const isAuthorized = document.cookie === "isAuthorized=true";
+  const setupPlayer = async (isAuthorized) => {
     const playbackCapable = isPlaybackCapable();
     setSignInLink(`http://localhost:3000/auth/spotify${playbackCapable ? '?wantsWebPlayback=true' : ""}`)
 
@@ -71,11 +74,19 @@ const PlayerPage = () => {
     else {
       setModalBody("SignIn")
     }
+  }
 
+  const initRoom = async (isAuthorized) => {
     const queryParams = new URLSearchParams(window.location.search);
     const roomID = queryParams.get("room");
     if (isAuthorized && roomID) {
-      console.log('entering room', roomID)
+      console.log('entering room', roomID);
+      setRoom(roomID);
+      const client = new Nes.Client("ws://localhost:3000");
+      await client.connect();
+      client.subscribe(`/rooms/${roomID}`, (update, flags) => {
+        console.log(update);
+      });
       await enterRoom(roomID);
     }
   }
@@ -101,11 +112,11 @@ const PlayerPage = () => {
     // the first song is played immediately and isn't added to the queue
     // spotify automatically adds the first song played to the queue
     if (songs.length == 0) {
-      await startSong(device.id, newQueueItem.uri);
+      await startSong(device.id, newQueueItem, room);
       setIsPaused(false);
     }
     else {
-      await addToQueue(device.id, newQueueItem.uri);
+      await addToQueue(device.id, newQueueItem, room);
     }
 
     // update songs state afterwards to avoid stale state issues
@@ -116,24 +127,24 @@ const PlayerPage = () => {
     setIsPaused(isPaused => !isPaused);
 
     if (isPaused && !songStarted) {
-      startSong(device.id, songs[0].uri);
+      startSong(device.id, songs[0].uri, room);
     } else if (isPaused && songStarted) {
-      resumeSong(device.id);
+      resumeSong(device.id, room);
     } else {
-      pauseSong(device.id);
+      pauseSong(device.id, room);
     }
 
     setSongStarted(true);
   }
 
   const onLeftSkip = async () => {
-    await previousSong(device.id);
+    await previousSong(device.id, room);
     updateSongs(songs => songs.filter((s, i) => i !== songs.length - 1));
     setIsPaused(false);
   }
 
   const onRightSkip = async () => {
-    await nextSong(device.id); // moves to the next song in spotify queue
+    await nextSong(device.id, room, songs[1]); // moves to the next song in spotify queue
     // removes the first song from the queue list and returns the new list
     updateSongs(songs => songs.filter((s, i) => i > 0));
     setIsPaused(false);
@@ -147,7 +158,6 @@ const PlayerPage = () => {
     <>
       <Modal body={modalBody} loading={deviceSearching} deviceName={device? device.name : ""}
         showDialog={showModal} close={closeModal} mobile={false} apiLink={signInLink} />
-
       <div className="grid grid-rows-pancake text-white w-screen h-screen bg-gray-900 overflow-hidden">
         <Header device={device} deviceSearching={deviceSearching}/>
         <div className="container flex flex-col mx-auto px-5 pt-4 overflow-y-auto scrollbar">
@@ -159,7 +169,6 @@ const PlayerPage = () => {
         </div>
         <Player songInQueue={songInQueue} isPaused={isPaused} song={songs[0]} device={device} 
           handlePauseChange={handlePauseChange} onLeftSkip={onLeftSkip} onRightSkip={onRightSkip} onProgressComplete={onProgressComplete}/>
-        
       </div>
     </>
   );
