@@ -1,5 +1,6 @@
 const Axios = require('axios');
 const Qs = require('qs');
+const { ObjectId } = require('mongodb');
 
 const requestSpotify = (endpoint, method, query, accessToken) => {
 
@@ -87,4 +88,59 @@ const getUpdatedToken = async (db, id) => {
     return token;
 }
 
-module.exports = { requestSpotifyPayload, requestSpotify, getUpdatedToken }
+const updateRoomState = async (db, roomID, request) => {
+    let result, type;
+    switch(request.params.endpoint) {
+        case 'me/player/play/':
+            if (request.payload) {
+                result = await db.collection('rooms').findOneAndUpdate(
+                    { _id: ObjectId(roomID) },
+                    { 
+                        $push: { queue: request.payload },
+                        $set: { current_song: request.payload, isPaused: false },
+                    }, 
+                    { returnOriginal: false }
+                );
+                type = 'start';
+            }
+            else {
+                result = await db.collection('rooms').findOneAndUpdate(
+                    { _id: ObjectId(roomID) },
+                    { $set: { isPaused: false } }, 
+                    { returnOriginal: false }
+                );
+                type = 'resume';
+            }
+            break;
+        case 'me/player/pause/':
+            result = await db.collection('rooms').findOneAndUpdate(
+                { _id: ObjectId(roomID) },
+                { $set: { isPaused: true } },
+                { returnOriginal: false }
+            );
+            type = 'pause';
+            break;
+        case 'me/player/next/':
+            result = await db.collection('rooms').findOneAndUpdate(
+                { _id: ObjectId(roomID)},
+                { 
+                    $pop: { queue: -1 }, // removes first element
+                    $set: { current_song: request.payload, isPaused: false },
+                }
+            );
+            type = 'next';
+            break;
+        case 'me/player/queue/':
+            result = await db.collection('rooms').findOneAndUpdate(
+                { _id: ObjectId(roomID)},
+                { $push: { queue: request.payload } },
+                { returnOriginal: false }
+            );
+            type = 'queue'
+            break;
+    }
+    
+    return { value: result.value, type: type }
+}
+
+module.exports = { requestSpotifyPayload, requestSpotify, getUpdatedToken, updateRoomState }
