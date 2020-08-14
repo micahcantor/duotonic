@@ -242,10 +242,12 @@ const init = async () => {
             const userID = ObjectId(request.state.sessionId);
             const result = await db.collection('rooms').insertOne({
                 user_ids: [userID],
-                isPaused: true,
-                elapsed_ms: 0,
-                queue: [],
-                current_song: {}
+                playback: {
+                    isPaused: true,
+                    elapsed_ms: 0,
+                    queue: [],
+                    current_song: {}
+                },
             });
 
             if (result) {
@@ -292,11 +294,13 @@ const init = async () => {
             }
             // create a new room with the matched users
             const result = await db.collection('rooms').insertOne({
-                user_ids: [userID, match._id],
-                isPaused: false,
-                elapsed_ms: 0,
-                queue: [],
-                current_song: {}
+                user_ids: [userID],
+                playback: {
+                    isPaused: true,
+                    elapsed_ms: 0,
+                    queue: [],
+                    current_song: {}
+                },
             });
             // set in_queue to false for the matched users
             await db.collection('sessions').updateMany(

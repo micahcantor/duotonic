@@ -96,8 +96,8 @@ const updateRoomState = async (db, roomID, request) => {
                 result = await db.collection('rooms').findOneAndUpdate(
                     { _id: ObjectId(roomID) },
                     { 
-                        $push: { queue: request.payload },
-                        $set: { current_song: request.payload, isPaused: false },
+                        $push: { 'playback.queue': request.payload },
+                        $set: { 'playback.current_song': request.payload, 'playback.isPaused': false },
                     }, 
                     { returnOriginal: false }
                 );
@@ -106,7 +106,7 @@ const updateRoomState = async (db, roomID, request) => {
             else {
                 result = await db.collection('rooms').findOneAndUpdate(
                     { _id: ObjectId(roomID) },
-                    { $set: { isPaused: false } }, 
+                    { $set: { 'playback.isPaused': false } }, 
                     { returnOriginal: false }
                 );
                 type = 'resume';
@@ -115,7 +115,7 @@ const updateRoomState = async (db, roomID, request) => {
         case 'me/player/pause/':
             result = await db.collection('rooms').findOneAndUpdate(
                 { _id: ObjectId(roomID) },
-                { $set: { isPaused: true } },
+                { $set: { 'playback.isPaused': true } },
                 { returnOriginal: false }
             );
             type = 'pause';
@@ -124,8 +124,8 @@ const updateRoomState = async (db, roomID, request) => {
             result = await db.collection('rooms').findOneAndUpdate(
                 { _id: ObjectId(roomID)},
                 { 
-                    $pop: { queue: -1 }, // removes first element
-                    $set: { current_song: request.payload, isPaused: false },
+                    $pop: { 'playback.queue': -1 }, // removes first element
+                    $set: { 'playback.current_song': request.payload, 'playback.isPaused': false },
                 }
             );
             type = 'next';
@@ -133,14 +133,14 @@ const updateRoomState = async (db, roomID, request) => {
         case 'me/player/queue/':
             result = await db.collection('rooms').findOneAndUpdate(
                 { _id: ObjectId(roomID)},
-                { $push: { queue: request.payload } },
+                { $push: { 'playback.queue': request.payload } },
                 { returnOriginal: false }
             );
             type = 'queue'
             break;
     }
     
-    return { value: result.value, type: type }
+    return { value: result.value.playback, type: type }
 }
 
 module.exports = { requestSpotifyPayload, requestSpotify, getUpdatedToken, updateRoomState }
