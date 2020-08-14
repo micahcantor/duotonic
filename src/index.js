@@ -12,7 +12,7 @@ const RequireHttps = require('hapi-require-https');
 const ObjectId = require('mongodb').ObjectId;
 
 const LoadDB = require('./db');
-const { requestSpotifyPayload, requestSpotify, getUpdatedToken } = require('./utils');
+const { requestSpotifyPayload, requestSpotify, getUpdatedToken, updateRoomState } = require('./utils');
 
 const tls = (process.env.TLS_ENABLED === 'true') ? {
     cert: Fs.readFileSync(Path.resolve(__dirname, '../ssl/localhost.crt')),
@@ -145,25 +145,29 @@ const init = async () => {
             }
 
             const userID = ObjectId(request.state.sessionId);
+            const roomID = request.query.room;
             const token = await getUpdatedToken(db, userID);
 
             if (token) {
                 try {
                     let response;
-                    if (request.payload) {
-                        response = await requestSpotifyPayload(request.params.endpoint, request.method, request.payload, request.query, token);
+                    if (request.payload && request.params.endpoint === 'me/player/play/') {
+                        const uris = { uris: [request.payload.uri] }; 
+                        response = await requestSpotifyPayload(request.params.endpoint, request.method, uris, request.query, token);
                     }
                     else {
                         response = await requestSpotify(request.params.endpoint, request.method, request.query, token);
                     }
 
+                    if (roomID) {
+                        const updated = await updateRoomState(db, roomID, request);
+                        server.publish(`/rooms/${roomID}`, { updated: updated.value, type: updated.type })
+                    }
+
                     return JSON.stringify(response.data);
                 }
                 catch (error) {
-                    if (error.response.data) {
-                        console.log(error.response.data);
-                    }
-
+                    console.log(error)
                     throw Boom.badRequest('Third-party API request failed.');
                 }
             }
@@ -185,7 +189,7 @@ const init = async () => {
                 const roomID = ObjectId(request.query.room);
                 await db.collection('rooms').updateOne(
                     { _id: roomID },
-                    { $addToSet: { user_ids: request.state.sessionId } } // adds user id only if it is not in the room already
+                    { $addToSet: { user_ids: ObjectId(request.state.sessionId) } } // adds user id only if it is not in the room already
                 );
                 server.publish(`/rooms/${roomID}`, { message: 'user entered'})
             }
@@ -237,7 +241,11 @@ const init = async () => {
 
             const userID = ObjectId(request.state.sessionId);
             const result = await db.collection('rooms').insertOne({
-                user_ids: [userID]
+                user_ids: [userID],
+                isPaused: true,
+                elapsed_ms: 0,
+                queue: [],
+                current_song: {}
             });
 
             if (result) {
@@ -284,7 +292,11 @@ const init = async () => {
             }
             // create a new room with the matched users
             const result = await db.collection('rooms').insertOne({
-                user_ids: [userID, match._id]
+                user_ids: [userID, match._id],
+                isPaused: false,
+                elapsed_ms: 0,
+                queue: [],
+                current_song: {}
             });
             // set in_queue to false for the matched users
             await db.collection('sessions').updateMany(
