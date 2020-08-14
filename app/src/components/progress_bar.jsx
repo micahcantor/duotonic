@@ -35,8 +35,8 @@ export class ProgressBar extends React.Component {
   advanceProgress() {
     /* starts a repeating increment function and sets progress active to true */
     const timerID = setInterval(
-      () => this.setState(state => ({ elapsed: state.elapsed + 0.25 })),
-      250 // every 10 ms
+      () => this.setState(state => ({ elapsed: state.elapsed + 0.05 })),
+      50 // every 50 ms
     );
 
     this.setState({ 
