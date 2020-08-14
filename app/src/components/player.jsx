@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import "../styles.css";
 import SongInfo from "./song_info.jsx"
-import { SliderInput, SliderTrack, SliderTrackHighlight, SliderHandle, SliderMarker, } from "@reach/slider";
+import { SliderInput, SliderTrack, SliderTrackHighlight, SliderHandle } from "@reach/slider";
 import "../slider_styles.css";
 import { setVolume } from "../api";
 import { ProgressBar } from "./progress_bar.jsx";
