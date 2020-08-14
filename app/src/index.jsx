@@ -17,7 +17,6 @@ const PlayerPage = () => {
   const [songs, updateSongs] = useState([]);
   const [isPaused, setIsPaused] = useState(true);
   const [songStarted, setSongStarted] = useState(false);
-  const [webPlayer, setWebPlayer] = useState(null);
 
   const [signInLink, setSignInLink] = useState("");
   const [room, setRoom] = useState("");
@@ -38,15 +37,6 @@ const PlayerPage = () => {
     setRefreshTimer();
   }, []);
 
-  useEffect(() => {
-    if (webPlayer) {
-      webPlayer.on("player_state_changed", (state) => {
-        const currentSong = state.track_window.current_track;
-        console.log(currentSong);
-      });
-    }
-  }, [webPlayer]);
-
   const setupPlayer = async (isAuthorized) => {
     const playbackCapable = isPlaybackCapable();
     setSignInLink(`http://localhost:3000/auth/spotify${playbackCapable ? '?wantsWebPlayback=true' : ""}`)
@@ -57,7 +47,6 @@ const PlayerPage = () => {
       const playerData = await initPlayer();
       setDeviceSearching(false);
       setDevice(playerData.device);
-      setWebPlayer(playerData.player);
     }
     else if (isAuthorized && !playbackCapable) {
       setModalBody("DeviceSearch");
