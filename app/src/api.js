@@ -114,7 +114,7 @@ export const startSong = async (device_id, song_info, room_id) => {
     // sending uri with request starts the song
     const api = `http://localhost:3000/api/spotify/me/player/play/?device_id=${device_id}&room=${room_id}`;
     await fetch (api, {
-        method: method,
+        method: "PUT",
         body: JSON.stringify(song_info),
         credentials: "include",
         headers: { 'Content-Type': 'application/json' }
