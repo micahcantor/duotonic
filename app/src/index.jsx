@@ -50,6 +50,8 @@ const PlayerPage = () => {
     }
     else if (isAuthorized && !playbackCapable) {
       setModalBody("DeviceSearch");
+
+      //every 2 seconds, check if there are any active devices, and if so, set it as the device
       const searchForDevices = setInterval(() => {
         getDevices().then(devices => {
           if (devices && devices.length > 0) {
@@ -73,9 +75,7 @@ const PlayerPage = () => {
       setRoom(roomID);
       const client = new Nes.Client("ws://localhost:3000");
       await client.connect();
-      client.subscribe(`/rooms/${roomID}`, (update, flags) => {
-        console.log(update);
-      });
+      client.subscribe(`/rooms/${roomID}`, handleRoomUpdate);
       await enterRoom(roomID);
     }
   }
@@ -86,6 +86,33 @@ const PlayerPage = () => {
     setInterval(() => {
       getAccessToken();
     }, almost_one_hour);
+  }
+
+  const handleRoomUpdate = async (update) => {
+    switch(update.type) {
+      case 'start':
+        await startSong(device.id, update.current_song, room, false);
+        updateSongs(songs => songs.concat(update.current_song));
+        setIsPaused(false);
+        break;
+      case 'resume':
+        await resumeSong(device.id, room, false);
+        setIsPaused(false);
+        break;
+      case 'pause':
+        await pauseSong(device.id, room, false);
+        setIsPaused(true);
+        break;
+      case 'next':
+        await nextSong(device.id, update.current_song, room, false);
+        updateSongs(songs => songs.filter((s, i) => i > 0));
+        setIsPaused(false);
+        break;
+      case 'queue':
+        await addToQueue(device.id, update.current_song, room, false);
+        updateSongs(songs => songs.concat(update.current_song));
+        break;
+    }
   }
 
   const onAdd = async (e) => {
@@ -101,26 +128,26 @@ const PlayerPage = () => {
     // the first song is played immediately and isn't added to the queue
     // spotify automatically adds the first song played to the queue
     if (songs.length == 0) {
-      await startSong(device.id, newQueueItem, room);
+      await startSong(device.id, newQueueItem, room, true);
       setIsPaused(false);
     }
     else {
-      await addToQueue(device.id, newQueueItem, room);
+      await addToQueue(device.id, newQueueItem, room, true);
     }
 
     // update songs state afterwards to avoid stale state issues
     updateSongs(songs => songs.concat(newQueueItem));
   };
 
-  const handlePauseChange = () => {
+  const handlePauseChange = async () => {
     setIsPaused(isPaused => !isPaused);
 
     if (isPaused && !songStarted) {
-      startSong(device.id, songs[0].uri, room);
+      await startSong(device.id, songs[0].uri, room, true);
     } else if (isPaused && songStarted) {
-      resumeSong(device.id, room);
+      await resumeSong(device.id, room, true);
     } else {
-      pauseSong(device.id, room);
+      await pauseSong(device.id, room, true);
     }
 
     setSongStarted(true);
@@ -133,7 +160,7 @@ const PlayerPage = () => {
   }
 
   const onRightSkip = async () => {
-    await nextSong(device.id, room, songs[1]); // moves to the next song in spotify queue
+    await nextSong(device.id, songs[1], room, true); // moves to the next song in spotify queue
     // removes the first song from the queue list and returns the new list
     updateSongs(songs => songs.filter((s, i) => i > 0));
     setIsPaused(false);
