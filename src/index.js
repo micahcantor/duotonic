@@ -12,7 +12,7 @@ const RequireHttps = require('hapi-require-https');
 const ObjectId = require('mongodb').ObjectId;
 
 const LoadDB = require('./db');
-const { requestSpotifyPayload, requestSpotify, getUpdatedToken, updateRoomState } = require('./utils');
+const { requestSpotifyPayload, requestSpotify, getUpdatedToken, updateRoomState, filterUpdateMessages } = require('./utils');
 
 const tls = (process.env.TLS_ENABLED === 'true') ? {
     cert: Fs.readFileSync(Path.resolve(__dirname, '../ssl/localhost.crt')),
@@ -41,11 +41,11 @@ const init = async () => {
     });
 
     // register plugins
-    await server.register(Bell);
-    await server.register(Nes);
+    await server.register([Bell, Nes]);
 
-    // web socket endpoints for publishing updates to rooms
-    server.subscription('/rooms/{id}');
+    // web socket endpoints for publishing room updates
+    server.subscription('/rooms/playback/{id}', { filter: filterUpdateMessages });
+    server.subscription('/rooms/chat/{id}', { filter: filterUpdateMessages });
 
     server.state('sessionId', {
         isSecure: (process.env.TLS_ENABLED === 'true'),
@@ -151,7 +151,7 @@ const init = async () => {
             if (token) {
                 try {
                     let response;
-                    if (request.payload && request.params.endpoint === 'me/player/play/') {
+                    if (request.payload && request.params.endpoint === 'me/player/play') {
                         const uris = { uris: [request.payload.uri] }; 
                         response = await requestSpotifyPayload(request.params.endpoint, request.method, uris, request.query, token);
                     }
@@ -159,9 +159,12 @@ const init = async () => {
                         response = await requestSpotify(request.params.endpoint, request.method, request.query, token);
                     }
 
-                    if (roomID) {
+                    if (roomID && request.query.broadcast) {
                         const updated = await updateRoomState(db, roomID, request);
-                        server.publish(`/rooms/${roomID}`, { updated: updated.value, type: updated.type })
+                        server.publish(`/rooms/playback/${roomID}`, 
+                            { updated: updated.value, type: updated.type }, 
+                            { internal: {id: request.state.sessionId} }
+                        );
                     }
 
                     return JSON.stringify(response.data);
@@ -191,7 +194,10 @@ const init = async () => {
                     { _id: roomID },
                     { $addToSet: { user_ids: ObjectId(request.state.sessionId) } } // adds user id only if it is not in the room already
                 );
-                server.publish(`/rooms/${roomID}`, { message: 'user entered'})
+                server.publish(`/rooms/chat/${roomID}`, 
+                    { message: 'user entered', type: 'enter' }, 
+                    { internal: {id: request.state.sessionId} },
+                )
             }
             catch (error) {
                 console.log(error);
@@ -213,11 +219,15 @@ const init = async () => {
 
             try {
                 const userID = ObjectId(request.state.sessionId);
+                const roomID = ObjectId(request.query.room);
                 await db.collection('rooms').updateOne(
                     { user_ids: userID }, // where user_ids list contains this user's id
                     { $pull: { user_ids: userID } } // remove user's id from list
                 );
-                server.publish(`/rooms/${roomID}`, { message: 'user exited'})
+                server.publish(`/rooms/chat/${roomID}`, 
+                    { message: 'user exited', type: 'exit' }, 
+                    { internal: {id: request.state.sessionId} },
+                );
             }
             catch (error) {
                 console.log(error);
@@ -242,11 +252,12 @@ const init = async () => {
             const userID = ObjectId(request.state.sessionId);
             const result = await db.collection('rooms').insertOne({
                 user_ids: [userID],
+                chat: [],
                 playback: {
                     isPaused: true,
                     elapsed_ms: 0,
                     queue: [],
-                    current_song: {}
+                    current_song: {},
                 },
             });
 
@@ -259,6 +270,38 @@ const init = async () => {
             throw Boom.badImplementation();
         }
     });
+
+    server.route({
+        method: 'POST',
+        path: '/rooms/chat/new-message',
+        handler: async (request, h) => {
+
+            if (!request.state.sessionId) {
+                throw Boom.unauthorized('user must be authenticated');
+            }
+            
+            try {
+                const roomID = ObjectId(request.query.room);
+                const result = await db.collection('rooms').findOneAndUpdate(
+                    { _id: roomID },
+                    { $push: { chat: request.payload } },
+                    { returnOriginal: false }
+                );
+                const messages = result.value.chat;
+                const lastMessage = messages[messages.length - 1];
+                server.publish(`/rooms/chat/${roomID}`, 
+                    { updated: lastMessage, type: 'chat' },
+                    { internal: { id: request.state.sessionId } }
+                );
+            }
+            catch (error) {
+                console.log(error);
+                throw Boom.badImplementation('could not find or update room');
+            }
+            
+            return { message: 'success' };
+        }
+    })
 
     server.route({
         method: 'GET',
@@ -295,11 +338,12 @@ const init = async () => {
             // create a new room with the matched users
             const result = await db.collection('rooms').insertOne({
                 user_ids: [userID],
+                chat: [],
                 playback: {
                     isPaused: true,
                     elapsed_ms: 0,
                     queue: [],
-                    current_song: {}
+                    current_song: {},
                 },
             });
             // set in_queue to false for the matched users
