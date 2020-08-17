@@ -1,114 +1,93 @@
 /* eslint-disable react/prop-types */
-import React from "react";
+import React, { useState, useEffect } from "react";
 import SwapIcon from "./swap.jsx";
+import { sendChat } from "../api.js";
 import "../styles.css";
 
-class Chat extends React.Component {
-  constructor(props) {
-    super(props);
-    this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.state = { value: "", messages: [] };
-    this.username = "Anonymous";
-    this.wsURL = "ws://localhost:3030";
-    this.ws = new WebSocket(this.wsURL);
-    this.messageList = null;
-  }
+const Chat = ({ room, client }) => {
 
-  componentDidMount() {
-    this.messageList = document.getElementById("messageList");
-    this.scrollToBottom(); // scroll to bottom of messages
+  const [messages, setMessages] = useState([]);
+  const [messagesDOM, setMessagesDOM] = useState(null);
+  const [inputVal, setInputVal] = useState("");
 
-    this.ws.onopen = () => {
-      console.log("connected");
-    };
-    this.ws.onmessage = (e) => {
-      console.log("message received");
-      const message = JSON.parse(e.data);
-      this.addMessage(message);
-    };
-    this.ws.onclose = () => {
-      console.log("disconnected");
+  useEffect(() => {
+    setMessagesDOM(document.getElementById("messageList"));
+  }, [])
 
-      // automatically try to reconnect on connection loss
-      this.setState({
-        ws: new WebSocket(URL),
+  useEffect(() => {
+    if (room) {
+      client.subscribe(`/rooms/chat/${room}`, (update) => {
+        console.log(update);
+        if (update.type === 'chat') {
+          setMessages(messages => messages.concat(update.updated));
+        }
       });
-    };
-  }
-
-  componentDidUpdate() {
-    this.scrollToBottom(); // scroll to bottom of messages when a new message is added
-  }
-
-  handleChange(value) {
-    this.setState({ value: value }); // updates the input box
-  }
-
-  handleSubmit(e) {
-    e.preventDefault();
-
-    if (this.state.value != "") {
-      // prevent empty messages
-      const date = new Date();
-      const timeSent = date.toLocaleTimeString().split(" ");
-      const timeFormatted =
-        timeSent[0].substring(0, timeSent[0].length - 3) + " " + timeSent[1];
-      const message = {
-        user: this.username,
-        messageString: this.state.value,
-        time: timeFormatted,
-      };
-
-      this.ws.send(JSON.stringify(message));
-      console.log("message sent to server");
-
-      this.addMessage(message);
-
-      document.getElementById("chat-input").value = "";
-      this.setState({ value: "" })
     }
-  }
+  }, [room])
 
-  addMessage(message) {
-    /* Utility function that updates the local state of messages */
-    this.setState((state) => {
-      state.messages.push(message);
-      return { messages: state.messages };
-    });
-  }
+  useEffect(() => {
+    if (messagesDOM) {
+      messagesDOM.scrollTop = messagesDOM.scrollHeight; // scrolls to bottom of DOM element
+    }
+  }, [messages])
 
-  scrollToBottom() {
-    /* Utility function that scrolls to the bottom of the message list */
-    this.messageList.scrollTop = this.messageList.scrollHeight;
-  }
-
-  render() {
-    return (
-      <div id="chat" className="relative hidden md:block bg-gray-800 w-full h-full rounded shadow-lg">
-        <div className="flex border-b-2 border-gray-500">
-          <p className="text-lg uppercase tracking-wider font-mono p-3">
-            Chat
-          </p>
-          <SwapIcon chatActive={true} />
-        </div>
-        <div id="messageList" className="absolute overflow-y-auto w-full scrollbar" style={{ height: "75%" }}>
-          <MessageList messages={this.state.messages} />
-        </div>
-        <ChatInput onChange={this.handleChange} onSubmit={this.handleSubmit} />
-      </div>
-    );
-  }
-}
-
-const ChatInput = (props) => {
-
-  const handleChange = (e) => {
-    props.onChange(e.target.value);
+  const handleChange = (value) => {
+    setInputVal(value)
   }
 
   const handleSubmit = (e) => {
-    props.onSubmit(e);
+
+    e.preventDefault();
+    document.getElementById("chat-input").value = "";
+    setInputVal("");
+
+    const message = {
+      username: "Anonymous",
+      text: inputVal,
+      time: getFormattedTime(),
+    }
+
+    if (inputVal.length > 0) {
+      setMessages(messages => messages.concat(message));
+    }
+
+    if (room.length > 0) {
+      console.log('sending chat')
+      sendChat(message, room);
+    }
+  }
+
+  const getFormattedTime = () => {
+    const date = new Date();
+    const timeSent = date.toLocaleTimeString().split(" ");
+    const timeFormatted = timeSent[0].substring(0, timeSent[0].length - 3) + " " + timeSent[1];
+    return timeFormatted;
+  }
+
+  return (
+    <div id="chat" className="relative hidden md:block bg-gray-800 w-full h-full rounded shadow-lg">
+      <div className="flex border-b-2 border-gray-500">
+        <p className="text-lg uppercase tracking-wider font-mono p-3">
+          Chat
+        </p>
+        <SwapIcon chatActive={true} />
+      </div>
+      <div id="messageList" className="absolute overflow-y-auto w-full scrollbar" style={{ height: "75%" }}>
+        <MessageList messages={messages} />
+      </div>
+      <ChatInput onChange={handleChange} onSubmit={handleSubmit} />
+    </div>
+  );
+}
+
+const ChatInput = ({ onChange, onSubmit }) => {
+
+  const handleChange = (e) => {
+    onChange(e.target.value);
+  }
+
+  const handleSubmit = (e) => {
+    onSubmit(e);
   }
 
   return (
@@ -125,6 +104,7 @@ const ChatInput = (props) => {
 }
 
 const SendButton = () => {
+
   return (
     <button type="button" className="absolute right-0 text-black mt-1">
       <svg className="fill-current mr-2 hover:text-customgreen" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
@@ -135,28 +115,27 @@ const SendButton = () => {
   );
 };
 
-const MessageList = (props) => {
-  const messages = props.messages;
-
-  var listItems = messages.map((m, idx) => {
+const MessageList = ({ messages }) => {
+  const listItems = messages.map((m, idx) => {
     return (
       <li key={idx}>
-        <Message user={m.user} messageString={m.messageString} time={m.time} />
+        <Message user={m.username} messageString={m.text} time={m.time} />
       </li>
     );
-  })
+  });
   
   return <ul className="mt-2">{listItems}</ul>;
 };
 
-const Message = (props) => {
+const Message = ({ user, time, messageString }) => {
+
   return (
     <div className="flex flex-col mx-1 p-2 rounded hover:bg-gray-900">
       <div className="flex items-center">
-        <span className="font-bold"> {props.user}</span>
-        <span className="ml-1 text-sm text-gray-400"> {props.time} </span>
+        <span className="font-bold"> {user}</span>
+        <span className="ml-1 text-sm text-gray-400"> {time} </span>
       </div>
-      <p className="font-sans"> {props.messageString} </p>
+      <p className="font-sans"> {messageString} </p>
     </div>
   );
 };
