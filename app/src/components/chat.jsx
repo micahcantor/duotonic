@@ -94,7 +94,7 @@ const ChatInput = ({ onChange, onSubmit }) => {
     <form autoComplete="off" onSubmit={handleSubmit} className="absolute inset-x-0 bottom-0 mb-3 mx-auto" style={{width: '95%'}}>
       <div className="relative w-full">
         <input id="chat-input" type="text" onChange={handleChange} placeholder="Send a message"
-          className="text-black transition-colors duration-200 ease-in-out bg-gray-200 appearance-none border-2 border-transparent rounded h-8 w-full px-2 leading-tight focus:outline-none hover:bg-white focus:border-green-400"      
+          className="text-black placeholder-black transition-colors duration-200 ease-in-out bg-gray-200 appearance-none border-2 border-transparent rounded h-8 w-full px-2 leading-tight focus:outline-none hover:bg-white focus:border-green-400"      
         />
         <SendButton />
       </div>
