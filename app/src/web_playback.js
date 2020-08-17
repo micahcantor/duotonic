@@ -36,11 +36,8 @@ export const isPlaybackCapable = () => {
       edge: ">20.10240",
     },
   });
-  if (supported == null) {
-    return false;
-  } else {
-    return supported;
-  }
+  
+  return supported
 };
 
 const createEventHandlers = () => {
