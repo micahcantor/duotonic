@@ -2,6 +2,17 @@ const Axios = require('axios');
 const Qs = require('qs');
 const { ObjectId } = require('mongodb');
 
+const filterUpdateMessages = (path, message, options) => {
+    /* sends the update only to users in the room that did not send it */
+
+    const cookies = options.socket._cookies.split(' ');
+    const userID = cookies[0].substring(cookies[0].indexOf('=') + 1, cookies[0].length - 1);
+    if (options.internal) {
+        return options.internal.id !== userID;
+    }
+    return false;
+}
+
 const requestSpotify = (endpoint, method, query, accessToken) => {
 
     return Axios({
@@ -90,8 +101,9 @@ const getUpdatedToken = async (db, id) => {
 
 const updateRoomState = async (db, roomID, request) => {
     let result, type;
+    console.log(request.params.endpoint);
     switch(request.params.endpoint) {
-        case 'me/player/play/':
+        case 'me/player/play':
             if (request.payload) {
                 result = await db.collection('rooms').findOneAndUpdate(
                     { _id: ObjectId(roomID) },
@@ -112,7 +124,7 @@ const updateRoomState = async (db, roomID, request) => {
                 type = 'resume';
             }
             break;
-        case 'me/player/pause/':
+        case 'me/player/pause':
             result = await db.collection('rooms').findOneAndUpdate(
                 { _id: ObjectId(roomID) },
                 { $set: { 'playback.isPaused': true } },
@@ -120,7 +132,7 @@ const updateRoomState = async (db, roomID, request) => {
             );
             type = 'pause';
             break;
-        case 'me/player/next/':
+        case 'me/player/next':
             result = await db.collection('rooms').findOneAndUpdate(
                 { _id: ObjectId(roomID)},
                 { 
@@ -130,7 +142,7 @@ const updateRoomState = async (db, roomID, request) => {
             );
             type = 'next';
             break;
-        case 'me/player/queue/':
+        case 'me/player/queue':
             result = await db.collection('rooms').findOneAndUpdate(
                 { _id: ObjectId(roomID)},
                 { $push: { 'playback.queue': request.payload } },
@@ -139,8 +151,8 @@ const updateRoomState = async (db, roomID, request) => {
             type = 'queue'
             break;
     }
-    
+
     return { value: result.value.playback, type: type }
 }
 
-module.exports = { requestSpotifyPayload, requestSpotify, getUpdatedToken, updateRoomState }
+module.exports = { requestSpotifyPayload, requestSpotify, getUpdatedToken, updateRoomState, filterUpdateMessages }
