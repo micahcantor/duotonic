@@ -18,8 +18,10 @@ const PlayerPage = () => {
   const [isPaused, setIsPaused] = useState(true);
   const [songStarted, setSongStarted] = useState(false);
 
+  const [playbackCapable, setPlaybackCapable] = useState(true);
   const [signInLink, setSignInLink] = useState("");
   const [room, setRoom] = useState("");
+  const [WSClient, setWSClient] = useState(null);
   const [device, setDevice] = useState(null);
   const [deviceSearching, setDeviceSearching] = useState(true);
   
@@ -31,14 +33,20 @@ const PlayerPage = () => {
 
   // on mount, check if the user's device is capable of web playback, and if so set it up
   useEffect(() => {
-    const isAuthorized = document.cookie === "isAuthorized=true";
-    setupPlayer(isAuthorized);
-    initRoom(isAuthorized);
+    setupPlayer();
     setRefreshTimer();
   }, []);
 
-  const setupPlayer = async (isAuthorized) => {
+  useEffect(() => {
+    if (device && room.length === 0) {
+      initRoom();
+    }
+  }, [device])
+
+  const setupPlayer = async () => {
+    const isAuthorized = document.cookie === "isAuthorized=true";
     const playbackCapable = isPlaybackCapable();
+    setPlaybackCapable(playbackCapable);
     setSignInLink(`http://localhost:3000/auth/spotify${playbackCapable ? '?wantsWebPlayback=true' : ""}`)
 
     if (isAuthorized && playbackCapable) {
@@ -67,15 +75,20 @@ const PlayerPage = () => {
     }
   }
 
-  const initRoom = async (isAuthorized) => {
+  const initRoom = async () => {
+    const isAuthorized = document.cookie === "isAuthorized=true";
     const queryParams = new URLSearchParams(window.location.search);
     const roomID = queryParams.get("room");
     if (isAuthorized && roomID) {
-      console.log('entering room', roomID);
-      setRoom(roomID);
+      console.log('entering room', roomID, 'with device ', device.id);
+
       const client = new Nes.Client("ws://localhost:3000");
       await client.connect();
-      client.subscribe(`/rooms/${roomID}`, handleRoomUpdate);
+      client.subscribe(`/rooms/${roomID}`, handleRoomPlaybackUpdate);
+
+      setWSClient(client);
+      setRoom(roomID);
+
       await enterRoom(roomID);
     }
   }
@@ -88,7 +101,8 @@ const PlayerPage = () => {
     }, almost_one_hour);
   }
 
-  const handleRoomUpdate = async (update) => {
+  const handleRoomPlaybackUpdate = async (update) => {
+    console.log(update);
     switch(update.type) {
       case 'start':
         await startSong(device.id, update.current_song, room, false);
@@ -142,11 +156,11 @@ const PlayerPage = () => {
   const handlePauseChange = async () => {
     setIsPaused(isPaused => !isPaused);
 
-    if (isPaused && !songStarted) {
+    if (isPaused && !songStarted && songInQueue) {
       await startSong(device.id, songs[0].uri, room, true);
-    } else if (isPaused && songStarted) {
+    } else if (isPaused && songStarted && songInQueue) {
       await resumeSong(device.id, room, true);
-    } else {
+    } else if (songInQueue) {
       await pauseSong(device.id, room, true);
     }
 
@@ -180,10 +194,10 @@ const PlayerPage = () => {
           <SearchBar onAdd={onAdd} />
           <div className="flex mb-4 h-full">
             <Queue songs={songs} />
-            <Chat />
+            <Chat room={room} client={WSClient}/>
           </div>
         </div>
-        <Player songInQueue={songInQueue} isPaused={isPaused} song={songs[0]} device={device} 
+        <Player songInQueue={songInQueue} isPaused={isPaused} song={songs[0]} device={device} playbackCapable={playbackCapable}
           handlePauseChange={handlePauseChange} onLeftSkip={onLeftSkip} onRightSkip={onRightSkip} onProgressComplete={onProgressComplete}/>
       </div>
     </>
