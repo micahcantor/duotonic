@@ -28,7 +28,7 @@ const Player = (props) => {
   return (
     <div className="flex overflow-hidden flex-col border-t-2 border-gray-500 bg-gray-900 h-22">
       <div className="flex w-full relative mx-auto mt-1 items-center">
-        <div className="ml-3 lg:absolute">
+        <div className="ml-3 w-1/2 lg:w-1/3 lg:absolute">
           {props.songInQueue
             ? <SongInfo song={props.song} />
             : null
@@ -37,7 +37,7 @@ const Player = (props) => {
         <PlaybackControls isPaused={props.isPaused} onPauseChange={props.handlePauseChange} 
           onLeftSkip={props.onLeftSkip} onRightSkip={props.onRightSkip} songInQueue={props.songInQueue} />
 
-        {props.canControlVol
+        {props.playbackCapable
           ? <VolumeSlider onMouseUp={onVolumeMouseUp}/>
           : null
         }
