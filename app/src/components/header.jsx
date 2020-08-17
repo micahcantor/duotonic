@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import TriangleTooltip from "./tooltip.jsx";
 import ClipLoader from "react-spinners/ClipLoader.js";
-import { Modal } from "./modal.jsx";
+import { Modal, modals } from "./modal.jsx";
 import "../styles.css";
 import { getRoomID, enterQueue, findPartner, exitQueue, exitRoom } from "../api.js";
 
@@ -76,7 +76,7 @@ const Header = ({ device, deviceSearching }) => {
       </div>
       <div className="block lg:hidden">
         <HamburgerButton open={openMobile} />
-        <Modal body="MobileMenu" showDialog={showMobile} close={closeMobile} mobile={true} />
+        <Modal body={modals.MobileMenu} showDialog={showMobile} close={closeMobile} mobile={true} />
       </div>
       <div className="font-mono hidden w-full block flex-grow lg:flex lg:items-center lg:w-auto">
         <div className="lg:flex-grow">
@@ -86,10 +86,10 @@ const Header = ({ device, deviceSearching }) => {
         </div>
         <div className="flex mx-2 space-x-4">
           <NavButton open={openRandom} buttonText="Go Random" />
-          <Modal body="FindRandom" showDialog={showRandom} close={closeRandom} mobile={false} partnerSearching={partnerSearching} />
+          <Modal body={modals.FindRandom} showDialog={showRandom} close={closeRandom} mobile={false} partnerSearching={partnerSearching} />
 
           <NavButton open={openLink} buttonText="Get a Link" />
-          <Modal body="GiveLink" shareURL={link} showDialog={showLink} close={closeLink} mobile={false} />
+          <Modal body={modals.GiveLink} shareURL={link} showDialog={showLink} close={closeLink} mobile={false} />
 
           <div className="w-1 bg-white rounded"></div>
           {connectedIcon()}

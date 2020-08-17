@@ -8,7 +8,7 @@ import Player from "./components/player.jsx";
 import Queue from "./components/queue.jsx";
 import Chat from "./components/chat.jsx";
 import Header from "./components/header.jsx";
-import { Modal } from "./components/modal.jsx"
+import { Modal, modals } from "./components/modal.jsx"
 import { addToQueue, startSong, pauseSong, resumeSong, nextSong, previousSong, getDevices, getAccessToken, enterRoom } from "./api.js"
 import { addSDKScript, isPlaybackCapable, initPlayer } from "./web_playback.js";
 const Nes = require("@hapi/nes/lib/client")
@@ -57,7 +57,7 @@ const PlayerPage = () => {
       setDevice(playerData.device);
     }
     else if (isAuthorized && !playbackCapable) {
-      setModalBody("DeviceSearch");
+      setModalBody(modals.DeviceSearch);
 
       //every 2 seconds, check if there are any active devices, and if so, set it as the device
       const searchForDevices = setInterval(() => {
@@ -71,7 +71,7 @@ const PlayerPage = () => {
       }, 2000)
     }
     else {
-      setModalBody("SignIn")
+      setModalBody(modals.SignIn)
     }
   }
 

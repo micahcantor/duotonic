@@ -9,19 +9,19 @@ export const Modal = ({showDialog, close, body, mobile, loading, deviceName, api
   const className = mobile ? "w-full h-full text-left" : "inline-block text-center mt-64 rounded h-auto";
   var modalBody;
   switch(body) {
-    case "SignIn":
+    case modals.SignIn:
       modalBody = <SignIn apiLink={apiLink} />;
       break;
-    case "DeviceSearch":
+    case modals.DeviceSearch:
       modalBody = <DeviceSearch loading={loading} deviceName={deviceName} />;
       break;
-    case "FindRandom":
+    case modals.FindRandom:
       modalBody = <FindRandom loading={partnerSearching}/>;
       break;
-    case "GiveLink":
+    case modals.GiveLink:
       modalBody = <GiveLink shareURL={shareURL}/>;
       break;
-    case "MobileMenu":
+    case modals.MobileMenu:
       modalBody = <Mobile close={close} />;
       break;
   }
@@ -32,6 +32,14 @@ export const Modal = ({showDialog, close, body, mobile, loading, deviceName, api
     </Dialog>
   );
 };
+
+export const modals = {
+  SignIn:       "sign-in",
+  DeviceSearch: "device-search",
+  FindRandom:   "find-random",
+  GiveLink:     "give-link",
+  MobileMenu:   "mobile-menu",
+}
 
 export const GiveLink = (props) => {
   
@@ -131,12 +139,12 @@ const MobileMenu = () => {
     <div className="text-3xl font-mono lowercase pt-6">
       <button onClick={openLink} type="button" className="hover:text-customgreen">
         Get a Link
-        <Modal body="GiveLink" shareURL="link" showDialog={showLink} close={closeLink} mobile={false}/>
+        <Modal body={modals.GiveLink} shareURL="link" showDialog={showLink} close={closeLink} mobile={false}/>
       </button>
       <div className="my-2 w-full h-px bg-gray-300"></div>
       <button onClick={openRandom} type="button" className="hover:text-customgreen">
         Go Random
-        <Modal body="FindRandom" showDialog={showRandom} close={closeRandom} mobile={false}/>
+        <Modal body={modals.FindRandom} showDialog={showRandom} close={closeRandom} mobile={false}/>
       </button>
       <div className="my-2 w-full h-px bg-gray-300"></div>
       <div className="text-2xl hover:text-customgreen"> Github </div>
