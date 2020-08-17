@@ -55,6 +55,16 @@ export const findPartner = async () => {
     return json;
 }
 
+export const sendChat = async (message, room_id) => {
+    const api = `http://localhost:3000/rooms/chat/new-message?room=${room_id}`
+    await fetch(api, {
+        method: "POST",
+        body: JSON.stringify(message),
+        credentials: "include",
+        headers: { 'Content-Type': 'application/json' }
+    });
+}
+
 const reqPlayer = async (device_id, endpoint, method, room_id, broadcast) => {
     const api = `http://localhost:3000/api/spotify/me/player/${endpoint}?device_id=${device_id}&room=${room_id}&broadcast=${broadcast}`;
     await fetch(api, {
