@@ -4,9 +4,11 @@ import SwapIcon from "./swap.jsx";
 import { sendChat } from "../api.js";
 import "../styles.css";
 
-const Chat = ({ room, client }) => {
+const Chat = ({ room, client, queueVisible, onSwapClick }) => {
 
   const [messages, setMessages] = useState([]);
+  const [username, setUsername] = useState("");
+  const [usernameVal, setUsernameVal] = useState("");
   const [messagesDOM, setMessagesDOM] = useState(null);
   const [inputVal, setInputVal] = useState("");
 
@@ -31,18 +33,18 @@ const Chat = ({ room, client }) => {
     }
   }, [messages])
 
-  const handleChange = (value) => {
-    setInputVal(value)
+  const handleInputChange = (value) => {
+    setInputVal(value);
   }
 
-  const handleSubmit = (e) => {
+  const handleInputSubmit = (e) => {
 
     e.preventDefault();
     document.getElementById("chat-input").value = "";
     setInputVal("");
 
     const message = {
-      username: "Anonymous",
+      username: username,
       text: inputVal,
       time: getFormattedTime(),
     }
@@ -57,6 +59,15 @@ const Chat = ({ room, client }) => {
     }
   }
 
+  const handleUsernameChange = (value) => {
+    setUsernameVal(value);
+  }
+
+  const handleUsernameSubmit = (e) => {
+    e.preventDefault();
+    setUsername(usernameVal);
+  }
+
   const getFormattedTime = () => {
     const date = new Date();
     const timeSent = date.toLocaleTimeString().split(" ");
@@ -65,17 +76,20 @@ const Chat = ({ room, client }) => {
   }
 
   return (
-    <div id="chat" className="relative hidden md:block bg-gray-800 w-full h-full rounded shadow-lg">
-      <div className="flex border-b-2 border-gray-500">
-        <p className="text-lg uppercase tracking-wider font-mono p-3">
-          Chat
-        </p>
-        <SwapIcon chatActive={true} />
+    <div id="chat" className={`${queueVisible ? "hidden" : "flex"} md:flex flex-col bg-gray-800 rounded shadow-lg w-full h-full`}>
+      <div id="title" className="relative flex border-b-2 border-gray-500">
+        <span className="text-lg uppercase tracking-wider font-mono p-3"> Chat </span>
+        <SwapIcon onClick={onSwapClick} />
       </div>
-      <div id="messageList" className="absolute overflow-y-auto w-full scrollbar" style={{ height: "75%" }}>
+      <div id="messages" className="flex-grow w-full h-full overflow-y-auto scrollbar">
         <MessageList messages={messages} />
       </div>
-      <ChatInput onChange={handleChange} onSubmit={handleSubmit} />
+      <div id="input">
+        {username.length === 0 
+          ? <UsernameEntry onChange={handleUsernameChange} onSubmit={handleUsernameSubmit}/>
+          : <ChatInput onChange={handleInputChange} onSubmit={handleInputSubmit}/>
+        }
+      </div>
     </div>
   );
 }
@@ -91,7 +105,7 @@ const ChatInput = ({ onChange, onSubmit }) => {
   }
 
   return (
-    <form autoComplete="off" onSubmit={handleSubmit} className="absolute inset-x-0 bottom-0 mb-3 mx-auto" style={{width: '95%'}}>
+    <form autoComplete="off" onSubmit={handleSubmit} className="mb-3 mx-auto" style={{width: '95%'}}>
       <div className="relative w-full">
         <input id="chat-input" type="text" onChange={handleChange} placeholder="Send a message"
           className="text-black placeholder-black transition-colors duration-200 ease-in-out bg-gray-200 appearance-none border-2 border-transparent rounded h-8 w-full px-2 leading-tight focus:outline-none hover:bg-white focus:border-green-400"      
@@ -99,8 +113,7 @@ const ChatInput = ({ onChange, onSubmit }) => {
         <SendButton />
       </div>
     </form>
-  );
-  
+  ); 
 }
 
 const SendButton = () => {
@@ -139,5 +152,28 @@ const Message = ({ user, time, messageString }) => {
     </div>
   );
 };
+
+const UsernameEntry = ( { onSubmit, onChange }) => {
+
+  const handleChange = (e) => {
+    onChange(e.target.value);
+  }
+
+  const handleSubmit = (e) => {
+    onSubmit(e);
+  }
+
+  return (
+    <div className="h-full flex items-center justify-center space-x-2 px-4 py-2 border-t-2 border-gray-500">
+        <span className="text-xl font-semibold">Enter a username: </span>
+        <form autoComplete="off" onSubmit={handleSubmit} className="flex-grow">
+          <input id="chat-input" type="text" onChange={handleChange}
+              className="text-black placeholder-black transition-colors duration-200 ease-in-out bg-gray-200 appearance-none 
+              border-2 border-transparent rounded h-8 w-full px-2 leading-tight focus:outline-none hover:bg-white focus:border-green-400"      
+          />
+        </form>
+    </div>
+  )
+}
 
 export default Chat;

@@ -25,6 +25,7 @@ const PlayerPage = () => {
   const [device, setDevice] = useState(null);
   const [deviceSearching, setDeviceSearching] = useState(true);
   
+  const [queueVisible, setQueueVisible] = useState(true);
   const [modalBody, setModalBody] = useState("");
   const [showModal, setShowModal] = useState(true);
   const closeModal = () => setShowModal(false);
@@ -184,17 +185,21 @@ const PlayerPage = () => {
     updateSongs(songs => songs.filter((s, i) => i > 0));
   }
 
+  const onSwapClick = () => {
+    setQueueVisible(queueVisible => !queueVisible);
+  }
+
   return (
     <>
       <Modal body={modalBody} loading={deviceSearching} deviceName={device? device.name : ""}
         showDialog={showModal} close={closeModal} mobile={false} apiLink={signInLink} />
       <div className="grid grid-rows-pancake text-white w-screen h-screen bg-gray-900 overflow-hidden">
         <Header device={device} deviceSearching={deviceSearching}/>
-        <div className="container flex flex-col mx-auto px-5 pt-4 overflow-y-auto scrollbar">
+        <div className="container flex flex-col justify-center mx-auto px-5 overflow-y-auto scrollbar">
           <SearchBar onAdd={onAdd} />
-          <div className="flex mb-4 h-full">
-            <Queue songs={songs} />
-            <Chat room={room} client={WSClient}/>
+          <div className="flex" style={{height: '85%'}}>
+            <Queue songs={songs} queueVisible={queueVisible} onSwapClick={onSwapClick}/>
+            <Chat room={room} client={WSClient} queueVisible={queueVisible} onSwapClick={onSwapClick}/>
           </div>
         </div>
         <Player songInQueue={songInQueue} isPaused={isPaused} song={songs[0]} device={device} playbackCapable={playbackCapable}
