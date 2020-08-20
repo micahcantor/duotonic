@@ -6,6 +6,21 @@ export const getAccessToken = async () => {
     return json.access_token;
 }
 
+export const setUsernameInDB = async (username) => {
+    const api = `http://localhost:3000/users/set-username?username=${encodeURIComponent(username)}`;
+    await fetch(api, {
+        method: "POST",
+        credentials: "include",
+    });
+}
+
+export const getUsernameFromDB = async () => {
+    const api = "http://localhost:3000/users/get-username";
+    const response = await fetch(api, { credentials: "include" });
+    const json = await response.json();
+    return json;
+}
+
 export const getRoomID = async () => {
     const api = "http://localhost:3000/rooms/share-link";
     const response = await fetch(api, { credentials: "include" });
