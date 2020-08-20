@@ -13,13 +13,15 @@ import { addToQueue, startSong, pauseSong, resumeSong, nextSong, previousSong, g
 import { addSDKScript, isPlaybackCapable, initPlayer } from "./web_playback.js";
 const Nes = require("@hapi/nes/lib/client")
 
-const PlayerPage = () => {
+const App = () => {
   const [songs, updateSongs] = useState([]);
   const [isPaused, setIsPaused] = useState(true);
   const [songStarted, setSongStarted] = useState(false);
 
+  const [isAuthorized, setIsAuthorized] = useState(false);
   const [playbackCapable, setPlaybackCapable] = useState(true);
-  const [signInLink, setSignInLink] = useState("");
+
+  const [signInLink, setSignInLink] = useState(null);
   const [room, setRoom] = useState("");
   const [WSClient, setWSClient] = useState(null);
   const [device, setDevice] = useState(null);
@@ -27,74 +29,85 @@ const PlayerPage = () => {
   
   const [queueVisible, setQueueVisible] = useState(true);
   const [modalBody, setModalBody] = useState("");
-  const [showModal, setShowModal] = useState(true);
+  const [showModal, setShowModal] = useState(false);
   const closeModal = () => setShowModal(false);
   
   const songInQueue = songs.length > 0; // bool that is true if there is a song in the queue
 
   // on mount, check if the user's device is capable of web playback, and if so set it up
   useEffect(() => {
-    setupPlayer();
-    setRefreshTimer();
+    const isAuthorized = document.cookie === "isAuthorized=true";
+    const playbackCapable = isPlaybackCapable();
+    const queryParams = new URLSearchParams(window.location.search);
+    const room = queryParams.get("room");
+    
+    if (isAuthorized && playbackCapable) {
+      setupWebPlayer();
+    }
+    else if (isAuthorized && !playbackCapable) {
+      setupRemoteDevice();
+    }
+    else {
+      const playbackQuery = playbackCapable ? '?wantsWebPlayback=true' : "";
+      const roomQuery = room ? `&room=${room}` : "";
+      setSignInLink(`http://localhost:3000/auth/spotify${playbackQuery}${roomQuery}`);
+    }
+
+    startRefreshTimer();
+    setIsAuthorized(isAuthorized);
+    setPlaybackCapable(playbackCapable);
+    setRoom(room);
   }, []);
 
   useEffect(() => {
-    if (device && room.length === 0) {
-      initRoom();
+    if (isAuthorized && device && room) {
+      initRoomSocket();
     }
-  }, [device])
+  }, [isAuthorized, device, room])
 
-  const setupPlayer = async () => {
-    const isAuthorized = document.cookie === "isAuthorized=true";
-    const playbackCapable = isPlaybackCapable();
-    setPlaybackCapable(playbackCapable);
-    setSignInLink(`http://localhost:3000/auth/spotify${playbackCapable ? '?wantsWebPlayback=true' : ""}`)
+  useEffect(() => {
+    if (signInLink) {
+      setModalBody(modals.SignIn);
+      setShowModal(true);
+    }
+  }, [signInLink])
 
-    if (isAuthorized && playbackCapable) {
-      setShowModal(false);
-      addSDKScript();
-      const playerData = await initPlayer();
-      setDeviceSearching(false);
-      setDevice(playerData.device);
-    }
-    else if (isAuthorized && !playbackCapable) {
-      setModalBody(modals.DeviceSearch);
+  const setupWebPlayer = async () => {
+    addSDKScript();
+    const playerData = await initPlayer();
 
-      //every 2 seconds, check if there are any active devices, and if so, set it as the device
-      const searchForDevices = setInterval(() => {
-        getDevices().then(devices => {
-          if (devices && devices.length > 0) {
-            setDevice(devices[0]);
-            setDeviceSearching(false);
-            clearInterval(searchForDevices);
-          }
-        })
-      }, 2000)
-    }
-    else {
-      setModalBody(modals.SignIn)
-    }
+    setShowModal(false);
+    setDeviceSearching(false);
+    setDevice(playerData.device);
   }
 
-  const initRoom = async () => {
-    const isAuthorized = document.cookie === "isAuthorized=true";
-    const queryParams = new URLSearchParams(window.location.search);
-    const roomID = queryParams.get("room");
-    if (isAuthorized && roomID) {
-      console.log('entering room', roomID, 'with device ', device.id);
+  const setupRemoteDevice = () => {
+    setModalBody(modals.DeviceSearch);
 
-      const client = new Nes.Client("ws://localhost:3000");
-      await client.connect();
-      client.subscribe(`/rooms/${roomID}`, handleRoomPlaybackUpdate);
-
-      setWSClient(client);
-      setRoom(roomID);
-
-      await enterRoom(roomID);
-    }
+    //every 2 seconds, check if there are any active devices, and if so, set it as the device
+    const searchForDevices = setInterval(() => {
+      getDevices().then(devices => {
+        if (devices && devices.length > 0) {
+          setDevice(devices[0]);
+          setDeviceSearching(false);
+          clearInterval(searchForDevices);
+        }
+      })
+    }, 2000)
   }
 
-  const setRefreshTimer = () => {
+  const initRoomSocket = async () => {
+    console.log('entering room', room, 'with device ', device.id);
+
+    const client = new Nes.Client("ws://localhost:3000");
+    await client.connect();
+    client.subscribe(`/rooms/playback/${room}`, handleRoomPlaybackUpdate);
+
+    setWSClient(client);
+    await enterRoom(room);
+  }
+
+  const startRefreshTimer = () => {
     // refresh the access token roughly every hour if the user has not left the page
     const almost_one_hour = 55 * 60000; // 55 mins
     setInterval(() => {
@@ -199,7 +212,7 @@ const PlayerPage = () => {
           <SearchBar onAdd={onAdd} />
           <div className="flex" style={{height: '85%'}}>
             <Queue songs={songs} queueVisible={queueVisible} onSwapClick={onSwapClick}/>
-            <Chat room={room} client={WSClient} queueVisible={queueVisible} onSwapClick={onSwapClick}/>
+            <Chat room={room} client={WSClient} queueVisible={queueVisible} onSwapClick={onSwapClick} authorized={isAuthorized}/>
           </div>
         </div>
         <Player songInQueue={songInQueue} isPaused={isPaused} song={songs[0]} device={device} playbackCapable={playbackCapable}
@@ -209,5 +222,4 @@ const PlayerPage = () => {
   );
 };
 
-const playPage = <PlayerPage />;
-ReactDOM.render(playPage, document.getElementById("root"));
+ReactDOM.render(<App />, document.getElementById("root"));
