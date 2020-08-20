@@ -15,7 +15,7 @@ const Queue = ({ songs, queueVisible, onSwapClick }) => {
 
   // Render Queue with array of QueueItems
   return (
-    <div id="queue" className={`${queueVisible ? "flex" : "hidden"} flex-col h-full w-full md:w-2/5 md:mr-4 bg-gray-800 rounded shadow-lg min-h-0`}>
+    <div id="queue" className="flex flex-col h-full w-full md:w-2/5 md:mr-4 bg-gray-800 rounded shadow-lg min-h-0">
       <div className="relative flex w-full border-b-2 border-gray-500">
         <p className="text-lg uppercase tracking-wider font-mono p-3">
           Queue
