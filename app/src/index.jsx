@@ -211,8 +211,10 @@ const App = () => {
         <div className="container flex flex-col justify-center mx-auto px-5 overflow-y-auto scrollbar">
           <SearchBar onAdd={onAdd} />
           <div className="flex" style={{height: '85%'}}>
-            <Queue songs={songs} queueVisible={queueVisible} onSwapClick={onSwapClick}/>
-            <Chat room={room} client={WSClient} queueVisible={queueVisible} onSwapClick={onSwapClick} authorized={isAuthorized}/>
+            { queueVisible
+              ? <Queue songs={songs} onSwapClick={onSwapClick}/>
+              : <Chat room={room} client={WSClient} onSwapClick={onSwapClick} authorized={isAuthorized}/>
+            }
           </div>
         </div>
         <Player songInQueue={songInQueue} isPaused={isPaused} song={songs[0]} device={device} playbackCapable={playbackCapable}

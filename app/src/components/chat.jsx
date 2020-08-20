@@ -6,7 +6,7 @@ import SwapIcon from "./swap.jsx";
 import { sendChat, setUsernameInDB, getUsernameFromDB } from "../api.js";
 import "../styles.css";
 
-const Chat = ({ room, client, queueVisible, onSwapClick , authorized}) => {
+const Chat = ({ room, client, onSwapClick , authorized}) => {
 
   const [messages, setMessages] = useState([]);
   const [username, setUsername] = useState("");
@@ -98,7 +98,7 @@ const Chat = ({ room, client, queueVisible, onSwapClick , authorized}) => {
   }
 
   return (
-    <div id="chat" className={`${queueVisible ? "hidden" : "flex"} md:flex flex-col bg-gray-800 rounded shadow-lg w-full h-full`}>
+    <div id="chat" className="flex flex-col bg-gray-800 rounded shadow-lg w-full h-full">
       <div id="title" className="relative flex border-b-2 border-gray-500">
         <span className="text-lg uppercase tracking-wider font-mono p-3"> Chat </span>
         <SwapIcon onClick={onSwapClick} />
@@ -188,7 +188,7 @@ const UsernameEntry = ( { onSubmit, onChange }) => {
 
   return (
     <div className="h-full flex items-center justify-center space-x-2 px-4 py-2 border-t-2 border-gray-500">
-        <span className="text-xl font-semibold">Enter a username: </span>
+        <p className="inline text-lg md:text-xl font-semibold">Enter a username: </p>
         <form autoComplete="off" onSubmit={handleSubmit} className="flex-grow">
           <input id="chat-input" type="text" onChange={handleChange}
               className="text-black placeholder-black transition-colors duration-200 ease-in-out bg-gray-200 appearance-none 
