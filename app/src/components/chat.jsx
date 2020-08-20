@@ -1,10 +1,12 @@
 /* eslint-disable react/prop-types */
 import React, { useState, useEffect } from "react";
+const Filter = require('bad-words');
+const filter = new Filter();
 import SwapIcon from "./swap.jsx";
-import { sendChat } from "../api.js";
+import { sendChat, setUsernameInDB, getUsernameFromDB } from "../api.js";
 import "../styles.css";
 
-const Chat = ({ room, client, queueVisible, onSwapClick }) => {
+const Chat = ({ room, client, queueVisible, onSwapClick , authorized}) => {
 
   const [messages, setMessages] = useState([]);
   const [username, setUsername] = useState("");
@@ -12,12 +14,23 @@ const Chat = ({ room, client, queueVisible, onSwapClick }) => {
   const [messagesDOM, setMessagesDOM] = useState(null);
   const [inputVal, setInputVal] = useState("");
 
+  const [errorVisible, setErrorVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
   useEffect(() => {
     setMessagesDOM(document.getElementById("messageList"));
   }, [])
 
   useEffect(() => {
-    if (room) {
+    if (authorized) {
+      getUsernameFromDB().then((response) => {
+        setUsername(response.username);
+      });
+    }
+  }, [authorized])
+
+  useEffect(() => {
+    if (room && client) {
       client.subscribe(`/rooms/chat/${room}`, (update) => {
         console.log(update);
         if (update.type === 'chat') {
@@ -25,7 +38,7 @@ const Chat = ({ room, client, queueVisible, onSwapClick }) => {
         }
       });
     }
-  }, [room])
+  }, [client])
 
   useEffect(() => {
     if (messagesDOM) {
@@ -65,7 +78,16 @@ const Chat = ({ room, client, queueVisible, onSwapClick }) => {
 
   const handleUsernameSubmit = (e) => {
     e.preventDefault();
-    setUsername(usernameVal);
+
+    if (filter.isProfane(usernameVal)) {
+      setErrorMessage("Hey! Be nice.");
+      setErrorVisible(true);
+    }
+    else {
+      setUsername(usernameVal);
+      setUsernameInDB(usernameVal);
+      setErrorVisible(false);
+    }
   }
 
   const getFormattedTime = () => {
@@ -85,11 +107,12 @@ const Chat = ({ room, client, queueVisible, onSwapClick }) => {
         <MessageList messages={messages} />
       </div>
       <div id="input">
-        {username.length === 0 
+        {username.length === 0 || username === "DEFAULT_USERNAME"
           ? <UsernameEntry onChange={handleUsernameChange} onSubmit={handleUsernameSubmit}/>
           : <ChatInput onChange={handleInputChange} onSubmit={handleInputSubmit}/>
         }
       </div>
+      <ErrorMessage visible={errorVisible} message={errorMessage}/>
     </div>
   );
 }
@@ -173,7 +196,18 @@ const UsernameEntry = ( { onSubmit, onChange }) => {
           />
         </form>
     </div>
-  )
+  );
+}
+
+const ErrorMessage = ({ message, visible }) => {
+  return (
+    <div className={`${visible ? "flex" : "hidden"} items-center space-x-1 px-4 pb-2 text-red-500 font-semibold`}>
+      <svg viewBox="0 0 20 20" className="fill-current w-5 h-5">
+        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd"></path>
+      </svg>
+      <span>{message}</span>
+    </div>
+  );
 }
 
 export default Chat;
