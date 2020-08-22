@@ -15,6 +15,7 @@ const Nes = require("@hapi/nes/lib/client")
 
 const App = () => {
   const [songs, updateSongs] = useState([]);
+  const [history, setHistory] = useState([]);
   const [isPaused, setIsPaused] = useState(true);
   const [songStarted, setSongStarted] = useState(false);
 
@@ -63,14 +64,18 @@ const App = () => {
     if (isAuthorized && device && room) {
       initRoomSocket();
     }
-  }, [isAuthorized, device, room])
+  }, [isAuthorized, device, room]);
 
   useEffect(() => {
     if (signInLink) {
       setModalBody(modals.SignIn);
       setShowModal(true);
     }
-  }, [signInLink])
+  }, [signInLink]);
+
+  useEffect(() => {
+    console.log(history)
+  }, [history])
 
   const setupWebPlayer = async () => {
     addSDKScript();
@@ -191,10 +196,12 @@ const App = () => {
     await nextSong(device.id, songs[1], room, true); // moves to the next song in spotify queue
     // removes the first song from the queue list and returns the new list
     updateSongs(songs => songs.filter((s, i) => i > 0));
+    setHistory(history => history.concat(songs[songs.length - 1]));
     setIsPaused(false);
   }
 
   const onProgressComplete = () => {
+    setHistory(history => history.concat(songs[songs.length - 1]));
     updateSongs(songs => songs.filter((s, i) => i > 0));
   }
 
@@ -208,7 +215,7 @@ const App = () => {
         showDialog={showModal} close={closeModal} mobile={false} apiLink={signInLink} />
       <div className="grid grid-rows-pancake text-white w-screen h-screen bg-gray-900 overflow-hidden">
         <Header device={device} deviceSearching={deviceSearching}/>
-        <div className="container flex flex-col justify-center mx-auto px-5 overflow-y-auto scrollbar">
+        <div className="container flex flex-col justify-center mx-auto px-5 py-2 overflow-y-auto scrollbar">
           <SearchBar onAdd={onAdd} />
           <div className="flex" style={{height: '85%'}}>
             <Queue songs={songs} queueVisible={queueVisible} onSwapClick={onSwapClick}/>
