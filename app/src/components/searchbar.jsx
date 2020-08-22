@@ -44,7 +44,7 @@ class SearchBar extends React.Component {
 
     // clear the timer currently held in state, if it exists
     // this prevents multiple requests within 1 second being sent to the search api
-    if (this.state.currentTimer != null) {
+    if (this.state.currentTimer) {
       clearTimeout(this.state.currentTimer)
     }
     
