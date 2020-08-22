@@ -1,16 +1,18 @@
 import React from "react";
+import { SliderInput, SliderTrack, SliderTrackHighlight, SliderHandle } from "@reach/slider";
+import { setSongPosition } from "../api";
 
 export class ProgressBar extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { elapsed: 0, progressActive: false, progressTimer: null }; // elapsed: seconds of the song elapsed 
+    this.state = { elapsed: 0, timeoutID: null, progressActive: false, progressTimer: null }; // elapsed: seconds of the song elapsed 
+    this.onChange = this.onChange.bind(this);
   }
 
   componentDidUpdate(prevProps) {
     if (prevProps.song !== this.props.song) {
       clearInterval(this.state.progressTimer);
       this.setState({ elapsed: 0, progressActive: false});
-      document.getElementById("progress").style.width = "0%";
     }
     else if (this.props.runtime) {
       const runtime = parseFloat(this.props.runtime) / 1000;
@@ -21,7 +23,7 @@ export class ProgressBar extends React.Component {
         this.setState({ elapsed: 0, progressActive: false })
         this.props.onProgressComplete();
       }
-      else if (!this.props.isPaused && !this.state.progressActive) {
+      else if (!this.props.isPaused && !this.state. progressActive) {
         // if song is playing and the progress bar is not already active
         this.advanceProgress();
       }
@@ -30,6 +32,10 @@ export class ProgressBar extends React.Component {
         this.pauseProgress();
       }
     }
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.state.timerID);
   }
 
   advanceProgress() {
@@ -50,13 +56,31 @@ export class ProgressBar extends React.Component {
     clearInterval(this.state.progressTimer); // stops the interval when paused
   }
 
+  onChange(newValue) {
+    this.setState({ elapsed: newValue }); // visually update the elapsed state immediately
+
+    // sets a timeout function that sends the api request after .25 seconds
+    // this prevents sending many api requests successively to the server when the bar is dragged.
+    if (this.state.timeoutID) {
+      clearTimeout(this.state.timeoutID)
+    }
+    const timeout = setTimeout(() => {
+      console.log("sending seek req")
+      setSongPosition(this.props.deviceID, newValue * 1000)
+    }, 250)
+    this.setState({ timeoutID: timeout })
+  }
+
   render() {
+    const runtime = parseFloat(this.props.runtime) / 1000;
+
     return (
-      <div className="flex shadow w-full h-2 bg-grey-light">
-        <div id="progress" className="bg-customgreen leading-none py-1 rounded" style={{ width: this.progress + "%" }}>
-          {" "}
-        </div>
-      </div>
+      <SliderInput className="w-full mb-1" min={0} max={runtime} value={this.state.elapsed} onChange={this.onChange}>
+        <SliderTrack>
+          <SliderTrackHighlight />
+          <SliderHandle className="w-3 h-3 hover:bg-customgreen hover:border-customgreen focus:bg-customgreen focus:border-customgreen" />
+        </SliderTrack>
+      </SliderInput>
     );
   }
 }

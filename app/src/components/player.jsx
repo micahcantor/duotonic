@@ -22,13 +22,13 @@ const Player = (props) => {
 
   const onVolumeMouseUp = async (e) => {
     const volume = parseInt(e.target.firstChild.children[1].getAttribute("aria-valuenow"));
-    await setVolume(props.device.id, volume)
+    await setVolume(props.device.id, volume);
   }
 
   return (
     <div className="flex overflow-hidden flex-col border-t-2 border-gray-500 bg-gray-900 h-22">
-      <div className="flex w-full relative mx-auto mt-1 items-center">
-        <div className="ml-3 w-1/2 lg:w-1/3 lg:absolute">
+      <div className="flex w-full relative mx-auto my-2 items-center">
+        <div className="ml-3 md:ml-5 w-1/2 lg:w-1/3 lg:absolute">
           {props.songInQueue
             ? <SongInfo song={props.song} />
             : null
@@ -42,14 +42,17 @@ const Player = (props) => {
           : null
         }
       </div>
-      <ProgressBar song={props.song} isPaused={props.isPaused} runtime={runtime} deviceID={props.device ? props.device.id : ""} onProgressComplete={props.onProgressComplete}/>
+      {props.songInQueue
+        ? <ProgressBar song={props.song} isPaused={props.isPaused} runtime={runtime} deviceID={props.device ? props.device.id : ""} onProgressComplete={props.onProgressComplete}/>
+        : null
+      }
     </div>
   );
 }
 
 const PlaybackControls = (props) => {
   return (
-    <div className={`flex justify-center text-white ${props.songInQueue ? "mx-auto" : ""}`}>
+    <div className={`flex justify-center text-white md:pl-2 ${props.songInQueue ? "mx-auto" : ""}`}>
       <LeftSkip onLeftSkip={props.onLeftSkip}/>
       <PausePlay isPaused={props.isPaused} onPauseChange={props.onPauseChange} />
       <RightSkip onRightSkip={props.onRightSkip}/>
@@ -71,20 +74,20 @@ const PausePlay = (props) => {
 
 const VolumeSlider = ({ onMouseUp }) => {
   return (
-    <div className="hidden lg:flex items-center text-gray-500 absolute right-0 -mt-1 mr-3">
-      <svg className="w-4 h-4 mr-2 mt-2 stroke-current" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24">
+    <div className="hidden lg:flex items-center text-gray-500 absolute right-0 mr-5">
+      <svg className="w-4 h-4 mr-2 stroke-current" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24">
         <path d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" clipRule="evenodd"></path>
         <path d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"></path>
       </svg>
 
       <SliderInput className="w-32" min={0} max={100} onMouseUp={onMouseUp} defaultValue={100}>
-        <SliderTrack>
+        <SliderTrack className="bg-gray-600">
           <SliderTrackHighlight />
-          <SliderHandle className="hover:bg-customgreen hover:border-customgreen focus:bg-customgreen focus:border-customgreen" />
+          <SliderHandle className="w-3 h-3 transform hover:scale-150 hover:bg-customgreen hover:border-customgreen focus:bg-customgreen focus:border-customgreen" />
         </SliderTrack>
       </SliderInput>
 
-      <svg className="w-4 h-4 ml-2 mt-2 stroke-current" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24">
+      <svg className="w-4 h-4 ml-2 stroke-current" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24">
         <path d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
       </svg>
     </div>
