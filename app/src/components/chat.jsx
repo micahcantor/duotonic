@@ -13,6 +13,7 @@ const Chat = ({ room, client, queueVisible, onSwapClick , authorized}) => {
   const [usernameVal, setUsernameVal] = useState("");
   const [messagesDOM, setMessagesDOM] = useState(null);
   const [inputVal, setInputVal] = useState("");
+  const [showUsernameEntry, setShowUsernameEntry] = useState(false);
 
   const [errorVisible, setErrorVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -66,8 +67,7 @@ const Chat = ({ room, client, queueVisible, onSwapClick , authorized}) => {
       setMessages(messages => messages.concat(message));
     }
 
-    if (room.length > 0) {
-      console.log('sending chat')
+    if (room) {
       sendChat(message, room);
     }
   }
@@ -84,10 +84,15 @@ const Chat = ({ room, client, queueVisible, onSwapClick , authorized}) => {
       setErrorVisible(true);
     }
     else {
+      setShowUsernameEntry(false);
       setUsername(usernameVal);
       setUsernameInDB(usernameVal);
       setErrorVisible(false);
     }
+  }
+
+  const handleUsernameDisplayClick = () => {
+    setShowUsernameEntry(true);
   }
 
   const getFormattedTime = () => {
@@ -96,19 +101,23 @@ const Chat = ({ room, client, queueVisible, onSwapClick , authorized}) => {
     const timeFormatted = timeSent[0].substring(0, timeSent[0].length - 3) + " " + timeSent[1];
     return timeFormatted;
   }
-
+  
   return (
     <div id="chat" className={`${queueVisible ? "hidden" : "flex"} md:flex flex-col bg-gray-800 rounded shadow-lg w-full h-full`}>
-      <div id="title" className="relative flex border-b-2 border-gray-500">
+      <div id="title" className="flex items-center justify-between relative border-b-2 border-gray-500">
         <span className="text-lg uppercase tracking-wider font-mono p-3"> Chat </span>
         <SwapIcon onClick={onSwapClick} />
       </div>
       <div id="messages" className="flex-grow w-full h-full overflow-y-auto scrollbar">
         <MessageList messages={messages} />
       </div>
+      { username.length === 0 || username === "DEFAULT_USERNAME"
+        ? null
+        : <ChatStatus username={username} onClick={handleUsernameDisplayClick}/>
+      }
       <div id="input">
-        {username.length === 0 || username === "DEFAULT_USERNAME"
-          ? <UsernameEntry onChange={handleUsernameChange} onSubmit={handleUsernameSubmit}/>
+        {showUsernameEntry || username.length === 0 || username === "DEFAULT_USERNAME" // the not looks weird but this ensures the chat is rendered by default
+          ? <UsernameEntry onChange={handleUsernameChange} onSubmit={handleUsernameSubmit}/>  
           : <ChatInput onChange={handleInputChange} onSubmit={handleInputSubmit}/>
         }
       </div>
@@ -128,7 +137,7 @@ const ChatInput = ({ onChange, onSubmit }) => {
   }
 
   return (
-    <form autoComplete="off" onSubmit={handleSubmit} className="mb-3 mx-auto" style={{width: '95%'}}>
+    <form autoComplete="off" onSubmit={handleSubmit} className="px-4 mb-3 mx-auto">
       <div className="relative w-full">
         <input id="chat-input" type="text" onChange={handleChange} placeholder="Send a message"
           className="text-black placeholder-black transition-colors duration-200 ease-in-out bg-gray-200 appearance-none border-2 border-transparent rounded h-8 w-full px-2 leading-tight focus:outline-none hover:bg-white focus:border-green-400"      
@@ -175,6 +184,16 @@ const Message = ({ user, time, messageString }) => {
     </div>
   );
 };
+
+const ChatStatus = ({ username, onClick }) => {
+  return (
+    <div className="flex self-end mt-1 mr-4 p-2 bg-gray-900 rounded border-2 border-transparent focus:border-customgreen hover:border-customgreen items-center space-x-1">
+      <button onClick={onClick}>
+        <span className="font-semibold"> {username} </span>
+      </button>
+    </div>
+  )
+}
 
 const UsernameEntry = ( { onSubmit, onChange }) => {
 
