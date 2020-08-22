@@ -116,7 +116,15 @@ export const setVolume = async (device_id, volume_percent) => {
     await fetch (api, {
         method: "PUT",
         credentials: "include"
-    })
+    });
+}
+
+export const setSongPosition = async (device_id, position_ms) => {
+    const api = `http://localhost:3000/api/spotify/me/player/seek?device_id=${device_id}&position_ms=${position_ms}`;
+    await fetch (api, {
+        method: "PUT",
+        credentials: "include"
+    });
 }
 
 export const getDevices = async () => {
