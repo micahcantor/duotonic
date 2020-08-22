@@ -6,7 +6,7 @@ import SwapIcon from "./swap.jsx";
 import { sendChat, setUsernameInDB, getUsernameFromDB } from "../api.js";
 import "../styles.css";
 
-const Chat = ({ room, client, onSwapClick , authorized}) => {
+const Chat = ({ room, client, onSwapClick, queueVisible, authorized}) => {
 
   const [messages, setMessages] = useState([]);
   const [username, setUsername] = useState("");
