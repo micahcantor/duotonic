@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { SliderInput, SliderTrack, SliderTrackHighlight, SliderHandle } from "@reach/slider";
 import { setSongPosition } from "../api";
 
-export const ProgressBar = ({ song, runtime, isPaused, deviceID, room, onProgressComplete }) => {
+export const ProgressBar = ({ seekElapsed, song, runtime, isPaused, deviceID, room, onProgressComplete }) => {
 
   const [elapsed, setElapsed] = useState(0);
   const [runtimeMS, setRuntimeMS] = useState(null);
@@ -11,7 +11,6 @@ export const ProgressBar = ({ song, runtime, isPaused, deviceID, room, onProgres
   const [progressIntervalID, setProgressIntervalID] = useState(null);
 
   useEffect(() => {
-    console.log('new song')
     clearInterval(progressIntervalID);
     setElapsed(0);
     setRuntimeMS(parseFloat(runtime) / 1000);
@@ -38,6 +37,11 @@ export const ProgressBar = ({ song, runtime, isPaused, deviceID, room, onProgres
       clearInterval(progressIntervalID);
     }
   }, [elapsed, isPaused, progressActive, runtimeMS])
+
+  useEffect(() => {
+    setElapsed(seekElapsed);
+    console.log('seek update')
+  }, [seekElapsed])
 
   useEffect(() => {
     return () => clearTimeout(timeoutID);

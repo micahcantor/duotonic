@@ -16,7 +16,6 @@ const Nes = require("@hapi/nes/lib/client")
 const App = () => {
   const [songs, updateSongs] = useState([]);
   const [history, setHistory] = useState([]);
-
   const [isPaused, setIsPaused] = useState(true);
   const [songStarted, setSongStarted] = useState(false);
 
@@ -24,6 +23,7 @@ const App = () => {
   const [playbackCapable, setPlaybackCapable] = useState(true);
 
   const [signInLink, setSignInLink] = useState(null);
+  const [seekUpdateElapsed, setSeekUpdateElapsed] = useState(0);
   const [room, setRoom] = useState("");
   const [WSClient, setWSClient] = useState(null);
 
@@ -155,6 +155,7 @@ const App = () => {
         break;
       case 'seek':
         await setSongPosition(device.id, update.position_ms, room, false);
+        setSeekUpdateElapsed(update.position_ms);
         /* TODO: lift progress bar state so it can be visually updated here */
         break;
     }
@@ -249,7 +250,7 @@ const App = () => {
               <Chat room={room} client={WSClient} onSwapClick={onSwapClick} queueVisible={queueVisible} authorized={isAuthorized}/>
           </div>
         </div>
-        <Player songInQueue={songInQueue} isPaused={isPaused} song={songs[0]} device={device} playbackCapable={playbackCapable}
+        <Player songInQueue={songInQueue} isPaused={isPaused} song={songs[0]} room={room} device={device} playbackCapable={playbackCapable} seekElapsed={seekUpdateElapsed}
           handlePauseChange={handlePauseChange} onLeftSkip={onLeftSkip} onRightSkip={onRightSkip} onProgressComplete={onProgressComplete}/>
       </div>
     </>
