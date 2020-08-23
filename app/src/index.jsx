@@ -16,6 +16,7 @@ const Nes = require("@hapi/nes/lib/client")
 const App = () => {
   const [songs, updateSongs] = useState([]);
   const [history, setHistory] = useState([]);
+
   const [isPaused, setIsPaused] = useState(true);
   const [songStarted, setSongStarted] = useState(false);
 
@@ -25,6 +26,7 @@ const App = () => {
   const [signInLink, setSignInLink] = useState(null);
   const [room, setRoom] = useState("");
   const [WSClient, setWSClient] = useState(null);
+
   const [device, setDevice] = useState(null);
   const [deviceSearching, setDeviceSearching] = useState(true);
   
@@ -35,7 +37,8 @@ const App = () => {
   
   const songInQueue = songs.length > 0; // bool that is true if there is a song in the queue
 
-  // on mount, check if the user's device is capable of web playback, and if so set it up
+  /* Initialization function that fires on mount
+    If the user is signed in, sets up the approproiate device connection, otherwise prompts them to log in */
   useEffect(() => {
     const isAuthorized = document.cookie === "isAuthorized=true";
     const playbackCapable = isPlaybackCapable();
@@ -60,12 +63,14 @@ const App = () => {
     setRoom(room);
   }, []);
 
+  /* Fires after the user is authorized, connected to a device, and in a room */
   useEffect(() => {
     if (isAuthorized && device && room) {
       initRoomSocket();
     }
   }, [isAuthorized, device, room]);
 
+  /* Fires after the sign in link has been set with the query params it needs (room ID and playback capability) */
   useEffect(() => {
     if (signInLink) {
       setModalBody(modals.SignIn);
@@ -94,7 +99,7 @@ const App = () => {
           clearInterval(searchForDevices);
         }
       })
-    }, 2000)
+    }, 1000)
   }
 
   const initRoomSocket = async () => {
@@ -116,6 +121,8 @@ const App = () => {
     }, almost_one_hour);
   }
 
+  /* Function that fires whenever the user receives a web socket message
+    Updates the local state and the user's spotify playback with relevant info */
   const handleRoomPlaybackUpdate = async (update) => {
     console.log(update);
     switch(update.type) {
@@ -153,6 +160,7 @@ const App = () => {
     }
   }
 
+  /* When a song is added to the queue, get the information about that song */
   const onAdd = async (e) => {
     const parentNode = e.target.closest("#result-parent").firstChild;
     const newQueueItem = {
@@ -202,11 +210,11 @@ const App = () => {
 
   const onRightSkip = async () => {
     if (room && room !== "") {
-      await updateHistoryInRoom(songs[songs.length - 1], room); // if user is in a room, add the skipped song to the server history
+      await updateHistoryInRoom(songs[0], room); // if user is in a room, add the skipped song to the server history
     }
     await nextSong(device.id, songs[1], room, true); // moves to the next song in spotify queue
 
-    setHistory(history => history.concat(songs[0])); // add the skipped song to the local history
+    setHistory(history => [...history, songs[0]]); // add the skipped song to the local history
     updateSongs(songs => songs.filter((s, i) => i > 0)); // removes the first song from the queue list and returns the new list
 
     setIsPaused(false);
@@ -214,9 +222,9 @@ const App = () => {
 
   const onProgressComplete = async () => {
     if (room && room !== "") {
-      await updateHistoryInRoom(songs[songs.length - 1], room);
+      await updateHistoryInRoom(songs[0], room);
     }
-    setHistory(history => history.concat(songs[songs.length - 1]));
+    setHistory(history => [...history, songs[0]]);
     updateSongs(songs => songs.filter((s, i) => i > 0));
   }
 
@@ -225,11 +233,7 @@ const App = () => {
   }
 
   const localUpdatePreviousSong = () => {
-    updateSongs(songs => {
-      const updated = [...songs]; // clone the songs array to mutate it
-      updated.unshift(history[history.length - 1]); // add the last song in the history to the front of the songs array
-      return updated;
-    });
+    updateSongs(songs => [history[history.length - 1], ...songs]); // add last song from the history to the front of the queue
   }
 
   return (
