@@ -43,7 +43,8 @@ const Player = (props) => {
         }
       </div>
       {props.songInQueue
-        ? <ProgressBar song={props.song} isPaused={props.isPaused} runtime={runtime} deviceID={props.device ? props.device.id : ""} onProgressComplete={props.onProgressComplete}/>
+        ? <ProgressBar song={props.song} isPaused={props.isPaused} runtime={runtime}
+          deviceID={props.device ? props.device.id : ""} onProgressComplete={props.onProgressComplete}/>
         : null
       }
     </div>
