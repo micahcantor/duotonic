@@ -62,13 +62,13 @@ export class ProgressBar extends React.Component {
     // sets a timeout function that sends the api request after .25 seconds
     // this prevents sending many api requests successively to the server when the bar is dragged.
     if (this.state.timeoutID) {
-      clearTimeout(this.state.timeoutID)
+      clearTimeout(this.state.timeoutID);
     }
     const timeout = setTimeout(() => {
-      console.log("sending seek req")
-      setSongPosition(this.props.deviceID, newValue * 1000)
+      console.log("sending seek req ", this.props.room);
+      setSongPosition(this.props.deviceID, newValue * 1000, this.props.room, true);
     }, 250)
-    this.setState({ timeoutID: timeout })
+    this.setState({ timeoutID: timeout });
   }
 
   render() {

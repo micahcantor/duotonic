@@ -9,7 +9,7 @@ import Queue from "./components/queue.jsx";
 import Chat from "./components/chat.jsx";
 import Header from "./components/header.jsx";
 import { Modal, modals } from "./components/modal.jsx"
-import { addToQueue, startSong, pauseSong, resumeSong, nextSong, previousSong, getDevices, getAccessToken, enterRoom } from "./api.js"
+import { addToQueue, startSong, pauseSong, resumeSong, nextSong, previousSong, getDevices, getAccessToken, enterRoom, setSongPosition, updateHistoryInRoom } from "./api.js"
 import { addSDKScript, isPlaybackCapable, initPlayer } from "./web_playback.js";
 const Nes = require("@hapi/nes/lib/client")
 
@@ -72,10 +72,6 @@ const App = () => {
       setShowModal(true);
     }
   }, [signInLink]);
-
-  useEffect(() => {
-    console.log(history)
-  }, [history])
 
   const setupWebPlayer = async () => {
     addSDKScript();
@@ -141,9 +137,18 @@ const App = () => {
         updateSongs(songs => songs.filter((s, i) => i > 0));
         setIsPaused(false);
         break;
+      case 'previous':
+        await previousSong(device.id, update.current_song, room, false);
+        localUpdatePreviousSong();
+        setIsPaused(false);
+        break;
       case 'queue':
         await addToQueue(device.id, update.current_song, room, false);
         updateSongs(songs => songs.concat(update.current_song));
+        break;
+      case 'seek':
+        await setSongPosition(device.id, update.position_ms, room, false);
+        /* TODO: lift progress bar state so it can be visually updated here */
         break;
     }
   }
@@ -187,26 +192,44 @@ const App = () => {
   }
 
   const onLeftSkip = async () => {
-    await previousSong(device.id, room);
-    updateSongs(songs => songs.filter((s, i) => i !== songs.length - 1));
+    await previousSong(device.id, room); // requests Spotify to play the previous song
+    if (songs.length > 0) {
+      await addToQueue(device.id, songs[0], room, true); // adds the current song to the Spotify queue
+    }
+    localUpdatePreviousSong();
     setIsPaused(false);
   }
 
   const onRightSkip = async () => {
+    if (room && room !== "") {
+      await updateHistoryInRoom(songs[songs.length - 1], room); // if user is in a room, add the skipped song to the server history
+    }
     await nextSong(device.id, songs[1], room, true); // moves to the next song in spotify queue
-    // removes the first song from the queue list and returns the new list
-    updateSongs(songs => songs.filter((s, i) => i > 0));
-    setHistory(history => history.concat(songs[songs.length - 1]));
+
+    setHistory(history => history.concat(songs[0])); // add the skipped song to the local history
+    updateSongs(songs => songs.filter((s, i) => i > 0)); // removes the first song from the queue list and returns the new list
+
     setIsPaused(false);
   }
 
-  const onProgressComplete = () => {
+  const onProgressComplete = async () => {
+    if (room && room !== "") {
+      await updateHistoryInRoom(songs[songs.length - 1], room);
+    }
     setHistory(history => history.concat(songs[songs.length - 1]));
     updateSongs(songs => songs.filter((s, i) => i > 0));
   }
 
   const onSwapClick = () => {
     setQueueVisible(queueVisible => !queueVisible);
+  }
+
+  const localUpdatePreviousSong = () => {
+    updateSongs(songs => {
+      const updated = [...songs]; // clone the songs array to mutate it
+      updated.unshift(history[history.length - 1]); // add the last song in the history to the front of the songs array
+      return updated;
+    });
   }
 
   return (
