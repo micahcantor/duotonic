@@ -47,6 +47,16 @@ export const exitRoom = async () => {
     });
 }
 
+export const updateHistoryInRoom = async (song, roomID) => {
+    const api = `http://localhost:3000/rooms/history?room=${roomID}`;
+    await fetch(api, {
+        method: "POST",
+        body: JSON.stringify(song),
+        credentials: "include",
+        headers: { "Content-Type": "application/json" }
+    });
+}
+
 export const enterQueue = async () => {
     const api = "http://localhost:3000/rooms/queue/enter";
     await fetch(api, {
@@ -119,8 +129,9 @@ export const setVolume = async (device_id, volume_percent) => {
     });
 }
 
-export const setSongPosition = async (device_id, position_ms) => {
-    const api = `http://localhost:3000/api/spotify/me/player/seek?device_id=${device_id}&position_ms=${position_ms}`;
+export const setSongPosition = async (device_id, position_ms, room_id, broadcast) => {
+    const base = "http://localhost:3000/api/spotify/me/player/seek";
+    const api = `${base}?device_id=${device_id}&position_ms=${position_ms}&room=${room_id}&broadcast=${broadcast}`;
     await fetch (api, {
         method: "PUT",
         credentials: "include"
@@ -135,7 +146,7 @@ export const getDevices = async () => {
 
 export const addToQueue = async (device_id, song_info, room_id, broadcast) => {
     const base = "http://localhost:3000/api/spotify/me/player/queue";
-    const api = base + `?device_id=${device_id}&uri=${song_info.uri}&room=${room_id}&broadcast=${broadcast}`;
+    const api = `${base}?device_id=${device_id}&uri=${song_info.uri}&room=${room_id}&broadcast=${broadcast}`;
     await fetch (api, {
         method: "POST",
         body: JSON.stringify(song_info),
