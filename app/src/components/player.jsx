@@ -8,67 +8,69 @@ import "../slider_styles.css";
 import { setVolume } from "../api";
 import { ProgressBar } from "./progress_bar.jsx";
 
-const Player = (props) => {
+const Player = ( { songInQueue, isPaused, song, room, device, playbackCapable, 
+  seekElapsed, handlePauseChange, onLeftSkip, onRightSkip, onProgressComplete } ) => {
+
   const [runtime, setRuntime] = useState(null);
 
   useEffect(() => {
-    if (props.song) {
-      setRuntime(props.song.runtime);
+    if (song) {
+      setRuntime(song.runtime);
     } 
     else {
       setRuntime(null);
     }
-  }, [props.song])
+  }, [song])
 
   const onVolumeMouseUp = async (e) => {
     const volume = parseInt(e.target.firstChild.children[1].getAttribute("aria-valuenow"));
-    await setVolume(props.device.id, volume);
+    await setVolume(device.id, volume);
   }
 
   return (
     <div className="flex overflow-hidden flex-col border-t-2 border-gray-500 bg-gray-900 h-22">
       <div className="flex w-full relative mx-auto my-2 items-center">
         <div className="ml-3 md:ml-5 w-1/2 lg:w-1/3 lg:absolute">
-          {props.songInQueue
-            ? <SongInfo song={props.song} />
+          {songInQueue
+            ? <SongInfo song={song} />
             : null
           }
         </div>
-        <PlaybackControls isPaused={props.isPaused} onPauseChange={props.handlePauseChange} 
-          onLeftSkip={props.onLeftSkip} onRightSkip={props.onRightSkip} songInQueue={props.songInQueue} />
+        <PlaybackControls isPaused={isPaused} onPauseChange={handlePauseChange} 
+          onLeftSkip={onLeftSkip} onRightSkip={onRightSkip} songInQueue={songInQueue} />
 
-        {props.playbackCapable
+        {playbackCapable
           ? <VolumeSlider onMouseUp={onVolumeMouseUp}/>
           : null
         }
       </div>
-      {props.songInQueue
-        ? <ProgressBar song={props.song} isPaused={props.isPaused} runtime={runtime}
-          deviceID={props.device ? props.device.id : ""} onProgressComplete={props.onProgressComplete}/>
+      {songInQueue
+        ? <ProgressBar song={song} isPaused={isPaused} runtime={runtime} seekElapsed={seekElapsed}
+          deviceID={device ? device.id : ""} room={room} onProgressComplete={onProgressComplete}/>
         : null
       }
     </div>
   );
 }
 
-const PlaybackControls = (props) => {
+const PlaybackControls = ({ onLeftSkip, onRightSkip, isPaused, songInQueue, onPauseChange }) => {
   return (
-    <div className={`flex justify-center text-white md:pl-2 ${props.songInQueue ? "mx-auto" : ""}`}>
-      <LeftSkip onLeftSkip={props.onLeftSkip}/>
-      <PausePlay isPaused={props.isPaused} onPauseChange={props.onPauseChange} />
-      <RightSkip onRightSkip={props.onRightSkip}/>
+    <div className={`flex justify-center text-white md:pl-2 ${songInQueue ? "mx-auto" : ""}`}>
+      <LeftSkip onLeftSkip={onLeftSkip}/>
+      <PausePlay isPaused={isPaused} onPauseChange={onPauseChange} />
+      <RightSkip onRightSkip={onRightSkip}/>
     </div>
   );
 };
 
-const PausePlay = (props) => {
+const PausePlay = ({ isPaused, onPauseChange }) => {
   const handleClick = () => {
-    props.onPauseChange(props.isPaused); // calls function passed down from Player
+    onPauseChange(isPaused); // calls function passed down from Player
   } // lifts pause state to the player so it is accessible to other player components
 
   return (
     <button onClick={handleClick} className="rounded-full h-16 w-16 flex items-center" type="button" >
-      {props.isPaused ? <PlayIcon /> : <PauseIcon />}
+      {isPaused ? <PlayIcon /> : <PauseIcon />}
     </button>
   );
 }
