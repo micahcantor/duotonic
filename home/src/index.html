@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Title</title>
+</head>
+
+<body>
+	<div class="w-screen h-screen bg-gray-200 flex flex-col">
+		<div class="container mx-auto">
+
+			<header id="header" class="flex justify-between items-center text-2xl w-full h-24">
+				<div class="font-mono ml-8">duotonic</div>
+				<div class="font-semibold flex items-center mr-8 rounded bg-primary px-2 pb-1 text-gray-200">
+					<a href="http://localhost:8080">get started</a>
+				</div>
+			</header>
+
+			<main id="main" class="flex flex-col flex-grow items-center w-full overflow-y-auto">		
+				<section class="flex w-full mx-auto px-16 mt-5">
+					<div class="flex flex-col w-1/2 mt-1 space-y-3">
+						<span class="leading-tight text-6xl font-extrabold">Listen to Spotify <span
+								class="text-primary">together.</span></span>
+						<span class="text-2xl"> Share your music and chat simultaneously <br> with a friend or stranger. </span>
+						<div class="text-2xl font-semibold w-1/4 text-center rounded bg-primary mr-8 px-2 pb-1 text-gray-200">
+							<a href="http://localhost:8080">get started</a>
+						</div>
+					</div>
+					<div class="w-1/2 flex-none -mt-6 -mx-8 mb-2">
+						<img class="object-cover" src="./DancingDoodle.png" alt="Dancing Doodle">
+					</div>
+				</section>
+
+				<section class="w-full bg-gray-400 rounded">
+					<div class="flex justify-between container mx-auto px-16 mt-3 mb-3">
+						<div class="w-1/2">
+							<span class="text-3xl font-bold mb-1">
+								Stay in sync
+							</span>
+							<p class="text-2xl">
+								When you add a track on one device, Pass the AUX updates
+								for everyone in your lobby, so you never get out of sync.
+							</p>
+						</div>
+					</div>
+				</section>
+			</main>
+			
+		</div>
+	</div>
+	<script src="bundle.js"></script>
+</body>
+
+</html>
