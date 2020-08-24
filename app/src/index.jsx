@@ -104,13 +104,19 @@ const App = () => {
 
   const initRoomSocket = async () => {
     console.log('entering room', room, 'with device ', device.id);
-
-    const client = new Nes.Client("ws://localhost:3000");
-    await client.connect();
-    client.subscribe(`/rooms/playback/${room}`, handleRoomPlaybackUpdate);
-
-    setWSClient(client);
-    await enterRoom(room);
+    const { msg } = await enterRoom(room);
+    if (msg === "error") {
+      setShowModal(true);
+      setModalBody(modals.RoomNotFound);
+      window.history.pushState(null, null, "/");
+    }
+    else {
+      const client = new Nes.Client("ws://localhost:3000");
+      await client.connect();
+      client.subscribe(`/rooms/playback/${room}`, handleRoomPlaybackUpdate);
+      setWSClient(client);
+    }
+    
   }
 
   const startRefreshTimer = () => {

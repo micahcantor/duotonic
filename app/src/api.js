@@ -34,9 +34,10 @@ export const enterRoom = async (roomID) => {
         method: "PUT",
         credentials: "include"
     });
-    if (response.status === 400) {
-        console.log('invalid room #')
+    if (response.status === 500) {
+        return { msg: "error" }
     }
+    return { msg: "success" }
 }
 
 export const exitRoom = async () => {

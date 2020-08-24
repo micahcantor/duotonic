@@ -24,6 +24,9 @@ export const Modal = ({showDialog, close, body, mobile, loading, deviceName, api
     case modals.MobileMenu:
       modalBody = <Mobile close={close} />;
       break;
+    case modals.RoomNotFound:
+      modalBody = <RoomNotFound />
+      break;
   }
 
   return (
@@ -39,6 +42,7 @@ export const modals = {
   FindRandom:   "find-random",
   GiveLink:     "give-link",
   MobileMenu:   "mobile-menu",
+  RoomNotFound: "room-not-found",
 }
 
 export const GiveLink = (props) => {
@@ -112,10 +116,10 @@ export const DeviceSearch = (props) => {
   );
 }
 
-export const Mobile = (props) => {
+export const Mobile = ({ close }) => {
   return (
     <div className="relative">
-      <button onClick={() => props.close()} type="button" className="inset-y-0 right-0 absolute w-8 h-8">
+      <button onClick={() => close()} type="button" className="inset-y-0 right-0 absolute w-8 h-8">
         <svg className="hover:text-customgreen stroke-current" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24">
           <path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
         </svg>
@@ -123,6 +127,15 @@ export const Mobile = (props) => {
       <MobileMenu />
     </div>
   );
+}
+
+export const RoomNotFound = () => {
+  return (
+    <div className="flex flex-col space-y-2 text-2xl -mt-2">
+      <span className="uppercase font-mono border-b-2 border-gray-500 text-left"> Not Found</span>
+      <span className="font-semibold"> Sorry, we couldn't find that room. </span>
+    </div>
+  )
 }
 
 const MobileMenu = () => {
