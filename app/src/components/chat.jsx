@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 const Filter = require('bad-words');
 const filter = new Filter();
 import SwapIcon from "./swap.jsx";
@@ -11,16 +11,12 @@ const Chat = ({ room, client, onSwapClick, queueVisible, authorized}) => {
   const [messages, setMessages] = useState([]);
   const [username, setUsername] = useState("");
   const [usernameVal, setUsernameVal] = useState("");
-  const [messagesDOM, setMessagesDOM] = useState(null);
+  const messagesBottom = useRef(null);
   const [inputVal, setInputVal] = useState("");
   const [showUsernameEntry, setShowUsernameEntry] = useState(false);
 
   const [errorVisible, setErrorVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-
-  useEffect(() => {
-    setMessagesDOM(document.getElementById("messageList"));
-  }, [])
 
   useEffect(() => {
     if (authorized) {
@@ -33,19 +29,18 @@ const Chat = ({ room, client, onSwapClick, queueVisible, authorized}) => {
   useEffect(() => {
     if (room && client) {
       client.subscribe(`/rooms/chat/${room}`, (update) => {
-        console.log(update);
         if (update.type === 'chat') {
-          setMessages(messages => messages.concat(update.updated));
+          setMessages([...messages, update.updated]);
         }
       });
     }
   }, [client])
 
   useEffect(() => {
-    if (messagesDOM) {
-      messagesDOM.scrollTop = messagesDOM.scrollHeight; // scrolls to bottom of DOM element
+    if (messagesBottom.current) {
+      messagesBottom.current.scrollIntoView(false); // scrolls to bottom of DOM element
     }
-  }, [messages])
+  }, [messages, messagesBottom])
 
   const handleInputChange = (value) => {
     setInputVal(value);
@@ -54,22 +49,22 @@ const Chat = ({ room, client, onSwapClick, queueVisible, authorized}) => {
   const handleInputSubmit = (e) => {
 
     e.preventDefault();
-    document.getElementById("chat-input").value = "";
-    setInputVal("");
-
     const message = {
       username: username,
       text: inputVal,
       time: getFormattedTime(),
     }
-
+    console.log(inputVal)
     if (inputVal.length > 0) {
-      setMessages(messages => messages.concat(message));
+      setMessages([...messages, message]);
     }
 
     if (room) {
       sendChat(message, room);
     }
+
+    setInputVal("");
+    document.getElementById("chat-input").value = "";
   }
 
   const handleUsernameChange = (value) => {
@@ -109,7 +104,7 @@ const Chat = ({ room, client, onSwapClick, queueVisible, authorized}) => {
         <SwapIcon onClick={onSwapClick} />
       </div>
       <div id="messages" className="flex-grow w-full h-full overflow-y-auto scrollbar">
-        <MessageList messages={messages} />
+        <MessageList messages={messages} messagesBottom={messagesBottom}/>
       </div>
       { username.length === 0 || username === "DEFAULT_USERNAME"
         ? null
@@ -160,11 +155,12 @@ const SendButton = () => {
   );
 };
 
-const MessageList = ({ messages }) => {
+const MessageList = ({ messages, messagesBottom }) => {
   const listItems = messages.map((m, idx) => {
     return (
       <li key={idx}>
         <Message user={m.username} messageString={m.text} time={m.time} />
+        <div ref={messagesBottom}></div>
       </li>
     );
   });
