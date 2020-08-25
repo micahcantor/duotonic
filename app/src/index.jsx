@@ -247,11 +247,11 @@ const App = () => {
     <>
       <Modal body={modalBody} loading={deviceSearching} deviceName={device? device.name : ""}
         showDialog={showModal} close={closeModal} mobile={false} apiLink={signInLink} />
-      <div className="grid grid-rows-pancake text-white w-screen h-screen bg-gray-900 overflow-hidden">
+      <div className="flex flex-col text-white w-screen h-screen bg-gray-900 overflow-hidden">
         <Header device={device} deviceSearching={deviceSearching}/>
-        <div className="container flex flex-col justify-center mx-auto px-5 py-2 overflow-y-auto scrollbar">
+        <div className="container flex flex-col flex-grow mx-auto my-4 px-5 overflow-y-auto h-full scrollbar" style={{height: '85%'}}>
           <SearchBar onAdd={onAdd} />
-          <div className="flex" style={{height: '85%'}}>
+          <div className="flex h-full ">
               <Queue songs={songs} onSwapClick={onSwapClick} queueVisible={queueVisible}/>
               <Chat room={room} client={WSClient} onSwapClick={onSwapClick} queueVisible={queueVisible} authorized={isAuthorized}/>
           </div>
