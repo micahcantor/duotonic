@@ -174,8 +174,8 @@ const App = () => {
       name: parentNode.children[1].children[0].innerText,
       artists: parentNode.children[1].children[1].innerText,
       coverUrl: parentNode.children[0].src,
-      uri: parentNode.children[1].children[3].innerText,
-      runtime: parentNode.children[1].children[4].innerText,
+      uri: parentNode.dataset.uri,
+      runtime: parentNode.dataset.runtime,
     };
 
     // the first song is played immediately and isn't added to the queue
