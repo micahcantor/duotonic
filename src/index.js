@@ -370,14 +370,12 @@ const init = async () => {
                     { $push: { chat: request.payload } },
                     { returnOriginal: false }
                 );
-                if (request.query.broadcast) {
-                    const messages = result.value.chat;
-                    const lastMessage = messages[messages.length - 1];
-                    server.publish(`/rooms/chat/${roomID}`, 
-                        { updated: lastMessage, type: 'chat' },
-                        { internal: { id: request.state.sessionId } }
-                    );
-                }
+                const messages = result.value.chat;
+                const lastMessage = messages[messages.length - 1];
+                server.publish(`/rooms/chat/${roomID}`, 
+                    { updated: lastMessage, type: 'chat' },
+                    { internal: { id: request.state.sessionId } }
+                );
             }
             catch (error) {
                 console.log(error);

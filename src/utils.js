@@ -1,14 +1,15 @@
 const Axios = require('axios');
 const Qs = require('qs');
 const { ObjectId } = require('mongodb');
+const cookie = require('cookie')
 
 const filterUpdateMessages = (path, message, options) => {
     /* sends the update only to users in the room that did not send it */
 
-    const cookies = options.socket._cookies.split(' ');
-    const userID = cookies[0].substring(cookies[0].indexOf('=') + 1, cookies[0].length - 1);
+    const cookies = cookie.parse(options.socket._cookies);
+    console.log(options.internal.id !== cookies.sessionId)
     if (options.internal) {
-        return options.internal.id !== userID;
+        return options.internal.id !== cookies.sessionId;
     }
     return false;
 }
