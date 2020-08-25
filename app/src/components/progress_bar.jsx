@@ -62,7 +62,7 @@ export const ProgressBar = ({ seekElapsed, song, runtime, isPaused, deviceID, ro
   }
 
   return (
-    <SliderInput className="w-full mb-1" min={0} max={runtimeMS} value={elapsed} onChange={onChange}>
+    <SliderInput className="w-full mb-3" min={0} max={runtimeMS} value={elapsed} onChange={onChange}>
       <SliderTrack>
         <SliderTrackHighlight />
         <SliderHandle className="w-3 h-3 hover:bg-customgreen hover:border-customgreen focus:bg-customgreen focus:border-customgreen" />
