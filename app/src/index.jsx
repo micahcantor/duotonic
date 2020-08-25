@@ -152,7 +152,7 @@ const App = () => {
         break;
       case 'previous':
         await previousSong(device.id, update.current_song, room, false);
-        localUpdatePreviousSong();
+        updateSongs(songs => [history[history.length - 1], ...songs]);
         setIsPaused(false);
         break;
       case 'queue':
@@ -207,12 +207,15 @@ const App = () => {
   }
 
   const onLeftSkip = async () => {
-    await previousSong(device.id, room); // requests Spotify to play the previous song
-    if (songs.length > 0) {
-      await addToQueue(device.id, songs[0], room, true); // adds the current song to the Spotify queue
+    if (history.length > 0) {
+      await previousSong(device.id, room); // asks Spotify to play the previous song
+      updateSongs(songs => {
+        const updated = [...songs];
+        updated[0] = history[history.length - 1];
+        return updated;
+      });
+      setIsPaused(false);
     }
-    localUpdatePreviousSong();
-    setIsPaused(false);
   }
 
   const onRightSkip = async () => {
@@ -223,7 +226,6 @@ const App = () => {
 
     setHistory(history => [...history, songs[0]]); // add the skipped song to the local history
     updateSongs(songs => songs.filter((s, i) => i > 0)); // removes the first song from the queue list and returns the new list
-
     setIsPaused(false);
   }
 
@@ -237,10 +239,6 @@ const App = () => {
 
   const onSwapClick = () => {
     setQueueVisible(queueVisible => !queueVisible);
-  }
-
-  const localUpdatePreviousSong = () => {
-    updateSongs(songs => [history[history.length - 1], ...songs]); // add last song from the history to the front of the queue
   }
 
   return (
