@@ -1,5 +1,7 @@
 import React from "react"
 import Img from "gatsby-image"
+import { QueueExample } from "./QueueExample"
+import { ChatExample } from "./ChatExample"
 
 export const Hero = ({ data }) => {
   return (
@@ -24,7 +26,6 @@ export const Hero = ({ data }) => {
 }
 
 export const Sync = ({ data }) => {
-  console.log(data)
   return (
     <section className="w-full bg-bgColor rounded-md shadow px-8 ">
       <div className="flex justify-between container mx-auto mt-3 mb-3">
@@ -35,7 +36,7 @@ export const Sync = ({ data }) => {
             everyone in your lobby, so you never get out of sync.
           </p>
         </div>
-        <div className="w-1/3 mx-auto flex-none">
+        <div className="w-1/2 mx-auto flex-none">
           <QueueExample data={data}/>
         </div>
       </div>
@@ -43,32 +44,20 @@ export const Sync = ({ data }) => {
   )
 }
 
-const QueueExample = ({ data }) => {
+export const Chat = () => {
   return (
-    <div className="rounded border-t-4 border-r-4 border-l-4 border-textColor">
-      <div className="relative flex w-full border-b-2 border-textColor bg-bgDark">
-        <p className="text-lg uppercase tracking-wider font-mono p-3">Queue</p>
-        <button type="button" className="md:hidden absolute inset-y-0 right-0 mt-2 mr-3 w-8 h-8">
-            <svg className="stroke-current hover:text-primary" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" viewBox="0 0 24 24">
-              <path d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
-            </svg>
-        </button>
-      </div>
-      <div className="w-full min-h-0">
-        <div className="flex p-3 text-gray-300 items-center bg-bgDark border-b-2 border-textColor hover:border-primary ">
-            <div className="flex w-full items-center">
-              <Img className="w-20" fluid={data.prettyGirl.childImageSharp.fluid}></Img>
-              <div className="flex flex-col md:flex-row lg:flex-col ml-3 font-light bg-bgDark text-textColor"><span id="name" className="text-textColor md:mr-2 lg:mr-none">Pretty Girl</span><span id="artist">Clairo</span><span id="album"></span><span id="uri" className="hidden">spotify:track:0KyAGiNGUytG5JLxJu4F6l</span><span id="runtime" className="hidden">178352</span></div>
-            </div>
+    <section className="w-full bg-bgColor rounded-md shadow px-8 h-full">
+      <div className="flex justify-between container mx-auto mt-3 mb-3 h-full">
+        <div className="w-1/2 space-y-2">
+          <span className="text-3xl font-bold mb-1">Chat it up</span>
+          <p className="text-2xl">
+            Discuss your favorite music, find new favorites, or just chat for fun -- all in real time directly in the site.
+          </p>
         </div>
-        <div className="flex p-3 text-gray-300 items-center bg-bgDark border-b-4 border-textColor hover:border-primary ">
-            <Img className="w-20" fluid={data.selfless.childImageSharp.fluid}></Img>
-            <div className="flex flex-col md:flex-row lg:flex-col ml-3 font-light bg-bgDark text-textColor">
-              <span id="name" className="text-textColor md:mr-2 lg:mr-none">Selfless</span>
-              <span id="artist">The Strokes</span>
-            </div>
+        <div className="w-1/2 mx-auto flex-none h-full">
+          <ChatExample />
         </div>
       </div>
-    </div>
+    </section>
   )
 }
