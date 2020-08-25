@@ -99,15 +99,22 @@ const init = async () => {
                 const result = await db.collection('sessions').insertOne({
                     auth: request.auth,
                     last_update: new Date(),
-                    in_queue: false
+                    in_queue: false,
+                    username: 'DEFAULT_USERNAME'
                 });
 
                 if (result) {
-                    const id = result.ops[0]._id.toString();
-                    h.state('sessionId', id);           
+                    const userID = result.ops[0]._id.toString();
+                    h.state('sessionId', userID);           
                     h.state('isAuthorized', 'true');
 
-                    return h.redirect('http://localhost:8080');
+                    let roomID = '';
+                    console.log(request.auth.credentials)
+                    if (request.auth.credentials.query.room) {
+                        roomID = `?room=${request.auth.credentials.query.room}`
+                    }
+
+                    return h.redirect(`http://localhost:8080/${roomID}`);
                 }
 
                 throw Boom.badImplementation();
@@ -159,7 +166,7 @@ const init = async () => {
                         response = await requestSpotify(request.params.endpoint, request.method, request.query, token);
                     }
 
-                    if (roomID && request.query.broadcast) {
+                    if (roomID && roomID !== 'null' && request.query.broadcast) {
                         const updated = await updateRoomState(db, roomID, request);
                         server.publish(`/rooms/playback/${roomID}`, 
                             { updated: updated.value, type: updated.type }, 
@@ -176,6 +183,54 @@ const init = async () => {
             }
 
             throw Boom.unauthorized('Session ID not found in database.');
+        }
+    });
+
+    server.route({
+        method: 'POST',
+        path: '/users/set-username',
+        handler: async (request, h) => {
+
+            if (!request.state.sessionId) {
+                throw Boom.unauthorized('user must be authenticated');
+            }
+
+            try {
+                const userID = ObjectId(request.state.sessionId);
+                await db.collection('sessions').updateOne(
+                    { _id: userID },
+                    { $set: { username: request.query.username } }
+                );
+            }
+            catch (error) {
+                console.log(error);
+                throw Boom.badImplementation('could not update username in database');
+            }
+
+            return { message: 'success' };
+        }
+    });
+
+    server.route({
+        method: 'GET',
+        path: '/users/get-username',
+        handler: async (request, h) => {
+
+            if (!request.state.sessionId) {
+                throw Boom.unauthorized('user must be authenticated');
+            }
+
+            try {
+                const userID = ObjectId(request.state.sessionId);
+                const response = await db.collection('sessions').findOne({ _id: userID });
+                if (response) {
+                    return { username: response.username };
+                }
+            }
+            catch (error) {
+                console.log(error);
+                throw Boom.badImplementation('could not update username in database');
+            }
         }
     });
 
@@ -197,10 +252,10 @@ const init = async () => {
                 server.publish(`/rooms/chat/${roomID}`, 
                     { message: 'user entered', type: 'enter' }, 
                     { internal: {id: request.state.sessionId} },
-                )
+                );
             }
             catch (error) {
-                console.log(error);
+                console.log("not found");
                 throw Boom.badImplementation('user could not be added to room, or room not found');
             }
 
@@ -239,6 +294,33 @@ const init = async () => {
     });
 
     server.route({
+        method: 'POST',
+        path: '/rooms/history',
+        handler: async (request, h) => {
+            
+            if (!request.state.sessionId) {
+                throw Boom.unauthorized('user must be authenticated');
+            }
+
+            try {
+                const roomID = ObjectId(request.query.room);
+                await db.collection('rooms').updateOne(
+                    { _id: roomID },
+                    { $push: { history: request.payload } }
+                );
+
+                console.log('updating room history for ', roomID)
+            }   
+            catch (error) {
+                console.log(error);
+                throw Boom.badImplementation('unable to update history in room');
+            }
+            
+            return { message: 'success' };
+        }
+    })
+
+    server.route({
         method: 'GET',
         path: '/rooms/share-link',
         handler: async (request, h) => {
@@ -255,8 +337,9 @@ const init = async () => {
                 chat: [],
                 playback: {
                     isPaused: true,
-                    elapsed_ms: 0,
+                    position_ms: 0,
                     queue: [],
+                    history: [],
                     current_song: {},
                 },
             });
@@ -287,12 +370,14 @@ const init = async () => {
                     { $push: { chat: request.payload } },
                     { returnOriginal: false }
                 );
-                const messages = result.value.chat;
-                const lastMessage = messages[messages.length - 1];
-                server.publish(`/rooms/chat/${roomID}`, 
-                    { updated: lastMessage, type: 'chat' },
-                    { internal: { id: request.state.sessionId } }
-                );
+                if (request.query.broadcast) {
+                    const messages = result.value.chat;
+                    const lastMessage = messages[messages.length - 1];
+                    server.publish(`/rooms/chat/${roomID}`, 
+                        { updated: lastMessage, type: 'chat' },
+                        { internal: { id: request.state.sessionId } }
+                    );
+                }
             }
             catch (error) {
                 console.log(error);
@@ -341,8 +426,9 @@ const init = async () => {
                 chat: [],
                 playback: {
                     isPaused: true,
-                    elapsed_ms: 0,
+                    position_ms: 0,
                     queue: [],
+                    history: [],
                     current_song: {},
                 },
             });
