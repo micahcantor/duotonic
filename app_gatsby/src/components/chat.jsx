@@ -1,10 +1,9 @@
 /* eslint-disable react/prop-types */
 import React, { useState, useEffect, useRef } from "react";
-const Filter = require('bad-words');
-const filter = new Filter();
 import SwapIcon from "./swap.jsx";
 import { sendChat, setUsernameInDB, getUsernameFromDB } from "../api.js";
 import "../styles/styles.css";
+const Filter = require('bad-words');
 
 const Chat = ({ room, client, onSwapClick, queueVisible, authorized}) => {
 
@@ -14,9 +13,12 @@ const Chat = ({ room, client, onSwapClick, queueVisible, authorized}) => {
   const messagesBottom = useRef(null);
   const [inputVal, setInputVal] = useState("");
   const [showUsernameEntry, setShowUsernameEntry] = useState(false);
+  const [filter, setFilter] = useState(null);
 
   const [errorVisible, setErrorVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => setFilter(new Filter()), [])
 
   useEffect(() => {
     if (authorized) {
@@ -30,11 +32,11 @@ const Chat = ({ room, client, onSwapClick, queueVisible, authorized}) => {
     if (room && client) {
       client.subscribe(`/rooms/chat/${room}`, (update) => {
         if (update.type === 'chat') {
-          setMessages([...messages, update.updated]);
+          setMessages(messages => [...messages, update.updated]);
         }
       });
     }
-  }, [client])
+  }, [client, room])
 
   useEffect(() => {
     if (messagesBottom.current) {
