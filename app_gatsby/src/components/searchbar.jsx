@@ -54,7 +54,7 @@ class SearchBar extends React.Component {
     this.setState({
       currentTimer: setTimeout(async () => {
         const query = document.getElementById("search-input").value
-        if (query != "") {
+        if (query.length !== 0) {
           const response = await searchSpotify(query);
           this.handleSearchResults(response);
         }

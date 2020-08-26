@@ -1,16 +1,16 @@
 /* eslint-disable react/prop-types */
 import React, { useState, useEffect } from "react";
-import "./styles/styles.css";
+import "../styles/styles.css";
 import SEO from "../components/seo"
 
-import SearchBar from "./components/searchbar.jsx";
-import Player from "./components/player.jsx";
-import Queue from "./components/queue.jsx";
-import Chat from "./components/chat.jsx";
-import Header from "./components/header.jsx";
-import { Modal, modals } from "./components/modal.jsx"
-import { addToQueue, startSong, pauseSong, resumeSong, nextSong, previousSong, getDevices, getAccessToken, enterRoom, setSongPosition, updateHistoryInRoom } from "./api.js"
-import { addSDKScript, isPlaybackCapable, initPlayer } from "./web_playback.js";
+import SearchBar from "../components/searchbar.jsx";
+import Player from "../components/player.jsx";
+import Queue from "../components/queue.jsx";
+import Chat from "../components/chat.jsx";
+import Header from "../components/header.jsx";
+import { Modal, modals } from "../components/modal.jsx"
+import { addToQueue, startSong, pauseSong, resumeSong, nextSong, previousSong, getDevices, getAccessToken, enterRoom, setSongPosition, updateHistoryInRoom } from "../api.js"
+import { addSDKScript, isPlaybackCapable, initPlayer } from "../web_playback.js";
 const Nes = require("@hapi/nes/lib/client")
 
 const App = () => {
@@ -164,6 +164,7 @@ const App = () => {
         setSeekUpdateElapsed(update.position_ms);
         /* TODO: lift progress bar state so it can be visually updated here */
         break;
+      default: break;
     }
   }
 
@@ -180,7 +181,7 @@ const App = () => {
 
     // the first song is played immediately and isn't added to the queue
     // spotify automatically adds the first song played to the queue
-    if (songs.length == 0) {
+    if (songs.length === 0) {
       await startSong(device.id, newQueueItem, room, true);
       setIsPaused(false);
     }

@@ -61,12 +61,15 @@ const Header = ({ device, deviceSearching }) => {
   }
 
   const inRoomIcon = () => {
-    const queryParams = new URLSearchParams(window.location.search);
-    const roomID = queryParams.get("room");
-    if (roomID) {
-      return <LeaveRoomButton />
+    if (typeof window !== `undefined`) {
+      const queryParams = new URLSearchParams(window.location.search);
+      const roomID = queryParams.get("room");
+      if (roomID) {
+        return <LeaveRoomButton />
+      }
+      else return <UserAloneIndicator />
     }
-    else return <UserAloneIndicator />
+    return null;
   }
 
   return (
@@ -159,7 +162,9 @@ const UserAloneIndicator = () => {
 const LeaveRoomButton = () => {
   const leaveRoom = async () => {
     await exitRoom();
-    location.href = "/";
+    if (window.location) {
+      window.location.href = "/";
+    }
   }
 
   return (

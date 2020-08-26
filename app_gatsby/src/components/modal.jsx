@@ -27,6 +27,7 @@ export const Modal = ({showDialog, close, body, mobile, loading, deviceName, api
     case modals.RoomNotFound:
       modalBody = <RoomNotFound />
       break;
+    default: break;
   }
 
   return (
