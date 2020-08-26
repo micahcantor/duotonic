@@ -11,8 +11,7 @@ export const Hero = ({ data }) => {
           Listen to Spotify <span className="text-primary">together.</span>
         </span>
         <span className="text-2xl">
-          {" "}
-          Share your music and chat simultaneously with a friend or stranger.{" "}
+          Share your music and chat simultaneously with a friend or stranger.
         </span>
         <a className="text-2xl font-semibold inline-block text-center rounded bg-primary hover:bg-primaryDark text-bgColor p-4"
           href="http://localhost:8080"> Start Listening
@@ -30,7 +29,7 @@ export const Sync = ({ data }) => {
     <section className="w-full bg-bgColor rounded-md shadow px-8 ">
       <div className="flex justify-between container mx-auto mt-3 mb-3">
         <div className="w-1/2 space-y-2">
-          <span className="text-3xl font-bold mb-1">Stay in sync</span>
+          <span className="text-3xl font-bold mb-1">Stay in Sync</span>
           <p className="text-2xl">
             When you add a track or update the playback on your device, Duotonic updates for
             everyone in your lobby, so you never get out of sync.
@@ -44,18 +43,40 @@ export const Sync = ({ data }) => {
   )
 }
 
-export const Chat = () => {
+export const Chat = ({ data }) => {
   return (
     <section className="w-full bg-bgColor rounded-md shadow px-8 h-full">
       <div className="flex justify-between container mx-auto mt-3 mb-3 h-full">
         <div className="w-1/2 space-y-2">
-          <span className="text-3xl font-bold mb-1">Chat it up</span>
+          <span className="text-3xl font-bold mb-1">Group Chat</span>
           <p className="text-2xl">
-            Discuss your favorite music, find new favorites, or just chat for fun -- all in real time directly in the site.
+            Discuss your favorite music, find new favorites, or just chat for fun — all in real time, directly in the site.
           </p>
+          <div className="mx-auto pt-4 pr-8">
+            <Img fadeIn={false} fluid={data.textingDoodle.childImageSharp.fluid}></Img>
+          </div>
         </div>
         <div className="w-1/2 mx-auto flex-none h-full">
           <ChatExample />
+        </div>
+      </div>
+    </section>
+  )
+}
+
+export const Pairing = ({ data }) => {
+  return (
+    <section className="w-full bg-bgColor rounded-md shadow px-8 h-full">
+      <div className="flex justify-between container mx-auto mt-3 mb-3 h-full">
+        <div className="w-1/2 space-y-2">
+          <span className="text-3xl font-bold mb-1">Listen with a friend or stranger</span>
+          <p className="text-2xl">
+            Connect with friends, or meet someone new on Duotonic. You can either send a link to a friend, 
+            or wait in queue to be paired up with another random listener.
+          </p>
+        </div>
+        <div className="w-3/5 flex-none h-full">
+          <Img fadeIn={false} fluid={data.pairDoodle.childImageSharp.fluid}></Img>
         </div>
       </div>
     </section>
