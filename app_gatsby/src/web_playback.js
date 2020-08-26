@@ -7,10 +7,19 @@ var device;
 export var player;
 
 export const addSDKScript = () => {
-  const body = document.getElementById("body");
   const webSDK = document.createElement("script");
   webSDK.setAttribute("src", "https://sdk.scdn.co/spotify-player.js");
-  body.insertBefore(webSDK, body.children[1]);
+
+  const onReady = document.createElement("script");
+  const inline = document.createTextNode(`
+    window.onSpotifyWebPlaybackSDKReady = () => {
+      window.Spotify = Spotify; // makes sure that this is viewable to React
+    }
+  `)
+
+  onReady.appendChild(inline);
+  document.body.appendChild(onReady);
+  document.body.appendChild(webSDK);
 };
 
 export const isPlaybackCapable = () => {
