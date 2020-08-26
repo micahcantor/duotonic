@@ -1,10 +1,14 @@
 {
-  "name": "gatsby-starter-default",
+  "name": "duotonic",
   "private": true,
-  "description": "A simple starter to get up and developing quickly with Gatsby",
+  "description": "Listen to Spotify together.",
   "version": "0.1.0",
-  "author": "Kyle Mathews <mathews.kyle@gmail.com>",
+  "author": "Micah Cantor <micahcantordeveloper@gmail.com>, Sawyer Pollard <sawyerpollard@gmail.com>",
   "dependencies": {
+    "@hapi/nes": "^12.0.3",
+    "@reach/slider": "^0.11.0",
+    "bad-words": "^3.0.3",
+    "bowser": "^2.10.0",
     "gatsby": "^2.24.50",
     "gatsby-image": "^2.4.16",
     "gatsby-plugin-manifest": "^2.4.24",
@@ -18,7 +22,8 @@
     "prop-types": "^15.7.2",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
-    "react-helmet": "^6.1.0"
+    "react-helmet": "^6.1.0",
+    "react-spinners": "^0.9.0"
   },
   "devDependencies": {
     "prettier": "2.1.0",
