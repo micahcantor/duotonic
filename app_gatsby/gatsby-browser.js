@@ -8,6 +8,3 @@ import "./src/styles/styles.css"
 import "./src/styles/slider_styles.css"
 import "./src/styles/modal_styles.css"
 import "./src/styles/tooltip_styles.css"
-
-import "api.js"
-import "web_playback.js"

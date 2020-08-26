@@ -1,8 +1,8 @@
 module.exports = {
   siteMetadata: {
-    title: `Gatsby Default Starter`,
-    description: `Kick off your next, great Gatsby project with this default starter. This barebones starter ships with the main Gatsby configuration files you might need.`,
-    author: `@gatsbyjs`,
+    title: `Duotonic`,
+    description: `Listen to Spotify together. Connect with friends or wait in queue to be paired with a random stranger. Duotonic enables a new way to enjoy your music.`,
+    author: `Micah Cantor and Sawyer Pollard`,
   },
   plugins: [
     `gatsby-plugin-react-helmet`,
@@ -35,7 +35,11 @@ module.exports = {
     },
     {
       resolve: `gatsby-plugin-purgecss`,
-      options: { tailwind: true },
+      options: { 
+        tailwind: true,
+        printRejected: true,
+        ignore: ['src/styles/modal_styles.css', 'src/styles/slider_styles.css', 'src/styles/tooltip_styles.css']
+      },
     },
     // this (optional) plugin enables Progressive Web App + Offline functionality
     // To learn more, visit: https://gatsby.dev/offline
