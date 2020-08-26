@@ -13,12 +13,9 @@ const Chat = ({ room, client, onSwapClick, queueVisible, authorized}) => {
   const messagesBottom = useRef(null);
   const [inputVal, setInputVal] = useState("");
   const [showUsernameEntry, setShowUsernameEntry] = useState(false);
-  const [filter, setFilter] = useState(null);
 
   const [errorVisible, setErrorVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-
-  useEffect(() => setFilter(new Filter()), [])
 
   useEffect(() => {
     if (authorized) {
@@ -75,6 +72,8 @@ const Chat = ({ room, client, onSwapClick, queueVisible, authorized}) => {
 
   const handleUsernameSubmit = (e) => {
     e.preventDefault();
+
+    const filter = Filter();
 
     if (filter.isProfane(usernameVal)) {
       setErrorMessage("Hey! Be nice.");
