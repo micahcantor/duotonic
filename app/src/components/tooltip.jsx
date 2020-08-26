@@ -1,7 +1,8 @@
 import React, { cloneElement } from "react";
+import "../styles/styles.css"
 import { useTooltip, TooltipPopup } from "@reach/tooltip";
 import Portal from "@reach/portal";
-import "../tooltip_styles.css";
+import "../styles/tooltip_styles.css";
 
 const TriangleTooltip = ({ children, label, "aria-label": ariaLabel }) => {
     const [trigger, tooltip] = useTooltip();

@@ -5,7 +5,7 @@
 import React from "react";
 import SwapIcon from "./swap.jsx";
 import SongInfo from "./song_info.jsx"
-import "../styles.css";
+import "../styles/styles.css";
 
 const Queue = ({ songs, onSwapClick, queueVisible }) => {  
   // Iterate over song array and create new array of QueueItems

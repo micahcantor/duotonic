@@ -4,7 +4,7 @@ const Filter = require('bad-words');
 const filter = new Filter();
 import SwapIcon from "./swap.jsx";
 import { sendChat, setUsernameInDB, getUsernameFromDB } from "../api.js";
-import "../styles.css";
+import "../styles/styles.css";
 
 const Chat = ({ room, client, onSwapClick, queueVisible, authorized}) => {
 

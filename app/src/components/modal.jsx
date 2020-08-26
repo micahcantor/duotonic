@@ -1,8 +1,8 @@
 /* eslint-disable react/prop-types */
 import React from "react";
-import "../styles.css";
+import "../styles/styles.css";
 import { Dialog } from "@reach/dialog";
-import "../modal_styles.css";
+import "../styles/modal_styles.css";
 import ScaleLoader from "react-spinners/ScaleLoader";
 
 export const Modal = ({showDialog, close, body, mobile, loading, deviceName, apiLink, shareURL, partnerSearching}) => {

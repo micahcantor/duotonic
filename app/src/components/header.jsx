@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import TriangleTooltip from "./tooltip.jsx";
 import ClipLoader from "react-spinners/ClipLoader.js";
 import { Modal, modals } from "./modal.jsx";
-import "../styles.css";
+import "../styles/styles.css";
 import { getRoomID, enterQueue, findPartner, exitQueue, exitRoom } from "../api.js";
 
 const Header = ({ device, deviceSearching }) => {

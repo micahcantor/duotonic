@@ -1,10 +1,10 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable prefer-destructuring */
 import React, { useState, useEffect } from "react";
-import "../styles.css";
+import "../styles/styles.css";
 import SongInfo from "./song_info.jsx"
 import { SliderInput, SliderTrack, SliderTrackHighlight, SliderHandle } from "@reach/slider";
-import "../slider_styles.css";
+import "../styles/slider_styles.css";
 import { setVolume } from "../api";
 import { ProgressBar } from "./progress_bar.jsx";
 

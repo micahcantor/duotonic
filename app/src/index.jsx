@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
-import "./styles.css";
+import "./styles/styles.css";
 
 import SearchBar from "./components/searchbar.jsx";
 import Player from "./components/player.jsx";

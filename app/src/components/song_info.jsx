@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import React from "react";
-import "../styles.css";
+import "../styles/styles.css";
 
 const SongInfo = (props) => {
   return (

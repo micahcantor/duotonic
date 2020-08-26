@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import SongInfo from "./song_info.jsx";
 import ScaleLoader from "react-spinners/ScaleLoader";
 import { searchSpotify } from "../api.js";
-import "../styles.css";
+import "../styles/styles.css";
 
 class SearchBar extends React.Component {
   constructor(props) {
