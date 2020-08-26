@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import React, { useState, useEffect } from "react";
 import "./styles/styles.css";
+import SEO from "../components/seo"
 
 import SearchBar from "./components/searchbar.jsx";
 import Player from "./components/player.jsx";
@@ -242,6 +243,7 @@ const App = () => {
 
   return (
     <>
+      <SEO title="Home" />
       <Modal body={modalBody} loading={deviceSearching} deviceName={device? device.name : ""}
         showDialog={showModal} close={closeModal} mobile={false} apiLink={signInLink} />
       <div className="flex flex-col text-white w-screen h-screen bg-gray-900 overflow-hidden">
