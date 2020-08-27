@@ -86,7 +86,7 @@ const VolumeSlider = ({ onMouseUp }) => {
       <SliderInput className="w-32" min={0} max={100} onMouseUp={onMouseUp} defaultValue={100}>
         <SliderTrack className="bg-gray-600">
           <SliderTrackHighlight />
-          <SliderHandle className="w-3 h-3 transform hover:scale-150 hover:bg-customgreen hover:border-customgreen focus:bg-customgreen focus:border-customgreen" />
+          <SliderHandle className="w-3 h-3 transform hover:scale-150 hover:bg-primary hover:border-primary focus:bg-primary focus:border-primary" />
         </SliderTrack>
       </SliderInput>
 
@@ -99,7 +99,7 @@ const VolumeSlider = ({ onMouseUp }) => {
 
 const PauseIcon = () => {
   return (
-    <svg className="flex w-16 h-16 stroke-current hover:text-customgreen" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth=".75" viewBox="0 0 24 24">
+    <svg className="flex w-16 h-16 stroke-current hover:text-primary" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth=".75" viewBox="0 0 24 24">
       <path d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"> </path>
     </svg>
   );
@@ -107,7 +107,7 @@ const PauseIcon = () => {
 
 const PlayIcon = () => {
   return (
-    <svg className="flex w-16 h-16 stroke-current hover:text-customgreen" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth=".75" viewBox="0 0 24 24">
+    <svg className="flex w-16 h-16 stroke-current hover:text-primary" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth=".75" viewBox="0 0 24 24">
       <path d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
       <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
     </svg>
@@ -117,7 +117,7 @@ const PlayIcon = () => {
 const RightSkip = ({ onRightSkip }) => {
   return (
     <button type="button" onClick={onRightSkip}>
-      <svg className="w-12 h-12 stroke-current hover:text-customgreen" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth=".75" viewBox="0 0 24 24">
+      <svg className="w-12 h-12 stroke-current hover:text-primary" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth=".75" viewBox="0 0 24 24">
         <path d="M9 5l7 7-7 7"> </path>
       </svg>
     </button>
@@ -127,7 +127,7 @@ const RightSkip = ({ onRightSkip }) => {
 const LeftSkip = ({ onLeftSkip }) => {
   return (
     <button type="button" onClick={onLeftSkip}>
-      <svg className="w-12 h-12 stroke-current hover:text-customgreen" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth=".75" viewBox="0 0 24 24" >
+      <svg className="w-12 h-12 stroke-current hover:text-primary" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth=".75" viewBox="0 0 24 24" >
         <path d="M15 19l-7-7 7-7"></path>
       </svg>
     </button>

@@ -56,13 +56,13 @@ export const GiveLink = (props) => {
     <div className="flex flex-col font-mono space-y-2 text-2xl -mt-2">
       <span className="uppercase border-b-2 border-gray-500 text-left"> Share</span>
       <span className=""> Give this link to a friend: </span>
-      <div className="text-customgreen flex justify-center items-center">
-        <p className="font-semibold text-customgreen mr-3 mt-3" id="share_link">
+      <div className="text-primary flex justify-center items-center">
+        <p className="font-semibold text-primary mr-3 mt-3" id="share_link">
           <a href={props.shareURL}>{props.shareURL}</a>
         </p>
         <button onClick={onCopyClick} type="button" className="flex items-center">
           <svg fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" 
-            className="mt-1 w-8 h-8 text-white hover:text-customgreen stroke-current"
+            className="mt-1 w-8 h-8 text-white hover:text-primary stroke-current"
           >
             <path d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
           </svg>
@@ -90,7 +90,7 @@ export const SignIn = ({ apiLink }) => {
       <span className="uppercase border-b-2 border-gray-500 text-left"> Sign In</span>
       <span>Looks like you haven't connected Pass the AUX to Spotify yet. Click below to sign in.</span>
       <span className="text-xl text-gray-400 pb-2">Only available for Spotify Premium users</span>
-      <div className="inline-block self-center rounded bg-customgreen text-white px-6 pt-1">
+      <div className="inline-block self-center rounded bg-primary text-white px-6 pt-1">
         <a href={apiLink}> Sign in with Spotify</a>
       </div>
     </div>
@@ -121,7 +121,7 @@ export const Mobile = ({ close }) => {
   return (
     <div className="relative">
       <button onClick={() => close()} type="button" className="inset-y-0 right-0 absolute w-8 h-8">
-        <svg className="hover:text-customgreen stroke-current" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24">
+        <svg className="hover:text-primary stroke-current" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24">
           <path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
         </svg>
       </button>
@@ -151,26 +151,26 @@ const MobileMenu = () => {
 
   return (
     <div className="text-3xl font-mono lowercase pt-6">
-      <button onClick={openLink} type="button" className="hover:text-customgreen">
+      <button onClick={openLink} type="button" className="hover:text-primary">
         Get a Link
         <Modal body={modals.GiveLink} shareURL="link" showDialog={showLink} close={closeLink} mobile={false}/>
       </button>
       <div className="my-2 w-full h-px bg-gray-300"></div>
-      <button onClick={openRandom} type="button" className="hover:text-customgreen">
+      <button onClick={openRandom} type="button" className="hover:text-primary">
         Go Random
         <Modal body={modals.FindRandom} showDialog={showRandom} close={closeRandom} mobile={false}/>
       </button>
       <div className="my-2 w-full h-px bg-gray-300"></div>
-      <div className="text-2xl hover:text-customgreen"> Github </div>
+      <div className="text-2xl hover:text-primary"> Github </div>
       <div className="my-2 w-full h-px bg-gray-300"></div>
-      <div className="text-2xl hover:text-customgreen"> About </div>
+      <div className="text-2xl hover:text-primary"> About </div>
     </div>
   );
 }
 
 const CheckMark = () => {
   return (
-    <svg className="text-customgreen mr-2 w-20 h-20 stroke-current" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" viewBox="0 0 24 24">
+    <svg className="text-primary mr-2 w-20 h-20 stroke-current" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" viewBox="0 0 24 24">
         <path d="M5 13l4 4L19 7"></path>
     </svg>
   )

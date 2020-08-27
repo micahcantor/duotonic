@@ -104,7 +104,7 @@ const SearchItem = (props) => {
   }
 
   return (
-    <div id="result-parent" className="text-left border-b-2 border-gray-600 hover:border-customgreen p-3 w-full flex justify-between items-center">
+    <div id="result-parent" className="text-left border-b-2 border-gray-600 hover:border-primary p-3 w-full flex justify-between items-center">
       <SongInfo id="info" className="ml-2" song={props.song} />
       {inQueue ? <CheckMark /> : <AddButton onClick={handleClick} />}
     </div>
@@ -115,7 +115,7 @@ const CloseButton = (props) => {
   const shouldDisplay = props.showResults ? "block" : "hidden";
   return (
     <button className={`${shouldDisplay}`} type="button" onClick={props.onClick}>
-      <svg className="text-black stroke-current hover:text-customgreen w-6 h-6 my-3 mr-6 absolute top-0 right-0" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24">
+      <svg className="text-black stroke-current hover:text-primary w-6 h-6 my-3 mr-6 absolute top-0 right-0" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24">
         <path d="M6 18L18 6M6 6l12 12"></path>
       </svg>
     </button>
@@ -125,7 +125,7 @@ const CloseButton = (props) => {
 const AddButton = (props) => {
   return (
     <button type="button" onClick={props.onClick}>
-      <svg className="hover:text-customgreen mr-2 w-8 h-8 stroke-current" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" viewBox="0 0 24 24">
+      <svg className="hover:text-primary mr-2 w-8 h-8 stroke-current" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" viewBox="0 0 24 24">
         <path d="M12 4v16m8-8H4"></path>
       </svg>
     </button>
@@ -134,7 +134,7 @@ const AddButton = (props) => {
 
 const CheckMark = () => {
   return (
-    <svg className="text-customgreen mr-2 w-8 h-8 stroke-current" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" viewBox="0 0 24 24">
+    <svg className="text-primary mr-2 w-8 h-8 stroke-current" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" viewBox="0 0 24 24">
         <path d="M5 13l4 4L19 7"></path>
     </svg>
   )

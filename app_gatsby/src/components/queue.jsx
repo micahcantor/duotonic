@@ -31,7 +31,7 @@ const Queue = ({ songs, onSwapClick, queueVisible }) => {
 
 const QueueItem = (props) => {
   return (
-    <div className="flex p-3 text-gray-300 items-center bg-gray-800 border-b-2 border-gray-600 hover:border-customgreen ">
+    <div className="flex p-3 text-gray-300 items-center bg-gray-800 border-b-2 border-gray-600 hover:border-primary ">
       <SongInfo song={props.song} />
     </div>
   );

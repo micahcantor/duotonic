@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState } from "react";
 import ScrollToBottom from "react-scroll-to-bottom";
 
 export const ChatExample = () => {
@@ -12,7 +12,6 @@ export const ChatExample = () => {
   ]);
 
   const [inputVal, setInputVal] = useState("");
-  const messagesBottom = useRef(null);
 
   function onSubmit(e) {
     e.preventDefault();

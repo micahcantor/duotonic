@@ -73,7 +73,7 @@ const Chat = ({ room, client, onSwapClick, queueVisible, authorized}) => {
   const handleUsernameSubmit = (e) => {
     e.preventDefault();
 
-    const filter = Filter();
+    const filter = new Filter();
 
     if (filter.isProfane(usernameVal)) {
       setErrorMessage("Hey! Be nice.");
@@ -148,7 +148,7 @@ const SendButton = () => {
 
   return (
     <button type="button" className="absolute right-0 text-black mt-1">
-      <svg className="fill-current mr-2 hover:text-customgreen" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
+      <svg className="fill-current mr-2 hover:text-primary" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
         <path d="M0 0h24v24H0z" fill="none" />
         <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
       </svg>
@@ -184,7 +184,7 @@ const Message = ({ user, time, messageString }) => {
 
 const ChatStatus = ({ username, onClick }) => {
   return (
-    <div className="flex self-end mt-1 mr-4 p-2 bg-gray-900 rounded border-2 border-transparent focus:border-customgreen hover:border-customgreen items-center space-x-1">
+    <div className="flex self-end mt-1 mr-4 p-2 bg-gray-900 rounded border-2 border-transparent focus:border-primary hover:border-primary items-center space-x-1">
       <button onClick={onClick}>
         <span className="font-semibold"> {username} </span>
       </button>

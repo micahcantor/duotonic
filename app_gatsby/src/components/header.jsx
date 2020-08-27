@@ -74,7 +74,7 @@ const Header = ({ device, deviceSearching }) => {
 
   return (
     <nav className="flex items-center justify-between flex-wrap bg-gray-800 p-4 border-b-2 border-gray-500">
-      <div className="text-customgreen mr-6 ml-2 mt-1 md:mt-0">
+      <div className="text-primary mr-6 ml-2 mt-1 md:mt-0">
         <span className="font-mono text-xl tracking-tight">pass the aux</span>
       </div>
       <div className="block lg:hidden">
@@ -83,7 +83,7 @@ const Header = ({ device, deviceSearching }) => {
       </div>
       <div className="font-mono hidden w-full block flex-grow lg:flex lg:items-center lg:w-auto">
         <div className="lg:flex-grow">
-          <a href="#responsive-header" className="block mt-4 lg:inline-block lg:mt-0 text-white hover:text-customgreen">
+          <a href="#responsive-header" className="block mt-4 lg:inline-block lg:mt-0 text-white hover:text-primary">
             about
           </a>
         </div>
@@ -106,7 +106,7 @@ const Header = ({ device, deviceSearching }) => {
 const NavButton = (props) => {
   return (
     <button onClick={props.open}>
-      <div className="inline-block bg-customgreen lowercase font-semibold px-3 py-2 leading-none rounded transform hover:scale-110 mt-4 lg:mt-0">
+      <div className="inline-block bg-primary lowercase font-semibold px-3 py-2 leading-none rounded transform hover:scale-110 mt-4 lg:mt-0">
         {props.buttonText}
       </div>
     </button>
@@ -115,7 +115,7 @@ const NavButton = (props) => {
 
 const HamburgerButton = (props) => {
   return (
-    <button type="button" onClick={props.open} className="flex items-center px-3 py-2 text-white hover:text-customgreen">
+    <button type="button" onClick={props.open} className="flex items-center px-3 py-2 text-white hover:text-primary">
       <svg className="fill-current h-5 w-5" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
         <title>Menu</title><path d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z" />
       </svg>
@@ -126,7 +126,7 @@ const HamburgerButton = (props) => {
 const ConnectedIndicator = () => {
   return (
     <TriangleTooltip label="connected to spotify">
-      <div className="flex items-center font-mono text-customgreen">
+      <div className="flex items-center font-mono text-primary">
         <svg className="fill-current w-6 h-6 transform hover:scale-125" viewBox="0 0 20 20">
           <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path>
         </svg>
