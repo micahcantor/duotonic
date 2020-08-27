@@ -7,7 +7,7 @@ import Icon from "./icon.jsx"
 import "../styles/styles.css";
 import { getRoomID, enterQueue, findPartner, exitQueue, exitRoom } from "../api.js";
 
-const Header = ({ device, deviceSearching }) => {
+const Header = ({ device, deviceSearching, signInLink }) => {
   const [showRandom, setShowRandom] = useState(false);
   const [partnerSearching, setPartnerSearching] = useState(true);
   const [findMatchInterval, setFindMatchInterval] = useState(null);
@@ -53,7 +53,7 @@ const Header = ({ device, deviceSearching }) => {
 
   const connectedIcon = () => {
     if (deviceSearching) {
-      return <div className="mt-2"><ClipLoader color="#6246ea" size="23px"/></div>;
+      return <LoadingIndicator signInLink={signInLink}/>
     }
     else if (device) {
       return <ConnectedIndicator />
@@ -118,6 +118,16 @@ const HamburgerButton = (props) => {
       </svg>
     </button>
   );
+}
+
+const LoadingIndicator = ({ signInLink }) => {
+  return (
+    <TriangleTooltip label="try signing in again?">
+      <a className="w-6 h-6" href={signInLink}>
+        <ClipLoader color="#6246ea" size="23px"/>
+      </a>
+    </TriangleTooltip>
+  )
 }
 
 const ConnectedIndicator = () => {

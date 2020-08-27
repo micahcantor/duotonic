@@ -248,7 +248,7 @@ const App = () => {
       <Modal body={modalBody} loading={deviceSearching} deviceName={device? device.name : ""}
         showDialog={showModal} close={closeModal} mobile={false} apiLink={signInLink} />
       <div className="flex flex-col w-screen h-screen bg-bgColor text-text overflow-hidden">
-        <Header device={device} deviceSearching={deviceSearching}/>
+        <Header device={device} deviceSearching={deviceSearching} signInLink={signInLink}/>
         <div className="container flex flex-col flex-grow mx-auto my-4 px-5 overflow-y-auto h-full scrollbar" style={{height: '85%'}}>
           <SearchBar onAdd={onAdd} />
           <div className="flex h-full ">
