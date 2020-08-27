@@ -4,7 +4,7 @@
   }
   
 [data-reach-dialog-overlay] {
-  background: hsla(0, 0%, 0%, 0.603);
+  background: hsla(0, 0%, 0%, 0.74);
   backdrop-filter: blur(4px);
   text-align: center;
   position: fixed;
@@ -17,8 +17,8 @@
 }
 
 [data-reach-dialog-content] {
-  background: #2B3747;
-  color: white;
+  background: #2a2b32;
+  color: #f5f5f5;
   padding: 2rem;
   outline: none;
 }

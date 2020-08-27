@@ -70,7 +70,8 @@ class SearchBar extends React.Component {
       <>
         <form onSubmit={e => e.preventDefault()} autoComplete="off" className="relative z-20">
           <input id="search-input" type="text" placeholder="Song search" onChange={this.handleInputChange} 
-            className="text-black placeholder-black transition-colors duration-200 ease-in-out bg-gray-200 appearance-none border-2 border-transparent rounded w-full mb-4 py-3 px-4 leading-tight focus:outline-none hover:bg-white focus:border-green-400"  
+            className="text-black placeholder-black transition-colors duration-200 ease-in-out bg-text 
+            appearance-none border-2 border-transparent rounded w-full mb-4 py-3 px-4 leading-tight focus:outline-none hover:bg-gray-200 focus:border-primary"  
           />
           <CloseButton onClick={this.closeResults} showResults={this.state.showResults}/>
         </form>
@@ -87,8 +88,8 @@ const SearchResults = (props) => {
 
   if (props.show) {
     return (
-      <div className="min-h-1/2 relative z-0 rounded bg-gray-800 w-full h-full overflow-y-auto mb-4 -mt-5 text-center scrollbar">
-        <ScaleLoader css="margin-top: -20px; margin-bottom: -20px" height="50px" width="10px" color="#1DB954" loading={props.loading} />
+      <div className="min-h-1/2 relative z-0 rounded bg-bgDark w-full h-full overflow-y-auto mb-4 -mt-5 text-center scrollbar">
+        <ScaleLoader css="margin-top: -20px; margin-bottom: -20px" height="50px" width="10px" color="#6246ea" loading={props.loading} />
         {resultList}
       </div>
     )
@@ -104,7 +105,7 @@ const SearchItem = (props) => {
   }
 
   return (
-    <div id="result-parent" className="text-left border-b-2 border-gray-600 hover:border-primary p-3 w-full flex justify-between items-center">
+    <div id="result-parent" className="text-left border-b-2 border-text hover:border-primary p-3 w-full flex justify-between items-center">
       <SongInfo id="info" className="ml-2" song={props.song} />
       {inQueue ? <CheckMark /> : <AddButton onClick={handleClick} />}
     </div>

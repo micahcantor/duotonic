@@ -54,7 +54,7 @@ export const GiveLink = (props) => {
 
   return (
     <div className="flex flex-col font-mono space-y-2 text-2xl -mt-2">
-      <span className="uppercase border-b-2 border-gray-500 text-left"> Share</span>
+      <span className="uppercase border-b-2 border-text text-left"> Share</span>
       <span className=""> Give this link to a friend: </span>
       <div className="text-primary flex justify-center items-center">
         <p className="font-semibold text-primary mr-3 mt-3" id="share_link">
@@ -62,7 +62,7 @@ export const GiveLink = (props) => {
         </p>
         <button onClick={onCopyClick} type="button" className="flex items-center">
           <svg fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" 
-            className="mt-1 w-8 h-8 text-white hover:text-primary stroke-current"
+            className="mt-1 w-8 h-8 text-textColor hover:text-primary stroke-current"
           >
             <path d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
           </svg>
@@ -75,7 +75,7 @@ export const GiveLink = (props) => {
 export const FindRandom = ({ loading }) => {  
   return (
     <div className="flex flex-col font-mono text-2xl space-y-2 -mt-2">
-      <span className="uppercase border-b-2 border-gray-500 text-left"> Go Random</span>
+      <span className="uppercase border-b-2 border-text text-left"> Go Random</span>
       <div className="flex flex-col items-center text-2xl mt-2 space-y-2">
         <span> Pairing you up, this shouldn't take long</span>
         <ScaleLoader color="#1DB954" loading={loading}/>
@@ -87,10 +87,10 @@ export const FindRandom = ({ loading }) => {
 export const SignIn = ({ apiLink }) => {
   return (
     <div className="flex flex-col font-mono text-2xl space-y-2 -mt-2">
-      <span className="uppercase border-b-2 border-gray-500 text-left"> Sign In</span>
+      <span className="uppercase border-b-2 border-text text-left"> Sign In</span>
       <span>Looks like you haven't connected Pass the AUX to Spotify yet. Click below to sign in.</span>
-      <span className="text-xl text-gray-400 pb-2">Only available for Spotify Premium users</span>
-      <div className="inline-block self-center rounded bg-primary text-white px-6 pt-1">
+      <span className="text-xl text-textColor pb-2">Only available for Spotify Premium users</span>
+      <div className="inline-block self-center rounded bg-primary text-textColor px-6 pt-1">
         <a href={apiLink}> Sign in with Spotify</a>
       </div>
     </div>
@@ -100,16 +100,16 @@ export const SignIn = ({ apiLink }) => {
 export const DeviceSearch = (props) => {
   return (
     <div className="flex flex-col font-mono text-2xl space-y-2 -mt-2 -mb-4">
-      <span className="text-left uppercase border-b-2 border-gray-500"> Connect a Device</span>
+      <span className="text-left uppercase border-b-2 border-text"> Connect a Device</span>
       {props.loading
         ? <span> Open the Spotify app on your phone so Pass the AUX can connect to it</span>
         : <span> Now connected to '{props.deviceName}', you're ready to go</span>
       }
       
       <div className="flex flex-col items-center">
-        <ScaleLoader color="#1DB954" loading={props.loading}/>
+        <ScaleLoader color="#6246ea" loading={props.loading}/>
         {props.loading 
-          ? <span className="text-gray-500 text-xl"> searching for devices...</span>
+          ? <span className="text-textColor text-xl"> searching for devices...</span>
           : <CheckMark />
         }
       </div>
@@ -133,7 +133,7 @@ export const Mobile = ({ close }) => {
 export const RoomNotFound = () => {
   return (
     <div className="flex flex-col space-y-2 text-2xl -mt-2">
-      <span className="uppercase font-mono border-b-2 border-gray-500 text-left"> Not Found</span>
+      <span className="uppercase font-mono border-b-2 border-text text-left"> Not Found</span>
       <span className="font-semibold"> Sorry, we couldn't find that room. </span>
     </div>
   )

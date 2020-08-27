@@ -28,7 +28,7 @@ const Player = ( { songInQueue, isPaused, song, room, device, playbackCapable,
   }
 
   return (
-    <div className="flex overflow-hidden flex-col border-t-2 border-gray-500 bg-gray-900 h-22">
+    <div className="flex overflow-hidden flex-col border-t-2 border-text bg-bgDark h-22">
       <div className="flex w-full relative mx-auto my-2 items-center">
         <div className="ml-3 md:ml-5 w-1/2 lg:w-1/3 lg:absolute">
           {songInQueue
@@ -55,7 +55,7 @@ const Player = ( { songInQueue, isPaused, song, room, device, playbackCapable,
 
 const PlaybackControls = ({ onLeftSkip, onRightSkip, isPaused, songInQueue, onPauseChange }) => {
   return (
-    <div className={`flex justify-center text-white md:pl-2 ${songInQueue ? "mx-auto" : ""}`}>
+    <div className={`flex justify-center text-textColor md:pl-2 ${songInQueue ? "mx-auto" : ""}`}>
       <LeftSkip onLeftSkip={onLeftSkip}/>
       <PausePlay isPaused={isPaused} onPauseChange={onPauseChange} />
       <RightSkip onRightSkip={onRightSkip}/>
@@ -77,7 +77,7 @@ const PausePlay = ({ isPaused, onPauseChange }) => {
 
 const VolumeSlider = ({ onMouseUp }) => {
   return (
-    <div className="hidden lg:flex items-center text-gray-500 absolute right-0 mr-5">
+    <div className="hidden lg:flex items-center text-textColor absolute right-0 mr-5">
       <svg className="w-4 h-4 mr-2 stroke-current" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24">
         <path d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" clipRule="evenodd"></path>
         <path d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"></path>

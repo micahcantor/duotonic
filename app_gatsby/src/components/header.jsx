@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import TriangleTooltip from "./tooltip.jsx";
 import ClipLoader from "react-spinners/ClipLoader.js";
 import { Modal, modals } from "./modal.jsx";
+import Icon from "./icon.jsx"
 import "../styles/styles.css";
 import { getRoomID, enterQueue, findPartner, exitQueue, exitRoom } from "../api.js";
 
@@ -73,20 +74,16 @@ const Header = ({ device, deviceSearching }) => {
   }
 
   return (
-    <nav className="flex items-center justify-between flex-wrap bg-gray-800 p-4 border-b-2 border-gray-500">
-      <div className="text-primary mr-6 ml-2 mt-1 md:mt-0">
-        <span className="font-mono text-xl tracking-tight">pass the aux</span>
+    <nav className="flex items-center justify-between flex-wrap bg-bgDark p-4 border-b-2 border-text">
+      <div className="text-primary flex items-center mr-6 ml-2 mt-1 md:mt-0">
+        <Icon />
+        <span className="font-bold text-2xl text-text">duotonic</span>
       </div>
       <div className="block lg:hidden">
         <HamburgerButton open={openMobile} />
         <Modal body={modals.MobileMenu} showDialog={showMobile} close={closeMobile} mobile={true} />
       </div>
-      <div className="font-mono hidden w-full block flex-grow lg:flex lg:items-center lg:w-auto">
-        <div className="lg:flex-grow">
-          <a href="#responsive-header" className="block mt-4 lg:inline-block lg:mt-0 text-white hover:text-primary">
-            about
-          </a>
-        </div>
+      <div className="font-mono hidden w-full block lg:flex lg:items-center lg:w-auto">
         <div className="flex mx-2 space-x-4">
           <NavButton open={openRandom} buttonText="Go Random" />
           <Modal body={modals.FindRandom} showDialog={showRandom} close={closeRandom} mobile={false} partnerSearching={partnerSearching} />
@@ -115,7 +112,7 @@ const NavButton = (props) => {
 
 const HamburgerButton = (props) => {
   return (
-    <button type="button" onClick={props.open} className="flex items-center px-3 py-2 text-white hover:text-primary">
+    <button type="button" onClick={props.open} className="flex items-center px-3 py-2 text-textColor hover:text-primary">
       <svg className="fill-current h-5 w-5" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
         <title>Menu</title><path d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z" />
       </svg>
