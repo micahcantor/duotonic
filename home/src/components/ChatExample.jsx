@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import ScrollToBottom from "react-scroll-to-bottom";
 
 export const ChatExample = () => {
   const [messages, setMessages] = useState([
@@ -13,12 +14,6 @@ export const ChatExample = () => {
   const [inputVal, setInputVal] = useState("");
   const messagesBottom = useRef(null);
 
-  useEffect(() => {
-    if (messagesBottom.current) {
-      messagesBottom.current.scrollIntoView();
-    }
-  }, [messages, messagesBottom])
-
   function onSubmit(e) {
     e.preventDefault();
     if (inputVal.length > 0) {
@@ -29,9 +24,8 @@ export const ChatExample = () => {
       }
       setMessages([...messages, message]);
       setInputVal("");
-      if (document) {
-        document.getElementById("chat-input").value = "";
-      }
+
+      document.getElementById("chat-input").value = "";
     }
   }
 
@@ -51,8 +45,10 @@ export const ChatExample = () => {
       <div id="title" className="flex items-center justify-between relative border-b-2 border-textColor">
         <span className="text-lg uppercase tracking-wider font-mono p-3"> Chat </span>
       </div>
-      <div id="messages" className="flex-grow w-full h-full overflow-y-auto" style={{maxHeight: '400px'}}>
-        <MessageList messages={messages} messagesBottom={messagesBottom}/>
+      <div id="messages" style={{height: '400px'}}>
+        <ScrollToBottom className="w-full h-full overflow-y-scroll">
+          <MessageList messages={messages} messagesBottom={messagesBottom}/>
+        </ScrollToBottom>
       </div>
 
       <ChatInput onChange={e => onChange(e.target.value)} onSubmit={onSubmit} />
@@ -61,12 +57,11 @@ export const ChatExample = () => {
 };
 
 
-const MessageList = ({ messages, messagesBottom }) => {
+const MessageList = ({ messages }) => {
   const listItems = messages.map((m, idx) => {
     return (
       <li key={idx}>
         <Message user={m.name} messageString={m.text} time={m.time} />
-        <div ref={messagesBottom}></div>
       </li>
     );
   });
