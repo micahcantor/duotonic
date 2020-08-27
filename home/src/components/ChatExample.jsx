@@ -46,7 +46,7 @@ export const ChatExample = () => {
       </div>
       <div id="messages" style={{height: '400px'}}>
         <ScrollToBottom className="w-full h-full overflow-y-scroll">
-          <MessageList messages={messages} messagesBottom={messagesBottom}/>
+          <MessageList messages={messages}/>
         </ScrollToBottom>
       </div>
 
