@@ -53,11 +53,11 @@ export const GiveLink = (props) => {
   }
 
   return (
-    <div className="flex flex-col font-mono space-y-2 text-2xl -mt-2">
-      <span className="uppercase border-b-2 border-text text-left"> Share</span>
+    <div className="flex flex-col space-y-2 text-2xl -mt-2 font-semibold">
+      <span className="uppercase font-mono font-normal border-b-2 border-text text-left"> Share</span>
       <span className=""> Give this link to a friend: </span>
       <div className="text-primary flex justify-center items-center">
-        <p className="font-semibold text-primary mr-3 mt-3" id="share_link">
+        <p className="font-semibold text-primary mr-3" id="share_link">
           <a href={props.shareURL}>{props.shareURL}</a>
         </p>
         <button onClick={onCopyClick} type="button" className="flex items-center">
@@ -74,11 +74,11 @@ export const GiveLink = (props) => {
 
 export const FindRandom = ({ loading }) => {  
   return (
-    <div className="flex flex-col font-mono text-2xl space-y-2 -mt-2">
-      <span className="uppercase border-b-2 border-text text-left"> Go Random</span>
+    <div className="flex flex-col text-2xl space-y-2 -mt-2 font-semibold">
+      <span className="uppercase font-mono font-normal border-b-2 border-text text-left"> Go Random</span>
       <div className="flex flex-col items-center text-2xl mt-2 space-y-2">
         <span> Pairing you up, this shouldn't take long</span>
-        <ScaleLoader color="#1DB954" loading={loading}/>
+        <ScaleLoader color="#6246ea" loading={loading}/>
       </div>
     </div>
   );
@@ -86,8 +86,8 @@ export const FindRandom = ({ loading }) => {
 
 export const SignIn = ({ apiLink }) => {
   return (
-    <div className="flex flex-col font-mono text-2xl space-y-2 -mt-2">
-      <span className="uppercase border-b-2 border-text text-left"> Sign In</span>
+    <div className="flex flex-col text-2xl space-y-2 -mt-2">
+      <span className="uppercase font-mono border-b-2 border-text text-left"> Sign In</span>
       <span>Looks like you haven't connected Pass the AUX to Spotify yet. Click below to sign in.</span>
       <span className="text-xl text-textColor pb-2">Only available for Spotify Premium users</span>
       <div className="inline-block self-center rounded bg-primary text-textColor px-6 pt-1">
@@ -99,8 +99,8 @@ export const SignIn = ({ apiLink }) => {
 
 export const DeviceSearch = (props) => {
   return (
-    <div className="flex flex-col font-mono text-2xl space-y-2 -mt-2 -mb-4">
-      <span className="text-left uppercase border-b-2 border-text"> Connect a Device</span>
+    <div className="flex flex-col text-2xl space-y-2 -mt-2 -mb-4 font-semibold">
+      <span className="text-left font-mono font-normal uppercase border-b-2 border-text"> Connect a Device</span>
       {props.loading
         ? <span> Open the Spotify app on your phone so Pass the AUX can connect to it</span>
         : <span> Now connected to '{props.deviceName}', you're ready to go</span>
@@ -150,7 +150,7 @@ const MobileMenu = () => {
   const closeLink = () => setShowLink(false); 
 
   return (
-    <div className="text-3xl font-mono lowercase pt-6">
+    <div className="text-3xl lowercase pt-6 font-medium">
       <button onClick={openLink} type="button" className="hover:text-primary">
         Get a Link
         <Modal body={modals.GiveLink} shareURL="link" showDialog={showLink} close={closeLink} mobile={false}/>
@@ -161,9 +161,7 @@ const MobileMenu = () => {
         <Modal body={modals.FindRandom} showDialog={showRandom} close={closeRandom} mobile={false}/>
       </button>
       <div className="my-2 w-full h-px bg-gray-300"></div>
-      <div className="text-2xl hover:text-primary"> Github </div>
-      <div className="my-2 w-full h-px bg-gray-300"></div>
-      <div className="text-2xl hover:text-primary"> About </div>
+      <a href="https://duotonic.co" className="text-2xl hover:text-primary"> About </a>
     </div>
   );
 }

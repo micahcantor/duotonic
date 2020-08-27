@@ -29,13 +29,11 @@ const Player = ( { songInQueue, isPaused, song, room, device, playbackCapable,
 
   return (
     <div className="flex overflow-hidden flex-col border-t-2 border-text bg-bgDark h-22">
-      <div className="flex w-full relative mx-auto my-2 items-center">
-        <div className="ml-3 md:ml-5 w-1/2 lg:w-1/3 lg:absolute">
-          {songInQueue
-            ? <SongInfo song={song} />
-            : null
-          }
-        </div>
+      <div className="flex w-full relative mx-auto py-2 items-center">
+        { songInQueue 
+          ? <div className="ml-3 md:ml-5 w-1/2 lg:w-1/3 lg:absolute"><SongInfo song={song} /></div>
+          : null
+        }
         <PlaybackControls isPaused={isPaused} onPauseChange={handlePauseChange} 
           onLeftSkip={onLeftSkip} onRightSkip={onRightSkip} songInQueue={songInQueue} />
 

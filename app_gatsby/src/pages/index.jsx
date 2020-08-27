@@ -244,7 +244,7 @@ const App = () => {
 
   return (
     <>
-      <SEO title="Home" />
+      <SEO title="App" />
       <Modal body={modalBody} loading={deviceSearching} deviceName={device? device.name : ""}
         showDialog={showModal} close={closeModal} mobile={false} apiLink={signInLink} />
       <div className="flex flex-col w-screen h-screen bg-bgColor text-text overflow-hidden">

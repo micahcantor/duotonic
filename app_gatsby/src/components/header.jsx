@@ -53,7 +53,7 @@ const Header = ({ device, deviceSearching }) => {
 
   const connectedIcon = () => {
     if (deviceSearching) {
-      return <div className="mt-2"><ClipLoader color="#1DB954" size="23px"/></div>;
+      return <div className="mt-2"><ClipLoader color="#6246ea" size="23px"/></div>;
     }
     else if (device) {
       return <ConnectedIndicator />
