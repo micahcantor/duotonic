@@ -1,8 +1,8 @@
 module.exports = {
   siteMetadata: {
-    title: `Gatsby Default Starter`,
-    description: `Kick off your next, great Gatsby project with this default starter. This barebones starter ships with the main Gatsby configuration files you might need.`,
-    author: `@gatsbyjs`,
+    title: `Duotonic`,
+    description: `Listen to Spotify together. Duotonic enables you to listen to music and chat in real time with friends or a random stranger. Meet new people or connect with old friends!`,
+    author: `duotonic`,
   },
   plugins: [
     `gatsby-plugin-react-helmet`,
