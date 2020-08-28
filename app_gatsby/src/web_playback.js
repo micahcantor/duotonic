@@ -83,7 +83,7 @@ const insertPlayer = async () => {
 
     const token = await getAccessToken();
     player = new window.Spotify.Player({
-      name: "Pass the AUX",
+      name: "Duotonic",
       /* this looks weird but is just boilerplate for initializing the player */
       getOAuthToken: (callback) => {
         callback(token);

@@ -173,12 +173,12 @@ const MessageList = ({ messages, messagesBottom }) => {
 const Message = ({ user, time, messageString }) => {
 
   return (
-    <div className="flex flex-col mx-1 p-2 rounded hover:bg-gray-900">
+    <div className="flex flex-col mx-1 p-2 rounded hover:bg-bgColor">
       <div className="flex items-center">
-        <span className="font-bold"> {user}</span>
-        <span className="ml-1 text-sm text-textColor"> {time} </span>
+        <span className="font-bold">{user}</span>
+        <span className="ml-1 text-sm text-textColor">{time}</span>
       </div>
-      <p className="font-sans"> {messageString} </p>
+      <p className="font-sans">{messageString}</p>
     </div>
   );
 };

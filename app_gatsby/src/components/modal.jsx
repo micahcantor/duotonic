@@ -46,10 +46,10 @@ export const modals = {
   RoomNotFound: "room-not-found",
 }
 
-export const GiveLink = (props) => {
+export const GiveLink = ({ shareURL }) => {
   
   const onCopyClick = () => {
-    navigator.clipboard.writeText("link.url/link"); // switch for props.shareUrl
+    navigator.clipboard.writeText(shareURL);
   }
 
   return (
@@ -58,7 +58,7 @@ export const GiveLink = (props) => {
       <span className=""> Give this link to a friend: </span>
       <div className="text-primary flex justify-center items-center">
         <p className="font-semibold text-primary mr-3" id="share_link">
-          <a href={props.shareURL}>{props.shareURL}</a>
+          {shareURL}
         </p>
         <button onClick={onCopyClick} type="button" className="flex items-center">
           <svg fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" 
@@ -77,8 +77,13 @@ export const FindRandom = ({ loading }) => {
     <div className="flex flex-col text-2xl space-y-2 -mt-2 font-semibold">
       <span className="uppercase font-mono font-normal border-b-2 border-text text-left"> Go Random</span>
       <div className="flex flex-col items-center text-2xl mt-2 space-y-2">
-        <span> Pairing you up, this shouldn't take long</span>
-        <ScaleLoader color="#6246ea" loading={loading}/>
+        { loading
+          ? <>
+              <span> Pairing you up, this shouldn't take long</span> 
+              <ScaleLoader color="#6246ea"/>
+            </>
+          : <span> Found a partner! You can close this. </span>
+        }
       </div>
     </div>
   );
@@ -88,7 +93,7 @@ export const SignIn = ({ apiLink }) => {
   return (
     <div className="flex flex-col text-2xl space-y-2 -mt-2">
       <span className="uppercase font-mono border-b-2 border-text text-left"> Sign In</span>
-      <span>Looks like you haven't connected Pass the AUX to Spotify yet. Click below to sign in.</span>
+      <span>Looks like you haven't connected Duotonic to Spotify yet. Click below to sign in.</span>
       <span className="text-xl text-textColor pb-2">Only available for Spotify Premium users</span>
       <div className="inline-block self-center rounded bg-primary text-textColor px-6 pt-1">
         <a href={apiLink}> Sign in with Spotify</a>
