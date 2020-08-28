@@ -40,8 +40,8 @@ export const enterRoom = async (roomID) => {
     return { msg: "success" }
 }
 
-export const exitRoom = async () => {
-    const api = "http://localhost:3000/rooms/exit";
+export const exitRoom = async (roomID) => {
+    const api = `http://localhost:3000/rooms/exit?room=${roomID}`;
     await fetch(api, {
         method: "PUT",
         credentials: "include"
