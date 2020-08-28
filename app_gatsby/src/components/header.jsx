@@ -20,8 +20,9 @@ const Header = ({ device, deviceSearching, signInLink }) => {
   const closeMobile = () => setShowMobile(false);
 
   const openRandom = async () => {
-    await enterQueue();
-    if (findMatchInterval === null) {
+    await enterQueue();  // adds user to the queue of users looking for a match
+    await exitRoom(null);// removes user from all rooms prior to beginning the search for a new one
+    if (!findMatchInterval) {
       const findMatch = setInterval(() => {
         findPartner().then(response => {
           console.log(response.message);
@@ -31,7 +32,7 @@ const Header = ({ device, deviceSearching, signInLink }) => {
             clearInterval(findMatch);
           }
         })
-      }, 5000);
+      }, 2000);
 
       setFindMatchInterval(findMatch);
     }
@@ -45,8 +46,13 @@ const Header = ({ device, deviceSearching, signInLink }) => {
   }
 
   const openLink = async () => {
-    const room = await getRoomID();
-    window.history.replaceState(null, null, "?room=" + room)
+    /* If the user is already in a room, just display their url */
+    const queryParams = new URLSearchParams(window.location.search);
+    let room = queryParams.get("room")
+    if (!room) {
+      room = await getRoomID();
+      window.history.replaceState(null, null, "?room=" + room);
+    }
     setLink("http://localhost:8080?room=" + room);
     setShowLink(true);
   }
