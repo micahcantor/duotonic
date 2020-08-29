@@ -190,31 +190,6 @@ const App = () => {
     }
   }
 
-  /* When a song is added to the queue, get the information about that song */
-  const onAdd = async (e) => {
-    const parentNode = e.target.closest("#result-parent").firstChild;
-    const newQueueItem = {
-      name: parentNode.children[1].children[0].innerText,
-      artists: parentNode.children[1].children[1].innerText,
-      coverUrl: parentNode.children[0].src,
-      uri: parentNode.dataset.uri,
-      runtime: parentNode.dataset.runtime,
-    };
-
-    // the first song is played immediately and isn't added to the queue
-    // spotify automatically adds the first song played to the queue
-    if (songs.length === 0) {
-      await startSong(device.id, newQueueItem, room, true);
-      setIsPaused(false);
-    }
-    else {
-      await addToQueue(device.id, newQueueItem, room, true);
-    }
-
-    // update songs state afterwards to avoid stale state issues
-    updateSongs(songs => songs.concat(newQueueItem));
-  };
-
   return (
     <>
       <SEO title="App" />
@@ -223,7 +198,7 @@ const App = () => {
       <div className="flex flex-col w-screen h-screen bg-bgColor text-text overflow-hidden">
         <Header device={device} deviceSearching={deviceSearching} signInLink={signInLink} room={room} setRoom={setRoom}/>
         <div className="container flex flex-col flex-grow mx-auto my-4 px-5 overflow-y-auto h-full scrollbar" style={{height: '85%'}}>
-          <SearchBar onAdd={onAdd} />
+          <SearchBar songs={songs} room={room} device={device} updateSongs={updateSongs} setIsPaused={setIsPaused} />
           <div className="flex h-full ">
               <Queue songs={songs} setQueueVisible={setQueueVisible} queueVisible={queueVisible}/>
               <Chat room={room} client={WSClient} setQueueVisible={setQueueVisible} queueVisible={queueVisible} authorized={isAuthorized}/>
