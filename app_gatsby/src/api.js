@@ -3,7 +3,7 @@ const apiRequest = async (method, params, query, body) => {
     const base = "http://localhost:3000";
     const url = base + params + query;
     let options = { method, credentials: "include" }
-    if (payload) {
+    if (body) {
         options.body = JSON.stringify(body);
         options.headers = { "Content-Type": "application/json" }
     }
@@ -121,8 +121,8 @@ export const startSong = async (device_id, song_info, room_id, broadcast) => {
     await apiRequest("PUT", "/api/spotify/me/player/play", query, song_info);
 }
 
-export const searchSpotify = async (query) => {
-    const query = `?q=${encodeURIComponent(query)}&type=track&limit=10`;
+export const searchSpotify = async (input) => {
+    const query = `?q=${encodeURIComponent(input)}&type=track&limit=10`;
     const response = await apiRequest("GET", "/api/spotify/search", query, null);
     const json = await response.json();
     return json;
