@@ -7,7 +7,7 @@ import Icon from "./icon.jsx"
 import "../styles/styles.css";
 import { getRoomID, enterQueue, findPartner, exitQueue, exitRoom } from "../api.js";
 
-const Header = ({ device, deviceSearching, signInLink }) => {
+const Header = ({ device, deviceSearching, signInLink, room, setRoom }) => {
   const [showRandom, setShowRandom] = useState(false);
   const [partnerSearching, setPartnerSearching] = useState(true);
   const [findMatchInterval, setFindMatchInterval] = useState(null);
@@ -27,7 +27,8 @@ const Header = ({ device, deviceSearching, signInLink }) => {
         findPartner().then(response => {
           console.log(response.message);
           if (response.message === 'success') {
-            window.history.replaceState(null, null, "?room=" + response.room_id)
+            window.history.replaceState(null, null, "?room=" + response.room_id);
+            setRoom(response.room_id);
             setPartnerSearching(false);
             clearInterval(findMatch);
           }
@@ -47,13 +48,13 @@ const Header = ({ device, deviceSearching, signInLink }) => {
 
   const openLink = async () => {
     /* If the user is already in a room, just display their url */
-    const queryParams = new URLSearchParams(window.location.search);
-    let room = queryParams.get("room")
-    if (!room) {
-      room = await getRoomID();
-      window.history.replaceState(null, null, "?room=" + room);
+    let roomID = room;
+    if (!room || room.length === 0) {
+      roomID = await getRoomID();
+      setRoom(roomID);
+      window.history.replaceState(null, null, "?room=" + roomID);
     }
-    setLink("http://localhost:8080?room=" + room);
+    setLink("http://localhost:8080?room=" + roomID);
     setShowLink(true);
   }
 

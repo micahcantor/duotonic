@@ -7,7 +7,7 @@ import SwapIcon from "./swap.jsx";
 import SongInfo from "./song_info.jsx"
 import "../styles/styles.css";
 
-const Queue = ({ songs, onSwapClick, queueVisible }) => {  
+const Queue = ({ songs, setQueueVisible, queueVisible }) => {  
   // Iterate over song array and create new array of QueueItems
   const songList = songs.map((song, index) => {
     return <QueueItem key={index} song={song} />
@@ -20,7 +20,7 @@ const Queue = ({ songs, onSwapClick, queueVisible }) => {
         <p className="text-lg uppercase tracking-wider font-mono p-3">
           Queue
         </p>
-        <SwapIcon onClick={onSwapClick}/>
+        <SwapIcon queueVisible={queueVisible} setQueueVisible={setQueueVisible} />
       </div>
       <div className="overflow-y-auto scrollbar w-full min-h-0" style={{height: '88%'}}>
         {songList}

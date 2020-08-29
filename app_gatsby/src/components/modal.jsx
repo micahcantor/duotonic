@@ -138,10 +138,10 @@ export const Mobile = ({ close }) => {
 export const RoomNotFound = () => {
   return (
     <div className="flex flex-col space-y-2 text-2xl -mt-2">
-      <span className="uppercase font-mono border-b-2 border-text text-left"> Not Found</span>
-      <span className="font-semibold"> Sorry, we couldn't find that room. </span>
+      <span className="uppercase font-mono border-b-2 border-text text-left">Not Found</span>
+      <span className="font-semibold">Sorry, we couldn't find that room.</span>
     </div>
-  )
+  );
 }
 
 const MobileMenu = () => {
@@ -166,7 +166,7 @@ const MobileMenu = () => {
         <Modal body={modals.FindRandom} showDialog={showRandom} close={closeRandom} mobile={false}/>
       </button>
       <div className="my-2 w-full h-px bg-gray-300"></div>
-      <a href="https://duotonic.co" className="text-2xl hover:text-primary"> About </a>
+      <a href="https://duotonic.co" className="text-2xl hover:text-primary">About</a>
     </div>
   );
 }

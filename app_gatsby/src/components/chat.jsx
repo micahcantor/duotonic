@@ -1,11 +1,11 @@
 /* eslint-disable react/prop-types */
 import React, { useState, useEffect, useRef } from "react";
 import SwapIcon from "./swap.jsx";
-import { sendChat, setUsernameInDB, getUsernameFromDB } from "../api.js";
+import { sendChat, setUsernameInDB, getUsernameFromDB, setSongPosition } from "../api.js";
 import "../styles/styles.css";
 const Filter = require('bad-words');
 
-const Chat = ({ room, client, onSwapClick, queueVisible, authorized}) => {
+const Chat = ({ room, client, setQueueVisible, queueVisible, authorized}) => {
 
   const [messages, setMessages] = useState([]);
   const [username, setUsername] = useState("");
@@ -102,7 +102,7 @@ const Chat = ({ room, client, onSwapClick, queueVisible, authorized}) => {
     <div id="chat" className={`${queueVisible ? "hidden" : "flex"} md:flex flex-col bg-bgDark rounded shadow-lg w-full h-full`}>
       <div id="title" className="flex items-center justify-between relative border-b-2 border-text">
         <span className="text-lg uppercase tracking-wider font-mono p-3"> Chat </span>
-        <SwapIcon onClick={onSwapClick} />
+        <SwapIcon queueVisible={queueVisible} setQueueVisible={setQueueVisible} />
       </div>
       <div id="messages" className="flex-grow w-full h-full overflow-y-auto scrollbar">
         <MessageList messages={messages} messagesBottom={messagesBottom}/>

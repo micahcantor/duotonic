@@ -5,33 +5,72 @@ import "../styles/styles.css";
 import SongInfo from "./song_info.jsx"
 import { SliderInput, SliderTrack, SliderTrackHighlight, SliderHandle } from "@reach/slider";
 import "../styles/slider_styles.css";
-import { setVolume } from "../api";
+import { startSong, resumeSong, pauseSong, previousSong, nextSong, updateHistoryInRoom, setVolume } from "../api";
 import { ProgressBar } from "./progress_bar.jsx";
 
-const Player = ( { songInQueue, isPaused, song, room, device, playbackCapable, 
-  seekElapsed, handlePauseChange, onLeftSkip, onRightSkip, onProgressComplete } ) => {
+const Player = ( { songInQueue, isPaused, songs, history, room, device, playbackCapable, updateSongs, 
+  seekElapsed, setIsPaused, setHistory, onProgressComplete } ) => {
 
   const [runtime, setRuntime] = useState(null);
+  const [songStarted, setSongStarted] = useState(false);
 
   useEffect(() => {
-    if (song) {
-      setRuntime(song.runtime);
+    if (songs[0]) {
+      setRuntime(songs[0].runtime);
     } 
     else {
       setRuntime(null);
     }
-  }, [song])
+  }, [songs]);
+
+  const handlePauseChange = async () => {
+    setIsPaused(isPaused => !isPaused);
+
+    if (isPaused && !songStarted && songInQueue) {
+      await startSong(device.id, songs[0].uri, room, true);
+    } else if (isPaused && songStarted && songInQueue) {
+      await resumeSong(device.id, room, true);
+    } else if (songInQueue) {
+      await pauseSong(device.id, room, true);
+    }
+
+    setSongStarted(true);
+  }
+
+  const onLeftSkip = async () => {
+    if (history.length > 0) {
+      await previousSong(device.id, room); // asks Spotify to play the previous song
+      updateSongs(songs => {
+        const updated = [...songs];
+        updated[0] = history[history.length - 1];
+        return updated;
+      });
+      setIsPaused(false);
+    }
+  }
+
+  const onRightSkip = async () => {
+    if (room && room !== "") {
+      await updateHistoryInRoom(songs[0], room); // if user is in a room, add the skipped song to the server history
+    }
+    console.log('next song from button press');
+    await nextSong(device.id, songs[1], room, true); // moves to the next song in spotify queue
+
+    setHistory(history => [...history, songs[0]]); // add the skipped song to the local history
+    updateSongs(songs => songs.filter((s, i) => i > 0)); // removes the first song from the queue list and returns the new list
+    setIsPaused(false);
+  }
 
   const onVolumeMouseUp = async (e) => {
     const volume = parseInt(e.target.firstChild.children[1].getAttribute("aria-valuenow"));
     await setVolume(device.id, volume);
   }
-
+  
   return (
     <div className="flex overflow-hidden flex-col border-t-2 border-text bg-bgDark h-22">
       <div className="flex w-full relative mx-auto py-2 items-center">
         { songInQueue 
-          ? <div className="ml-3 md:ml-5 w-1/2 lg:w-1/3 lg:absolute"><SongInfo song={song} /></div>
+          ? <div className="ml-3 md:ml-5 w-1/2 lg:w-1/3 lg:absolute"><SongInfo song={songs[0]} /></div>
           : null
         }
         <PlaybackControls isPaused={isPaused} onPauseChange={handlePauseChange} 
@@ -43,8 +82,8 @@ const Player = ( { songInQueue, isPaused, song, room, device, playbackCapable,
         }
       </div>
       {songInQueue
-        ? <ProgressBar song={song} isPaused={isPaused} runtime={runtime} seekElapsed={seekElapsed}
-          deviceID={device ? device.id : ""} room={room} onProgressComplete={onProgressComplete}/>
+        ? <ProgressBar songs={songs} isPaused={isPaused} runtime={runtime} seekElapsed={seekElapsed}
+          deviceID={device ? device.id : ""} room={room} setHistory={setHistory} updateSongs={updateSongs}/>
         : null
       }
     </div>

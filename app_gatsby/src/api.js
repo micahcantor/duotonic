@@ -21,6 +21,13 @@ export const getUsernameFromDB = async () => {
     return json;
 }
 
+export const getRoomPlayback = async (roomID) => {
+    const api = `http://localhost:3000/rooms/current-playback?room=${roomID}`;
+    const response = await fetch(api, { credentials: "include" });
+    const json = await response.json();
+    return json;
+}
+
 export const getRoomID = async () => {
     const api = "http://localhost:3000/rooms/share-link";
     const response = await fetch(api, { credentials: "include" });
@@ -76,7 +83,10 @@ export const exitQueue = async () => {
 
 export const findPartner = async () => {
     const api = "http://localhost:3000/rooms/queue/pair";
-    const response = await fetch(api, { credentials: "include"});
+    const response = await fetch(api, { 
+        method: "PUT",
+        credentials: "include"
+    });
     const json = await response.json();
     return json;
 }
@@ -109,6 +119,7 @@ export const pauseSong = async (device_id, room_id, broadcast) => {
 }
 
 export const nextSong = async (device_id, song_info, room_id, broadcast) => {
+    console.log(broadcast)
     const api = `http://localhost:3000/api/spotify/me/player/next?device_id=${device_id}&room=${room_id}&broadcast=${broadcast}`;
     await fetch (api, {
         method: "POST",

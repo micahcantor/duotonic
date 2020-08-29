@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import "../styles/styles.css"
 import { SliderInput, SliderTrack, SliderTrackHighlight, SliderHandle } from "@reach/slider";
-import { setSongPosition } from "../api";
+import { setSongPosition, updateHistoryInRoom } from "../api";
 
-export const ProgressBar = ({ seekElapsed, song, runtime, isPaused, deviceID, room, onProgressComplete }) => {
+export const ProgressBar = ({ seekElapsed, songs, runtime, isPaused, deviceID, room, setHistory, updateSongs }) => {
 
   const [elapsed, setElapsed] = useState(0);
   const [runtimeMS, setRuntimeMS] = useState(null);
@@ -16,7 +16,7 @@ export const ProgressBar = ({ seekElapsed, song, runtime, isPaused, deviceID, ro
     setElapsed(0);
     setRuntimeMS(parseFloat(runtime) / 1000);
     setProgressActive(false);
-  }, [song, runtime])
+  }, [songs, runtime])
 
   useEffect(() => {
     if (elapsed === runtimeMS) {
@@ -40,6 +40,7 @@ export const ProgressBar = ({ seekElapsed, song, runtime, isPaused, deviceID, ro
   }, [elapsed, isPaused, progressActive, runtimeMS])
 
   useEffect(() => {
+    /* Fires when the progress bar has been changed by another user in the room */
     setElapsed(seekElapsed);
     console.log('seek update')
   }, [seekElapsed])
@@ -47,6 +48,14 @@ export const ProgressBar = ({ seekElapsed, song, runtime, isPaused, deviceID, ro
   useEffect(() => {
     return () => clearTimeout(timeoutID);
   }, [timeoutID])
+
+  const onProgressComplete = async () => {
+    if (room && room !== "") {
+      await updateHistoryInRoom(songs[0], room);
+    }
+    setHistory(history => [...history, songs[0]]);
+    updateSongs(songs => songs.filter((s, i) => i > 0));
+  }
 
   const onChange = (newValue) => {
     setElapsed(newValue); // visually update the elapsed state immediately

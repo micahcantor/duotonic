@@ -2,7 +2,11 @@ import React from "react";
 import "../styles/styles.css"
 import "../styles/styles.css";
 
-const SwapIcon = ({ onClick }) => {
+const SwapIcon = ({ queueVisible, setQueueVisible }) => {
+
+    const onClick = () => {
+        setQueueVisible(queueVisible => !queueVisible);
+    }
     
     return (
         <button onClick={onClick} type="button" className="md:hidden absolute inset-y-0 right-0 mt-2 mr-3 w-8 h-8">
