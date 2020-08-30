@@ -68,7 +68,7 @@ const Player = ( { songInQueue, isPaused, songs, history, room, device, playback
   
   return (
     <div className="flex overflow-hidden flex-col border-t-2 border-text bg-bgDark h-22">
-      <div className="flex w-full relative mx-auto py-2 items-center">
+      <div className="flex w-full relative mx-auto pb-4 md:pt-2 items-center">
         { songInQueue 
           ? <div className="ml-3 md:ml-5 w-1/2 lg:w-1/3 lg:absolute"><SongInfo song={songs[0]} /></div>
           : null

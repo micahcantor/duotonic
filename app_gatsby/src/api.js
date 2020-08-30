@@ -1,4 +1,3 @@
-
 const apiRequest = async (method, params, query, body) => {
     const base = "http://localhost:3000";
     const url = base + params + query;
@@ -27,7 +26,7 @@ export const getUsernameFromDB = async () => {
     return json;
 }
 
-export const getRoomPlayback = async (roomID) => {
+export const getCurrentPlaybackState = async (roomID) => {
     const response = await apiRequest("GET", "/rooms/current-playback", `?room=${roomID}`, null);
     const json = await response.json();
     return json;

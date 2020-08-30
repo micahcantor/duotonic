@@ -12,7 +12,7 @@ const SearchBar = ({ songs, device, room, updateSongs, setIsPaused}) => {
   const [loading, setLoading] = useState(false);
   const [currentTimer, setCurrentTimer] = useState(null);
 
-  const handleSearchResults = (response) => {
+  const parseSearchResults = (response) => {
     const tracks = response.tracks.items.map(track => {
       return {
         name: track.name,
@@ -23,7 +23,7 @@ const SearchBar = ({ songs, device, room, updateSongs, setIsPaused}) => {
       }
     });
 
-    setSearchResults(tracks);
+    return tracks;
   }
 
   const closeResults = () => {
@@ -56,7 +56,8 @@ const SearchBar = ({ songs, device, room, updateSongs, setIsPaused}) => {
         const query = document.getElementById("search-input").value
         if (query.length !== 0) {
           const response = await searchSpotify(query);
-          handleSearchResults(response);
+          const tracks = parseSearchResults(response);
+          setSearchResults(tracks);
         }
 
         setLoading(false);
