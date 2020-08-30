@@ -1,24 +1,6 @@
 import { getAccessToken } from "./api.js";
 import Bowser from "bowser";
 
-var device;
-
-export const addSDKScript = () => {
-  const webSDK = document.createElement("script");
-  webSDK.setAttribute("src", "https://sdk.scdn.co/spotify-player.js");
-
-  const onReady = document.createElement("script");
-  const inline = document.createTextNode(`
-    window.onSpotifyWebPlaybackSDKReady = () => {
-      window.Spotify = Spotify; // makes sure that this is viewable to React
-    }
-  `)
-
-  onReady.appendChild(inline);
-  document.body.appendChild(onReady);
-  document.body.appendChild(webSDK);
-};
-
 export const isPlaybackCapable = () => {
   const browser = Bowser.getParser(window.navigator.userAgent);
   const supported = browser.satisfies({
@@ -46,6 +28,26 @@ export const isPlaybackCapable = () => {
   return supported
 };
 
+export const addSDKScript = () => {
+  const webSDK = document.createElement("script");
+  webSDK.setAttribute("src", "https://sdk.scdn.co/spotify-player.js");
+  document.body.appendChild(webSDK);
+};
+
+export const initPlayer = () => {
+  return new Promise(resolve => {
+    window.onSpotifyWebPlaybackSDKReady = async () => { // adds a callback function to window that fires when the SDK is ready
+      const player = createPlayer();
+      await player.connect();
+      createErrorHandlers(player);
+
+      const device = await getDevice(player);
+      const playerData = { device: device, player: player }
+      resolve(playerData);
+    };
+  });
+};
+
 const createErrorHandlers = (player) => {
   player.on("initialization_error", (e) => {
     console.log(e);
@@ -64,16 +66,16 @@ const createErrorHandlers = (player) => {
 const getDevice = (player) => {
   return new Promise(resolve => {
     player.addListener("ready", ({ device_id }) => {
-      device = {
+      const device = {
         id: device_id,
         name: "Browser Playback"
       }
       resolve(device);
     });
-  })
+  });
 }
 
-const insertPlayer = () => {
+const createPlayer = () => {
   const player = new window.Spotify.Player({
     name: "Duotonic",
     /* this function is run when player.connect() is called */
@@ -82,22 +84,5 @@ const insertPlayer = () => {
     },
   });
 
-  return player;``
-};
-
-export const initPlayer = async () => {
-  return new Promise((resolve) => {
-    const insertPlayerInterval = setInterval(async () => {
-      if (window.Spotify) {
-        const player = await insertPlayer();
-        const device = await getDevice(player);
-        const playerData = { device: device, player: player }
-
-        player.connect();
-        createErrorHandlers(player);
-        clearInterval(insertPlayerInterval);
-        resolve(playerData);
-      }
-    }, 250);
-  });
+  return player;
 };
