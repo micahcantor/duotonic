@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import React, { useState, useEffect, useRef } from "react";
 import SwapIcon from "./swap.jsx";
-import { sendChat, setUsernameInDB, getUsernameFromDB, setSongPosition } from "../api.js";
+import { sendChat, setUsernameInDB, getUsernameFromDB } from "../api.js";
 import "../styles/styles.css";
 const Filter = require('bad-words');
 

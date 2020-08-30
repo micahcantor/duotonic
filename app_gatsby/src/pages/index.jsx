@@ -72,13 +72,10 @@ const App = () => {
 
   /* Fires after the user is authorized, connected to a device, and in a room */
   useEffect(() => {
-
     if (isAuthorized && device && room) {
       initRoomSocket().then(async (msg) => {
-        if (msg !== "error") {
-          const playback = await getCurrentPlaybackState(room);
-          await loadPlaybackLocally(playback);
-        }
+        const playback = await getCurrentPlaybackState(room);
+        await loadPlaybackLocally(playback);
       });
     }
 
@@ -90,6 +87,7 @@ const App = () => {
         setShowModal(true);
         setModalBody(modals.RoomNotFound);
         window.history.pushState(null, null, "/");
+        throw new Error("room-not-found");
       }
       else {
         console.log("connecting to websocket in room", room)
@@ -98,8 +96,6 @@ const App = () => {
         client.subscribe(`/rooms/playback/${room}`, handleRoomPlaybackUpdate);
         setWSClient(client);
       }
-  
-      return msg;
     }
 
     async function loadPlaybackLocally(playback) {
@@ -117,6 +113,8 @@ const App = () => {
       updateSongs([...queue]);
     }
 
+    /* Function that fires whenever the user receives a web socket message
+    Updates the local state and the user's spotify playback with relevant info */
     async function handleRoomPlaybackUpdate({ updated, type }) {
       console.log(updated, type);
       switch(type) {
@@ -161,7 +159,7 @@ const App = () => {
         default: break;
       }
     }
-  }, [isAuthorized, device, room, history]);
+  }, [isAuthorized, device, room]);
 
   const setupWebPlayer = async () => {
     addSDKScript();
@@ -195,8 +193,6 @@ const App = () => {
     }, almost_one_hour);
   }
 
-  /* Function that fires whenever the user receives a web socket message
-    Updates the local state and the user's spotify playback with relevant info */
   return (
     <>
       <SEO title="App" />

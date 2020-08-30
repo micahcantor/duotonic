@@ -27,7 +27,7 @@ const Player = ( { songInQueue, isPaused, songs, history, room, device, playback
     setIsPaused(isPaused => !isPaused);
 
     if (isPaused && !songStarted && songInQueue) {
-      await startSong(device.id, songs[0].uri, room, true);
+      await startSong(device.id, songs[0], room, true);
     } else if (isPaused && songStarted && songInQueue) {
       await resumeSong(device.id, room, true);
     } else if (songInQueue) {

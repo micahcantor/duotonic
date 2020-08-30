@@ -40,12 +40,12 @@ export const ProgressBar = ({ seekElapsed, songs, runtime, isPaused, deviceID, r
     }
   }, [elapsed, isPaused, progressActive, runtimeMS, progressIntervalID, onProgressComplete])
 
-  /* Fires when the queue has been updated (song skip) -- resets progress bar values to their initial state */
+  /* Fires when the first song in queue has been updated (song skip) -- resets progress bar values to their initial state */
   useEffect(() => {
     setElapsed(0);
     setRuntimeMS(parseFloat(runtime) / 1000);
     setProgressActive(false);
-  }, [songs, runtime])
+  }, [songs[0], runtime])
 
   /* Fires when the progress bar has been changed by another user in the room */
   useEffect(() => {
