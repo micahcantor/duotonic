@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import React, { useState, useEffect } from "react";
 import "../styles/styles.css";
-import SEO from "../components/seo"
+import SEO from "../components/seo.jsx"
 
 import SearchBar from "../components/searchbar.jsx";
 import Player from "../components/player.jsx";
@@ -9,7 +9,7 @@ import Queue from "../components/queue.jsx";
 import Chat from "../components/chat.jsx";
 import Header from "../components/header.jsx";
 import { Modal, modals } from "../components/modal.jsx"
-import { addToQueue, startSong, pauseSong, resumeSong, nextSong, previousSong, getDevices, getAccessToken, enterRoom, setSongPosition, updateHistoryInRoom, getRoomPlayback } from "../api.js"
+import { addToQueue, startSong, pauseSong, resumeSong, nextSong, previousSong, getDevices, getAccessToken, enterRoom, setSongPosition, getCurrentPlaybackState } from "../api.js"
 import { addSDKScript, isPlaybackCapable, initPlayer } from "../web_playback.js";
 const Nes = require("@hapi/nes/lib/client")
 
@@ -67,8 +67,8 @@ const App = () => {
     if (isAuthorized && device && room) {
       initRoomSocket().then(async (msg) => {
         if (msg !== "error") {
-          //const playback = await getRoomPlayback(room);
-          //await initRoomPlayback(playback);
+          const playback = await getCurrentPlaybackState(room);
+          await loadPlaybackLocally(playback);
         }
       });
     }
@@ -126,10 +126,10 @@ const App = () => {
     return msg;
   }
 
-  const initRoomPlayback = async (playback) => {
+  const loadPlaybackLocally = async (playback) => {
     const {isPaused, position_ms, queue, history, current_song} = playback;
     queue.forEach(async (song) => await addToQueue(device.id, song, room, false));
-    if (Object.keys(current_song).length !== 0) {
+    if (current_song && Object.keys(current_song).length !== 0) {
       await startSong(device.id, current_song, room, false);
       await setSongPosition(device.id, position_ms, room, false);
       setSeekUpdateElapsed(position_ms);
@@ -175,7 +175,11 @@ const App = () => {
         break;
       case 'previous':
         await previousSong(device.id, updated.current_song, room, false);
-        updateSongs(songs => [history[history.length - 1], ...songs]);
+        updateSongs(songs => {
+          const updated = [...songs];
+          updated[0] = history[history.length - 1];
+          return updated;
+        });
         setIsPaused(false);
         break;
       case 'queue':
@@ -183,8 +187,9 @@ const App = () => {
         updateSongs(songs => songs.concat(updated.current_song));
         break;
       case 'seek':
-        await setSongPosition(device.id, updated.position_ms, room, false);
-        setSeekUpdateElapsed(updated.position_ms);
+        const position = parseInt(updated.position_ms);
+        await setSongPosition(device.id, position, room, false);
+        setSeekUpdateElapsed(position / 1000);
         break;
       default: break;
     }
