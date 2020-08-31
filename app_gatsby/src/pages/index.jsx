@@ -8,6 +8,7 @@ import Player from "../components/player.jsx";
 import Queue from "../components/queue.jsx";
 import Chat from "../components/chat.jsx";
 import Header from "../components/header.jsx";
+import Banner from "../components/banner.jsx";
 import { Modal, modals } from "../components/modal.jsx"
 import { addToQueue, startSong, pauseSong, resumeSong, nextSong, previousSong, getDevices, getAccessToken, enterRoom, setSongPosition, getCurrentPlaybackState } from "../api.js"
 import { addSDKScript, isPlaybackCapable, initPlayer } from "../web_playback.js";
@@ -47,6 +48,7 @@ const App = () => {
   const { songs, history, isPaused } = state;
 
   const [isAuthorized, setIsAuthorized] = useState(false);
+  const [showCookieBanner, setShowCookieBanner] = useState(true);
   const [playbackCapable, setPlaybackCapable] = useState(true);
 
   const [signInLink, setSignInLink] = useState(null);
@@ -67,7 +69,8 @@ const App = () => {
   /* Initialization function that fires on mount
     If the user is signed in, sets up the approproiate device connection, otherwise prompts them to log in */
   useEffect(() => {
-    const isAuthorized = document.cookie === "isAuthorized=true";
+    const isAuthorized = document.cookie.includes("isAuthorized=true");
+    const showCookieBanner = !document.cookie.includes("showCookieBanner=false");
     const playbackCapable = isPlaybackCapable();
     const queryParams = new URLSearchParams(window.location.search);
     const room = queryParams.get("room");
@@ -85,6 +88,7 @@ const App = () => {
     }
 
     startRefreshTimer();
+    setShowCookieBanner(showCookieBanner);
     setIsAuthorized(isAuthorized);
     setPlaybackCapable(playbackCapable);
     setRoom(room);
@@ -225,10 +229,14 @@ const App = () => {
         <Header device={device} deviceSearching={deviceSearching} signInLink={signInLink} room={room} setRoom={setRoom}/>
         <div className="container flex flex-col flex-grow mx-auto my-4 px-5 overflow-y-auto h-full scrollbar" style={{height: '85%'}}>
           <SearchBar songs={songs} room={room} device={device} dispatch={dispatch} />
-          <div className="flex h-full ">
+          <div className="flex h-full">
               <Queue songs={songs} setQueueVisible={setQueueVisible} queueVisible={queueVisible}/>
               <Chat room={room} client={WSClient} setQueueVisible={setQueueVisible} queueVisible={queueVisible} authorized={isAuthorized}/>
           </div>
+          {showCookieBanner 
+            ? <div className="pt-4 mx-auto"><Banner setShowCookieBanner={setShowCookieBanner}/></div>
+            : null
+          }
         </div>
         <Player songInQueue={songInQueue} isPaused={isPaused} songs={songs} history={history} room={room} device={device} dispatch={dispatch}
           playbackCapable={playbackCapable} seekElapsed={seekUpdateElapsed}/>
