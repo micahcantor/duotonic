@@ -5,22 +5,22 @@ import { ChatExample } from "./ChatExample"
 
 export const Hero = ({ data }) => {
   return (
-    <section className="flex flex-col md:flex-row w-full mx-auto mt-5">
-      <div className="flex flex-col w-full md:w-1/2 mt-1 px-4 md:px-none space-y-6">
-        <span className="leading-tight text-4xl md:text-6xl font-extrabold">
+    <section className="flex flex-col lg:flex-row w-full mx-auto mt-5">
+      <div className="flex flex-col w-full lg:w-1/2 mt-1 px-4 lg:px-none space-y-6">
+        <span className="leading-tight text-4xl lg:text-6xl font-extrabold">
           Listen to Spotify <span className="text-primary">together.</span>
         </span>
-        <span className="text-xl md:text-2xl">
+        <span className="text-xl lg:text-2xl">
           Share your music and chat simultaneously with a friend or stranger.
         </span>
         <div></div>
         <a className="text-2xl font-semibold inline-block text-center rounded bg-primary hover:bg-primaryDark text-bgColor p-4"
           href="http://localhost:8080"> Start Listening
         </a>
-        <span className="text-sm md:text-normal mx-auto">Only available for Spotify Premium members</span>
+        <span className="text-sm lg:text-normal mx-auto">Only available for Spotify Premium members</span>
       </div>
-      <div className="w-full md:w-1/2 flex-none">
-        <Img className="object-cover mt-4 md:mt-none md:-mt-6 md:mb-2" fadeIn={false} fluid={data.dancingDoodle.childImageSharp.fluid}></Img>
+      <div className="w-full mx-auto md:w-2/3 lg:w-1/2 flex-none">
+        <Img className="object-cover mt-4 lg:mt-none lg:-mt-6 lg:mb-2" fadeIn={false} fluid={data.dancingDoodle.childImageSharp.fluid}></Img>
       </div>
     </section>
   )
@@ -51,7 +51,7 @@ export const Chat = ({ data }) => {
       <div className="flex flex-col md:flex-row justify-between space-y-4 md:space-y-none container mx-auto mt-3 mb-3 h-full">
         <div className="w-full md:w-1/2 space-y-2">
           <span className="text-3xl font-bold mb-1">Group Chat</span>
-          <p className="text-2xl">
+          <p className="text-2xl mr-2">
             Discuss your favorite music, find new favorites, or just chat for fun — all in real time, directly in the site.
           </p>
           <div className="mx-auto md:pt-4 md:pr-8">

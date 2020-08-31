@@ -40,7 +40,7 @@ export const ChatExample = () => {
   }
 
   return (
-    <div className="bg-bgDark rounded border-4 border-textColor h-full">
+    <div className="rounded border-4 border-textColor h-full">
       <div id="title" className="flex items-center justify-between relative border-b-2 border-textColor">
         <span className="text-lg uppercase tracking-wider font-mono p-3"> Chat </span>
       </div>
@@ -86,7 +86,7 @@ const ChatInput = ({ onChange, onSubmit }) => {
     <div id="input">
       <form autoComplete="off" onSubmit={onSubmit} className="px-4 mb-3 mx-auto">
           <div className="relative w-full">
-              <input id="chat-input" onChange={onChange} type="text" placeholder="Send a message" className="text-black placeholder-black transition-colors duration-200 ease-in-out bg-gray-200 appearance-none border-2 border-textColor rounded h-8 w-full px-2 leading-tight focus:outline-none hover:bg-white focus:border-primary" />
+              <input id="chat-input" onChange={onChange} type="text" placeholder="Send a message" className="text-black placeholder-black transition-colors duration-200 ease-in-out appearance-none border-2 border-textColor rounded h-8 w-full px-2 leading-tight focus:outline-none hover:bg-bgDark focus:border-primary" />
               <button type="button" className="absolute right-0 text-black mt-1">
                   <svg className="fill-current mr-2 hover:text-customgreen" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
                   <path d="M0 0h24v24H0z" fill="none"></path>

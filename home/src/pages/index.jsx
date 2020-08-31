@@ -11,7 +11,7 @@ const IndexPage = ({ data }) => {
     <>
       <SEO title="Home"/>
       <div className="bg-bgDark text-textColor flex flex-col">
-        <div className="container w-full h-full mx-auto pb-8">
+        <div className="container w-full h-full mx-auto md:px-4 pb-8">
           <Header showButton={true}/>
           <main className="flex flex-col flex-grow items-center w-full divide-textColor divide-y-8 space-y-6 md:space-y-8 pb-8 overflow-hidden">
             <Hero data={data}/>

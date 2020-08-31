@@ -32,10 +32,6 @@ th {
     @apply border-textColor;
 }
 
-tr {
-    @apply bg-bgColor;
-}
-
 td {
     @apply border;
     @apply border-textColor;
