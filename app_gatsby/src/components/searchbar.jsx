@@ -5,7 +5,7 @@ import ScaleLoader from "react-spinners/ScaleLoader";
 import { searchSpotify, startSong, addToQueue } from "../api.js";
 import "../styles/styles.css";
 
-const SearchBar = ({ songs, device, room, updateSongs, setIsPaused}) => {
+const SearchBar = ({ songs, device, room, dispatch }) => {
   
   const [searchResults, setSearchResults] = useState([]);
   const [showResults, setShowResults] = useState(false);
@@ -81,14 +81,14 @@ const SearchBar = ({ songs, device, room, updateSongs, setIsPaused}) => {
     // spotify automatically adds the first song played to the queue
     if (songs.length === 0) {
       await startSong(device.id, newQueueItem, room, true);
-      setIsPaused(false);
+      dispatch({ type: 'update-paused', isPaused: false });
     }
     else {
       await addToQueue(device.id, newQueueItem, room, true);
     }
 
     // update songs state afterwards to avoid stale state issues
-    updateSongs(songs => songs.concat(newQueueItem));
+    dispatch({type: 'add-song', song: newQueueItem })
   };
 
   return (

@@ -8,8 +8,8 @@ import "../styles/slider_styles.css";
 import { startSong, resumeSong, pauseSong, previousSong, nextSong, updateHistoryInRoom, setVolume } from "../api";
 import { ProgressBar } from "./progress_bar.jsx";
 
-const Player = ( { songInQueue, isPaused, songs, history, room, device, playbackCapable, updateSongs, 
-  seekElapsed, setIsPaused, setHistory, onProgressComplete } ) => {
+const Player = ( { songInQueue, isPaused, songs, history, room, device, playbackCapable, 
+  seekElapsed, dispatch } ) => {
 
   const [runtime, setRuntime] = useState(null);
   const [songStarted, setSongStarted] = useState(false);
@@ -24,7 +24,7 @@ const Player = ( { songInQueue, isPaused, songs, history, room, device, playback
   }, [songs]);
 
   const handlePauseChange = async () => {
-    setIsPaused(isPaused => !isPaused);
+    dispatch({ type: 'flip-paused' });
 
     if (isPaused && !songStarted && songInQueue) {
       await startSong(device.id, songs[0], room, true);
@@ -40,12 +40,8 @@ const Player = ( { songInQueue, isPaused, songs, history, room, device, playback
   const onLeftSkip = async () => {
     if (history.length > 0) {
       await previousSong(device.id, room); // asks Spotify to play the previous song
-      updateSongs(songs => {
-        const updated = [...songs];
-        updated[0] = history[history.length - 1];
-        return updated;
-      });
-      setIsPaused(false);
+      dispatch({ type: 'previous-song' });
+      dispatch({ type: 'update-paused', isPaused: false });
     }
   }
 
@@ -56,9 +52,9 @@ const Player = ( { songInQueue, isPaused, songs, history, room, device, playback
     console.log('next song from button press');
     await nextSong(device.id, songs[1], room, true); // moves to the next song in spotify queue
 
-    setHistory(history => [...history, songs[0]]); // add the skipped song to the local history
-    updateSongs(songs => songs.filter((s, i) => i > 0)); // removes the first song from the queue list and returns the new list
-    setIsPaused(false);
+    dispatch({ type: 'add-to-history', song: songs[0] }); // add the skipped song to the local history
+    dispatch({ type: 'next-song' }); // removes the first song from the queue list and returns the new list
+    dispatch({ type: 'update-paused', isPaused: false });
   }
 
   const onVolumeMouseUp = async (e) => {
@@ -83,7 +79,7 @@ const Player = ( { songInQueue, isPaused, songs, history, room, device, playback
       </div>
       {songInQueue
         ? <ProgressBar songs={songs} isPaused={isPaused} runtime={runtime} seekElapsed={seekElapsed}
-          deviceID={device ? device.id : ""} room={room} setHistory={setHistory} updateSongs={updateSongs}/>
+          deviceID={device ? device.id : ""} room={room} dispatch={dispatch}/>
         : null
       }
     </div>

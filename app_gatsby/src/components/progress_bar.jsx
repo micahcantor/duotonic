@@ -3,7 +3,7 @@ import "../styles/styles.css"
 import { SliderInput, SliderTrack, SliderTrackHighlight, SliderHandle } from "@reach/slider";
 import { setSongPosition, updateHistoryInRoom } from "../api";
 
-export const ProgressBar = ({ seekElapsed, songs, runtime, isPaused, deviceID, room, setHistory, updateSongs }) => {
+export const ProgressBar = ({ seekElapsed, songs, runtime, isPaused, deviceID, room, dispatch }) => {
 
   const [elapsed, setElapsed] = useState(0);
   const [runtimeMS, setRuntimeMS] = useState(null);
@@ -15,9 +15,9 @@ export const ProgressBar = ({ seekElapsed, songs, runtime, isPaused, deviceID, r
     if (room && room !== "") {
       updateHistoryInRoom(songs[0], room);
     }
-    setHistory(history => [...history, songs[0]]);
-    updateSongs(songs => songs.filter((s, i) => i > 0));
-  }, [room, songs, setHistory, updateSongs]);
+    dispatch({ type: 'add-to-history', song: songs[0] });
+    dispatch({ type: 'next-song' });
+  }, [room, songs, dispatch]);
 
   useEffect(() => {
     if (elapsed === runtimeMS && progressIntervalID) {
