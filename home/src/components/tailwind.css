@@ -1,3 +1,44 @@
 @tailwind base; 
 @tailwind components; 
 @tailwind utilities;
+
+h1 {
+    @apply text-2xl;
+}
+
+h2 {
+    @apply text-xl;
+    @apply py-2;
+}
+
+h3 {
+    @apply text-lg;
+}
+
+p {
+    @apply py-2;
+}
+
+table {
+    @apply table-auto;
+    @apply border;
+    @apply border-textColor;
+}
+
+th {
+    @apply px-4;
+    @apply py-2;
+    @apply border;
+    @apply border-textColor;
+}
+
+tr {
+    @apply bg-bgColor;
+}
+
+td {
+    @apply border;
+    @apply border-textColor;
+    @apply px-4;
+    @apply py-2;
+}
