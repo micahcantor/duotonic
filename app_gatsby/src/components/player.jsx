@@ -24,7 +24,7 @@ const Player = ( { songInQueue, isPaused, songs, history, room, device, playback
   }, [songs]);
 
   const handlePauseChange = async () => {
-    dispatch({ type: 'flip-paused' });
+    dispatch({ type: 'flip-pause' });
 
     if (isPaused && !songStarted && songInQueue) {
       await startSong(device.id, songs[0], room, true);
@@ -41,7 +41,7 @@ const Player = ( { songInQueue, isPaused, songs, history, room, device, playback
     if (history.length > 0) {
       await previousSong(device.id, room); // asks Spotify to play the previous song
       dispatch({ type: 'previous-song' });
-      dispatch({ type: 'update-paused', isPaused: false });
+      dispatch({ type: 'pause-update', isPaused: false });
     }
   }
 
@@ -54,7 +54,7 @@ const Player = ( { songInQueue, isPaused, songs, history, room, device, playback
 
     dispatch({ type: 'add-to-history', song: songs[0] }); // add the skipped song to the local history
     dispatch({ type: 'next-song' }); // removes the first song from the queue list and returns the new list
-    dispatch({ type: 'update-paused', isPaused: false });
+    dispatch({ type: 'pause-update', isPaused: false });
   }
 
   const onVolumeMouseUp = async (e) => {

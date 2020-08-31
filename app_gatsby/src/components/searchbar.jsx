@@ -81,7 +81,7 @@ const SearchBar = ({ songs, device, room, dispatch }) => {
     // spotify automatically adds the first song played to the queue
     if (songs.length === 0) {
       await startSong(device.id, newQueueItem, room, true);
-      dispatch({ type: 'update-paused', isPaused: false });
+      dispatch({ type: 'pause-update', isPaused: false });
     }
     else {
       await addToQueue(device.id, newQueueItem, room, true);
