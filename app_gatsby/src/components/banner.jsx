@@ -1,11 +1,12 @@
 import React from "react"
 import "../styles/styles.css"
+import { setCookieBannerCookie } from "../api.js";
 
 export default function Banner({ setShowCookieBanner }) {
     
-    function onClick() {
-        document.cookie = "showCookieBanner=false";
+    async function onClick() {
         setShowCookieBanner(false);
+        await setCookieBannerCookie();
     }
 
     return (
