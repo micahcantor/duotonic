@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import "../styles/styles.css"
 import { SliderInput, SliderTrack, SliderTrackHighlight, SliderHandle } from "@reach/slider";
-import { setSongPosition } from "../api";
+import { setSongPosition, updateHistoryInRoom } from "../api";
 
-export const ProgressBar = ({ seekElapsed, song, runtime, isPaused, deviceID, room, onProgressComplete }) => {
+export const ProgressBar = ({ seekElapsed, songs, runtime, isPaused, deviceID, room, dispatch }) => {
 
   const [elapsed, setElapsed] = useState(0);
   const [runtimeMS, setRuntimeMS] = useState(null);
@@ -11,15 +11,16 @@ export const ProgressBar = ({ seekElapsed, song, runtime, isPaused, deviceID, ro
   const [progressActive, setProgressActive] = useState(false);
   const [progressIntervalID, setProgressIntervalID] = useState(null);
 
-  useEffect(() => {
-    clearInterval(progressIntervalID);
-    setElapsed(0);
-    setRuntimeMS(parseFloat(runtime) / 1000);
-    setProgressActive(false);
-  }, [song, runtime])
+  const onProgressComplete = useCallback(() => {
+    if (room && room !== "") {
+      updateHistoryInRoom(songs[0], room);
+    }
+    dispatch({ type: 'add-to-history', song: songs[0] });
+    dispatch({ type: 'next-song' });
+  }, [room, songs, dispatch]);
 
   useEffect(() => {
-    if (elapsed === runtimeMS) {
+    if (elapsed === runtimeMS && progressIntervalID) {
       clearInterval(progressIntervalID);
       setElapsed(0);
       setProgressActive(false);
@@ -37,16 +38,27 @@ export const ProgressBar = ({ seekElapsed, song, runtime, isPaused, deviceID, ro
       setProgressActive(false);
       clearInterval(progressIntervalID);
     }
-  }, [elapsed, isPaused, progressActive, runtimeMS])
+  }, [elapsed, isPaused, progressActive, runtimeMS, progressIntervalID, onProgressComplete])
 
+  /* Fires when the first song in queue has been updated (song skip) -- resets progress bar values to their initial state */
+  useEffect(() => {
+    setElapsed(0);
+    setRuntimeMS(parseFloat(runtime) / 1000);
+    setProgressActive(false);
+  }, [songs[0], runtime])
+
+  /* Fires when the progress bar has been changed by another user in the room */
   useEffect(() => {
     setElapsed(seekElapsed);
-    console.log('seek update')
   }, [seekElapsed])
 
+  /* Clean up function that clears timers on dismount */
   useEffect(() => {
-    return () => clearTimeout(timeoutID);
-  }, [timeoutID])
+    return () => {
+      clearTimeout(timeoutID);
+      clearInterval(progressIntervalID);
+    }
+  }, [timeoutID, progressIntervalID])
 
   const onChange = (newValue) => {
     setElapsed(newValue); // visually update the elapsed state immediately
@@ -63,10 +75,10 @@ export const ProgressBar = ({ seekElapsed, song, runtime, isPaused, deviceID, ro
   }
 
   return (
-    <SliderInput className="w-full mb-3" min={0} max={runtimeMS} value={elapsed} onChange={onChange}>
+    <SliderInput className="w-full pb-6 mb-1 md:mb-0" min={0} max={runtimeMS} value={elapsed} onChange={onChange}>
       <SliderTrack>
         <SliderTrackHighlight />
-        <SliderHandle className="w-3 h-3 hover:bg-customgreen hover:border-customgreen focus:bg-customgreen focus:border-customgreen" />
+        <SliderHandle className="w-3 h-3 hover:bg-primary hover:border-primary focus:bg-primary focus:border-primary" />
       </SliderTrack>
     </SliderInput>
   );

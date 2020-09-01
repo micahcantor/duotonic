@@ -1,12 +1,14 @@
 module.exports = {
-    purge: [],
+    purge: {
+        enabled: false
+    },
     theme: {
         extend: {
             colors: {
-                customgreen: '#1DB954',
-                background: '#f5f5f5',
-                backgroundDark: '#ebebeb',
-                text: '#2b2c34',
+                primary: '#6246ea',
+                bgColor: '#202026',
+                bgDark: '#2a2b32',
+                text: '#f5f5f5',
             },
             width: {
                 '9/10': '90%'

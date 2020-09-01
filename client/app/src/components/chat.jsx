@@ -1,12 +1,11 @@
 /* eslint-disable react/prop-types */
 import React, { useState, useEffect, useRef } from "react";
-const Filter = require('bad-words');
-const filter = new Filter();
 import SwapIcon from "./swap.jsx";
 import { sendChat, setUsernameInDB, getUsernameFromDB } from "../api.js";
 import "../styles/styles.css";
+const Filter = require('bad-words');
 
-const Chat = ({ room, client, onSwapClick, queueVisible, authorized}) => {
+const Chat = ({ room, client, setQueueVisible, queueVisible, authorized}) => {
 
   const [messages, setMessages] = useState([]);
   const [username, setUsername] = useState("");
@@ -30,11 +29,11 @@ const Chat = ({ room, client, onSwapClick, queueVisible, authorized}) => {
     if (room && client) {
       client.subscribe(`/rooms/chat/${room}`, (update) => {
         if (update.type === 'chat') {
-          setMessages([...messages, update.updated]);
+          setMessages(messages => [...messages, update.updated]);
         }
       });
     }
-  }, [client])
+  }, [client, room])
 
   useEffect(() => {
     if (messagesBottom.current) {
@@ -74,6 +73,8 @@ const Chat = ({ room, client, onSwapClick, queueVisible, authorized}) => {
   const handleUsernameSubmit = (e) => {
     e.preventDefault();
 
+    const filter = new Filter();
+
     if (filter.isProfane(usernameVal)) {
       setErrorMessage("Hey! Be nice.");
       setErrorVisible(true);
@@ -98,10 +99,10 @@ const Chat = ({ room, client, onSwapClick, queueVisible, authorized}) => {
   }
   
   return (
-    <div id="chat" className={`${queueVisible ? "hidden" : "flex"} md:flex flex-col bg-gray-800 rounded shadow-lg w-full h-full`}>
-      <div id="title" className="flex items-center justify-between relative border-b-2 border-gray-500">
+    <div id="chat" className={`${queueVisible ? "hidden" : "flex"} md:flex flex-col bg-bgDark rounded shadow-lg w-full h-full`}>
+      <div id="title" className="flex items-center justify-between relative border-b-2 border-text">
         <span className="text-lg uppercase tracking-wider font-mono p-3"> Chat </span>
-        <SwapIcon onClick={onSwapClick} />
+        <SwapIcon queueVisible={queueVisible} setQueueVisible={setQueueVisible} />
       </div>
       <div id="messages" className="flex-grow w-full h-full overflow-y-auto scrollbar">
         <MessageList messages={messages} messagesBottom={messagesBottom}/>
@@ -135,7 +136,8 @@ const ChatInput = ({ onChange, onSubmit }) => {
     <form autoComplete="off" onSubmit={handleSubmit} className="px-4 mb-3 mx-auto">
       <div className="relative w-full">
         <input id="chat-input" type="text" onChange={handleChange} placeholder="Send a message"
-          className="text-black placeholder-black transition-colors duration-200 ease-in-out bg-gray-200 appearance-none border-2 border-transparent rounded h-8 w-full px-2 leading-tight focus:outline-none hover:bg-white focus:border-green-400"      
+          className="text-black placeholder-black transition-colors duration-200 ease-in-out bg-text appearance-none border-2 
+          border-transparent rounded h-8 w-full px-2 leading-tight focus:outline-none hover:bg-gray-200 focus:border-primary"      
         />
         <SendButton />
       </div>
@@ -147,7 +149,7 @@ const SendButton = () => {
 
   return (
     <button type="button" className="absolute right-0 text-black mt-1">
-      <svg className="fill-current mr-2 hover:text-customgreen" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
+      <svg className="fill-current mr-2 hover:text-primary" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
         <path d="M0 0h24v24H0z" fill="none" />
         <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
       </svg>
@@ -171,19 +173,20 @@ const MessageList = ({ messages, messagesBottom }) => {
 const Message = ({ user, time, messageString }) => {
 
   return (
-    <div className="flex flex-col mx-1 p-2 rounded hover:bg-gray-900">
+    <div className="flex flex-col mx-1 p-2 rounded hover:bg-bgColor">
       <div className="flex items-center">
-        <span className="font-bold"> {user}</span>
-        <span className="ml-1 text-sm text-gray-400"> {time} </span>
+        <span className="font-bold">{user}</span>
+        <span className="ml-1 text-sm text-textColor">{time}</span>
       </div>
-      <p className="font-sans"> {messageString} </p>
+      <p className="font-sans">{messageString}</p>
     </div>
   );
 };
 
 const ChatStatus = ({ username, onClick }) => {
   return (
-    <div className="flex self-end mt-1 mr-4 p-2 bg-gray-900 rounded border-2 border-transparent focus:border-customgreen hover:border-customgreen items-center space-x-1">
+    <div className="flex self-end mt-1 mr-4 p-2 bg-bgColor rounded border-2 border-transparent 
+      focus:border-primary hover:border-primary items-center space-x-1">
       <button onClick={onClick}>
         <span className="font-semibold"> {username} </span>
       </button>
@@ -202,12 +205,12 @@ const UsernameEntry = ( { onSubmit, onChange }) => {
   }
 
   return (
-    <div className="h-full flex items-center justify-center space-x-2 px-4 py-2 border-t-2 border-gray-500">
+    <div className="h-full flex items-center justify-center space-x-2 px-4 py-2 border-t-2 border-text">
         <p className="inline text-lg md:text-xl font-semibold">Enter a username: </p>
         <form autoComplete="off" onSubmit={handleSubmit} className="flex-grow">
           <input id="chat-input" type="text" onChange={handleChange}
-              className="text-black placeholder-black transition-colors duration-200 ease-in-out bg-gray-200 appearance-none 
-              border-2 border-transparent rounded h-8 w-full px-2 leading-tight focus:outline-none hover:bg-white focus:border-green-400"      
+              className="text-black placeholder-black transition-colors duration-200 ease-in-out bg-text appearance-none 
+              border-2 border-transparent rounded h-8 w-full px-2 leading-tight focus:outline-none hover:bg-gray-200 focus:border-primary"      
           />
         </form>
     </div>
