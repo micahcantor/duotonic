@@ -1,0 +1,19 @@
+{
+    "env": {
+        "commonjs": true,
+        "es6": true,
+        "node": true
+    },
+    "plugins": [
+        "@hapi/eslint-plugin-hapi"
+    ],
+    "extends": "@hapi/eslint-config-hapi",
+    "globals": {
+        "Atomics": "readonly",
+        "SharedArrayBuffer": "readonly"
+    },
+    "parserOptions": {
+        "ecmaVersion": 11
+    },
+    "rules": {}
+}
