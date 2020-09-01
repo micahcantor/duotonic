@@ -32,7 +32,7 @@ export const Sync = ({ data }) => {
       <div className="flex flex-col md:flex-row justify-between space-y-4 md:space-y-none container mx-auto mt-3 mb-3">
         <div className="w-full md:w-1/2 space-y-2">
           <span className="text-3xl font-bold mb-1">Stay in Sync</span>
-          <p className="text-2xl">
+          <p className="text-2xl mr-2">
             When you add a track or update the playback on your device, Duotonic updates for
             everyone in your lobby, so you never get out of sync.
           </p>
@@ -72,7 +72,7 @@ export const Pairing = ({ data }) => {
       <div className="flex flex-col md:flex-row justify-between space-y-4 md:space-y-none container mx-auto mt-3 mb-3 h-full">
         <div className="w-full md:w-1/2 space-y-2">
           <span className="text-3xl font-bold mb-1">Listen with a friend or stranger</span>
-          <p className="text-2xl">
+          <p className="text-2xl mr-2">
             Connect with friends, or meet someone new on Duotonic. You can either send a link to a friend, 
             or wait in queue to be paired up with another random listener.
           </p>

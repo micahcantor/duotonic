@@ -37,7 +37,6 @@ module.exports = {
       resolve: `gatsby-plugin-purgecss`,
       options: { 
         tailwind: true,
-        printRejected: true,
         ignore: ['src/styles/modal_styles.css', 'src/styles/slider_styles.css', 'src/styles/tooltip_styles.css']
       },
     },

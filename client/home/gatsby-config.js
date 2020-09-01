@@ -43,7 +43,11 @@ module.exports = {
     },
     {
       resolve: `gatsby-plugin-purgecss`,
-      options: { tailwind: true },
+      options: { 
+        tailwind: true,
+        printRejected: true,
+        ignore: ['src/components/markdown-styles.css'] 
+      },
     },
     // this (optional) plugin enables Progressive Web App + Offline functionality
     // To learn more, visit: https://gatsby.dev/offline

@@ -5,3 +5,4 @@
  */
 
 import "./src/components/tailwind.css"
+import "./src/components/markdown-styles.css"
