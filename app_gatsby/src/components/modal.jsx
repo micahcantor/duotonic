@@ -5,12 +5,12 @@ import { Dialog } from "@reach/dialog";
 import "../styles/modal_styles.css";
 import ScaleLoader from "react-spinners/ScaleLoader";
 
-export const Modal = ({showDialog, close, body, mobile, loading, deviceName, apiLink, shareURL, partnerSearching}) => {
+export const Modal = ({showDialog, close, body, mobile, loading, deviceName, signInLink, setSignInLink, shareURL, partnerSearching}) => {
   const className = mobile ? "w-full h-full text-left" : "inline-block text-center mt-64 rounded h-auto";
   var modalBody;
   switch(body) {
     case modals.SignIn:
-      modalBody = <SignIn apiLink={apiLink} />;
+      modalBody = <SignIn signInLink={signInLink} setSignInLink={setSignInLink}/>;
       break;
     case modals.DeviceSearch:
       modalBody = <DeviceSearch loading={loading} deviceName={deviceName} />;
@@ -89,14 +89,33 @@ export const FindRandom = ({ loading }) => {
   );
 };
 
-export const SignIn = ({ apiLink }) => {
+export const SignIn = ({ signInLink, setSignInLink }) => {
+
+  function onChange(e) {
+    const rememberMe = e.target.value ? "&remember=true" : "";
+    setSignInLink(link => link + rememberMe);
+  }
+
   return (
-    <div className="flex flex-col text-2xl space-y-2 -mt-2">
+    <div className="flex flex-col text-2xl space-y-2 justify-center">
       <span className="uppercase font-mono border-b-2 border-text text-left"> Sign In</span>
-      <span>Looks like you haven't connected Duotonic to Spotify yet. Click below to sign in.</span>
-      <span className="text-xl text-textColor pb-2">Only available for Spotify Premium users</span>
-      <div className="inline-block self-center rounded bg-primary text-textColor px-6 pt-1">
-        <a href={apiLink}> Sign in with Spotify</a>
+      <span className="pb-2">Looks like you haven't connected Duotonic to Spotify yet. Click below to sign in.</span>
+      <div className="flex items-center space-x-4 mx-auto">
+        <div className="inline-block self-center rounded bg-primary text-textColor px-6 py-1">
+          <a href={signInLink}> Sign in with Spotify</a>
+        </div>
+        <div className="flex items-center space-x-2">
+          <span className="text-lg">Remember This Device</span>
+          <input name="remember-me" onChange={onChange} type="checkbox"/>
+        </div>
+      </div>
+      <div className="flex flex-col text-lg pt-2">
+        <span className="text-textColor">Only available for Spotify Premium users</span>
+        <span className="text-textColor">By signing in with Spotify, you agree to our {" "}
+          <a className="underline" href="https://duotonic.co/terms">Terms</a> 
+          {" "} and {" "}
+          <a className="underline" href="https://duotonic.co/privacy-policy">{" "} Privacy Policy</a>
+        </span>
       </div>
     </div>
   );
