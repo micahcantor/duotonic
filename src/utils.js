@@ -7,7 +7,6 @@ const filterUpdateMessages = (path, message, options) => {
     /* sends the update only to users in the room that did not send it */
 
     const cookies = cookie.parse(options.socket._cookies);
-    console.log(options.internal.id !== cookies.sessionId)
     if (options.internal) {
         return options.internal.id !== cookies.sessionId;
     }
@@ -94,7 +93,6 @@ const getUpdatedToken = async (db, id) => {
     else {
         const sessionInfo = await db.collection('sessions').findOne({ _id: id });
         token = sessionInfo.auth.artifacts.access_token;
-        console.log('got access token');
     }
 
     return token;
@@ -106,6 +104,7 @@ const updateRoomState = async (db, roomID, request) => {
     switch(request.params.endpoint) {
         case 'me/player/play':
             if (request.payload) {
+                /* starting a song */
                 result = await db.collection('rooms').findOneAndUpdate(
                     { _id: ObjectId(roomID) },
                     { 
@@ -117,6 +116,7 @@ const updateRoomState = async (db, roomID, request) => {
                 type = 'start';
             }
             else {
+                /* resuming a song */
                 result = await db.collection('rooms').findOneAndUpdate(
                     { _id: ObjectId(roomID) },
                     { $set: { 'playback.isPaused': false } }, 
@@ -133,15 +133,25 @@ const updateRoomState = async (db, roomID, request) => {
             );
             type = 'pause';
             break;
-        case 'me/player/next':
+        case 'me/player/next' || 'me/player/previous':
             result = await db.collection('rooms').findOneAndUpdate(
                 { _id: ObjectId(roomID)},
                 { 
                     $pop: { 'playback.queue': -1 }, // removes first element
                     $set: { 'playback.current_song': request.payload, 'playback.isPaused': false },
-                }
+                },
+                { returnOriginal: false }
             );
-            type = 'next';
+            type = request.params.endpoint.split('/')[2];
+            console.log(type)
+            break;
+        case 'me/player/seek':
+            result = await db.collection('rooms').findOneAndUpdate(
+                { _id: ObjectId(roomID) },
+                { $set: { 'playback.position_ms': request.query.position_ms } },
+                { returnOriginal: false }
+            );
+            type = 'seek';
             break;
         case 'me/player/queue':
             result = await db.collection('rooms').findOneAndUpdate(
