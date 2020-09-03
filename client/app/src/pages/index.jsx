@@ -18,13 +18,15 @@ const Nes = require("@hapi/nes/lib/client")
 const initialState = {
   songs: [],
   history: [],
+  isPaused: true,
 }
 
 function reducer(state, action) {
   const { songs, history, isPaused } = state;
   switch(action.type) {
     case 'next-song':
-      return { ...state, songs: songs.filter((s, i) => i > 0)};
+      const isPaused = songs.length === 1; // if this is the last song in queue set isPaused to true
+      return { ...state, isPaused, songs: songs.filter((s, i) => i > 0)};
     case 'previous-song':
       const updated = [...songs];
       updated[0] = history[history.length - 1];
