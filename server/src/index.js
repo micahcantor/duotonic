@@ -23,11 +23,11 @@ const init = async () => {
 
     const db = await LoadDB();
 
-        /* CAREFUL drops db on startup
+    /* CAREFUL drops db on startup
         await db.dropCollection('sessions');
-        await db.dropCollection('rooms'); 
+        await db.dropCollection('rooms');
         */
-    
+
     const server = Hapi.server({
         host: process.env.HOST,
         port: process.env.PORT,
@@ -121,12 +121,12 @@ const init = async () => {
                 if (result) {
                     const userID = result.ops[0]._id.toString();
 
-                    h.state('sessionId', userID, { ttl: ttl });           
-                    h.state('isAuthorized', 'true', { ttl: ttl });
+                    h.state('sessionId', userID, { ttl });
+                    h.state('isAuthorized', 'true', { ttl });
 
                     let roomID = '';
                     if (request.auth.credentials.query.room) {
-                        roomID = `?room=${request.auth.credentials.query.room}`
+                        roomID = `?room=${request.auth.credentials.query.room}`;
                     }
 
                     return h.redirect(`http://localhost:8080/${roomID}`);
@@ -148,19 +148,19 @@ const init = async () => {
 
             try {
                 const userID = ObjectId(request.state.sessionId);
-                const user = db.collection('sessions').findOne({ _id: userID });
+                const user = await db.collection('sessions').findOne({ _id: userID });
                 const SIX_MONTHS_MS = 15552000000;
                 const ttl = user.remember ? SIX_MONTHS_MS : null;
-                h.state('showCookieBanner', 'false', {ttl: ttl});    
+                h.state('showCookieBanner', 'false', { ttl });
             }
-            catch(error) {
+            catch (error) {
                 console.log(error);
                 throw Boom.badImplementation('could not set cookie banner cookie');
             }
 
             return { message: 'success' };
         }
-    })
+    });
 
     server.route({
         method: ['GET'],
@@ -199,7 +199,7 @@ const init = async () => {
                 try {
                     let response;
                     if (request.payload && request.params.endpoint === 'me/player/play') {
-                        const uris = { uris: [request.payload.uri] }; 
+                        const uris = { uris: [request.payload.uri] };
                         response = await requestSpotifyPayload(request.params.endpoint, request.method, uris, request.query, token);
                     }
                     else {
@@ -207,24 +207,25 @@ const init = async () => {
                     }
 
                     if (roomID && roomID !== 'null' && request.query.broadcast === 'true') {
-                        console.log('request to broadcast from', userID, request.params)
+                        console.log('request to broadcast from', userID, request.params);
                         const updated = await updateRoomState(db, roomID, request);
-                        server.publish(`/rooms/playback/${roomID}`, 
-                            { updated: updated.value, type: updated.type }, 
-                            { internal: {id: request.state.sessionId} }
+                        server.publish(`/rooms/playback/${roomID}`,
+                            { updated: updated.value, type: updated.type },
+                            { internal: { id: request.state.sessionId } }
                         );
                     }
                     else if (request.query.broadcast === 'false') {
-                        console.log('update without broadcast from', userID, request.params)
+                        console.log('update without broadcast from', userID, request.params);
                     }
-                    
+
                     if (response) {
-                        return response.data
+                        return response.data;
                     }
-                    else throw Boom.badImplementation('could not handle spotify api request');
+
+                    throw Boom.badImplementation('could not handle spotify api request');
                 }
                 catch (error) {
-                    console.log(error?.response?.data, request.params.endpoint, request?.payload)
+                    console.log(error?.response?.data, request.params.endpoint, request?.payload);
                     throw Boom.badRequest('Third-party API request failed.');
                 }
             }
@@ -302,7 +303,7 @@ const init = async () => {
                 throw Boom.badImplementation('could not find username in database');
             }
         }
-    })
+    });
 
     server.route({
         method: 'PUT',
@@ -319,9 +320,9 @@ const init = async () => {
                     { _id: roomID },
                     { $addToSet: { user_ids: ObjectId(request.state.sessionId) } } // adds user id only if it is not in the room already
                 );
-                server.publish(`/rooms/chat/${roomID}`, 
-                    { message: 'user entered', type: 'enter' }, 
-                    { internal: {id: request.state.sessionId} },
+                server.publish(`/rooms/chat/${roomID}`,
+                    { message: 'user entered', type: 'enter' },
+                    { internal: { id: request.state.sessionId } }
                 );
             }
             catch (error) {
@@ -334,7 +335,7 @@ const init = async () => {
     });
 
     server.route({
-        method: 'PUT', 
+        method: 'PUT',
         path: '/rooms/exit',
         handler: async (request, h) => {
             /* removes user from all rooms they are in
@@ -353,9 +354,9 @@ const init = async () => {
 
                 if (request.query.room !== 'null') {
                     const roomID = ObjectId(request.query.room);
-                    server.publish(`/rooms/chat/${roomID}`, 
-                        { message: 'user exited', type: 'exit' }, 
-                        { internal: {id: request.state.sessionId} },
+                    server.publish(`/rooms/chat/${roomID}`,
+                        { message: 'user exited', type: 'exit' },
+                        { internal: { id: request.state.sessionId } }
                     );
                 }
             }
@@ -372,7 +373,7 @@ const init = async () => {
         method: 'POST',
         path: '/rooms/history',
         handler: async (request, h) => {
-            
+
             if (!request.state.sessionId) {
                 throw Boom.unauthorized('user must be authenticated');
             }
@@ -384,16 +385,16 @@ const init = async () => {
                     { $push: { history: request.payload } }
                 );
 
-                console.log('updating room history for ', roomID)
-            }   
+                console.log('updating room history for ', roomID);
+            }
             catch (error) {
                 console.log(error);
                 throw Boom.badImplementation('unable to update history in room');
             }
-            
+
             return { message: 'success' };
         }
-    })
+    });
 
     server.route({
         method: 'GET',
@@ -415,14 +416,14 @@ const init = async () => {
                     position_ms: 0,
                     queue: [],
                     history: [],
-                    current_song: {},
-                },
+                    current_song: {}
+                }
             });
 
             if (result) {
                 const roomID = result.ops[0]._id.toString();
                 console.log('created new room', roomID);
-                return { room_id: roomID }
+                return { room_id: roomID };
             }
 
             throw Boom.badImplementation();
@@ -437,7 +438,7 @@ const init = async () => {
             if (!request.state.sessionId) {
                 throw Boom.unauthorized('user must be authenticated');
             }
-            
+
             try {
                 const roomID = ObjectId(request.query.room);
                 const result = await db.collection('rooms').findOneAndUpdate(
@@ -447,7 +448,7 @@ const init = async () => {
                 );
                 const messages = result.value.chat;
                 const lastMessage = messages[messages.length - 1];
-                server.publish(`/rooms/chat/${roomID}`, 
+                server.publish(`/rooms/chat/${roomID}`,
                     { updated: lastMessage, type: 'chat' },
                     { internal: { id: request.state.sessionId } }
                 );
@@ -456,10 +457,10 @@ const init = async () => {
                 console.log(error);
                 throw Boom.badImplementation('could not find or update room');
             }
-            
+
             return { message: 'success' };
         }
-    })
+    });
 
     server.route({
         method: 'PUT',
@@ -473,26 +474,28 @@ const init = async () => {
             }
 
             const userID = ObjectId(request.state.sessionId);
-            
+
             // find the first user in queue that is not in the user, and not the last partner the user had
-            const match = await db.collection('sessions').findOne({ 
+            const match = await db.collection('sessions').findOne({
                 in_queue: true,
                 _id: { $ne: userID },
                 last_partner: { $ne: userID }
             });
             // check to see if the user has been added to a room by a match
+            // eslint-disable-next-line consistent-this
             const self = await db.collection('rooms').findOne({
                 user_ids: userID
-            })
+            });
             // return if there are no matches and the requester is not in a room
             if (!match && !self) {
-                return { message: 'no matches' }
+                return { message: 'no matches' };
             }
             // if the requester is in a room, return that room's id
             else if (self) {
                 const selfID = self._id;
-                return { room_id: selfID, message: 'success' }
+                return { room_id: selfID, message: 'success' };
             }
+
             // create a new room with the matched users
             const result = await db.collection('rooms').insertOne({
                 user_ids: [userID, match._id],
@@ -502,29 +505,29 @@ const init = async () => {
                     position_ms: 0,
                     queue: [],
                     history: [],
-                    current_song: {},
-                },
+                    current_song: {}
+                }
             });
             // set in_queue to false and last partner to each other for the matched users
-            console.log("matched user ID: ", match._id)
+            console.log('matched user ID: ', match._id);
             await db.collection('sessions').updateOne(
                 { _id: userID },
-                { $set: { in_queue: false, last_partner: match._id} }
+                { $set: { in_queue: false, last_partner: match._id } }
             );
             await db.collection('sessions').updateOne(
                 { _id: match._id },
-                { $set: { in_queue: false, last_partner: userID} }
+                { $set: { in_queue: false, last_partner: userID } }
             );
 
             if (result) {
                 const roomID = result.ops[0]._id.toString();
                 console.log('created new room', roomID);
-                return { room_id: roomID, message: 'success' }
+                return { room_id: roomID, message: 'success' };
             }
 
             throw Boom.badImplementation();
         }
-    })
+    });
 
     server.route({
         method: 'PUT',
@@ -544,9 +547,9 @@ const init = async () => {
             }
             catch (error) {
                 console.log(error);
-                throw Boom.badImplementation('user could not be added to the queue')
+                throw Boom.badImplementation('user could not be added to the queue');
             }
-            
+
             return { message: 'success' };
         }
     });
@@ -569,18 +572,19 @@ const init = async () => {
             }
             catch (error) {
                 console.log(error);
-                throw Boom.badImplementation('user could not be removed from the queue')
+                throw Boom.badImplementation('user could not be removed from the queue');
             }
 
             return { message: 'success' };
         }
-    })
+    });
 
     server.route({
         method: 'GET',
         path: '/',
         handler: (request, h) => {
-            return 'Pass the Aux API';
+
+            return 'Duotonic API';
         }
     });
 

@@ -1,17 +1,20 @@
+'use strict';
+
 const Axios = require('axios');
 const Qs = require('qs');
 const { ObjectId } = require('mongodb');
-const cookie = require('cookie')
+const Cookie = require('cookie');
 
 const filterUpdateMessages = (path, message, options) => {
     /* sends the update only to users in the room that did not send it */
 
-    const cookies = cookie.parse(options.socket._cookies);
+    const cookies = Cookie.parse(options.socket._cookies);
     if (options.internal) {
         return options.internal.id !== cookies.sessionId;
     }
+
     return false;
-}
+};
 
 const requestSpotify = (endpoint, method, query, accessToken) => {
 
@@ -75,6 +78,7 @@ const shouldRefreshToken = async (db, id) => {
 };
 
 const getUpdatedToken = async (db, id) => {
+
     let token;
     const shouldRefresh = await shouldRefreshToken(db, id);
 
@@ -83,10 +87,10 @@ const getUpdatedToken = async (db, id) => {
         const current_time = new Date().getTime();
         await db.collection('sessions').updateOne(
             { _id: id },
-            { $set: { 
-                last_update: current_time, 
-                "auth.artifacts.access_token": token 
-            }}
+            { $set: {
+                last_update: current_time,
+                'auth.artifacts.access_token': token
+            } }
         );
         console.log('refreshed access token');
     }
@@ -96,21 +100,22 @@ const getUpdatedToken = async (db, id) => {
     }
 
     return token;
-}
+};
 
 const updateRoomState = async (db, roomID, request) => {
-    let result, type;
+
+    let result; let type;
     console.log(request.params.endpoint);
-    switch(request.params.endpoint) {
+    switch (request.params.endpoint) {
         case 'me/player/play':
             if (request.payload) {
                 /* starting a song */
                 result = await db.collection('rooms').findOneAndUpdate(
                     { _id: ObjectId(roomID) },
-                    { 
+                    {
                         $push: { 'playback.queue': request.payload },
-                        $set: { 'playback.current_song': request.payload, 'playback.isPaused': false },
-                    }, 
+                        $set: { 'playback.current_song': request.payload, 'playback.isPaused': false }
+                    },
                     { returnOriginal: false }
                 );
                 type = 'start';
@@ -119,11 +124,12 @@ const updateRoomState = async (db, roomID, request) => {
                 /* resuming a song */
                 result = await db.collection('rooms').findOneAndUpdate(
                     { _id: ObjectId(roomID) },
-                    { $set: { 'playback.isPaused': false } }, 
+                    { $set: { 'playback.isPaused': false } },
                     { returnOriginal: false }
                 );
                 type = 'resume';
             }
+
             break;
         case 'me/player/pause':
             result = await db.collection('rooms').findOneAndUpdate(
@@ -135,15 +141,15 @@ const updateRoomState = async (db, roomID, request) => {
             break;
         case 'me/player/next' || 'me/player/previous':
             result = await db.collection('rooms').findOneAndUpdate(
-                { _id: ObjectId(roomID)},
-                { 
+                { _id: ObjectId(roomID) },
+                {
                     $pop: { 'playback.queue': -1 }, // removes first element
-                    $set: { 'playback.current_song': request.payload, 'playback.isPaused': false },
+                    $set: { 'playback.current_song': request.payload, 'playback.isPaused': false }
                 },
                 { returnOriginal: false }
             );
             type = request.params.endpoint.split('/')[2];
-            console.log(type)
+            console.log(type);
             break;
         case 'me/player/seek':
             result = await db.collection('rooms').findOneAndUpdate(
@@ -155,15 +161,15 @@ const updateRoomState = async (db, roomID, request) => {
             break;
         case 'me/player/queue':
             result = await db.collection('rooms').findOneAndUpdate(
-                { _id: ObjectId(roomID)},
+                { _id: ObjectId(roomID) },
                 { $push: { 'playback.queue': request.payload } },
                 { returnOriginal: false }
             );
-            type = 'queue'
+            type = 'queue';
             break;
     }
 
-    return { value: result.value.playback, type: type }
-}
+    return { value: result.value.playback, type };
+};
 
-module.exports = { requestSpotifyPayload, requestSpotify, getUpdatedToken, updateRoomState, filterUpdateMessages }
+module.exports = { requestSpotifyPayload, requestSpotify, getUpdatedToken, updateRoomState, filterUpdateMessages };
