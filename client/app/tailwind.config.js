@@ -2,6 +2,9 @@ module.exports = {
     purge: {
         enabled: false
     },
+    future: {
+        removeDeprecatedGapUtilities: true,
+    },
     theme: {
         extend: {
             colors: {

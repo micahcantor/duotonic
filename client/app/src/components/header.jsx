@@ -82,7 +82,7 @@ const Header = ({ device, deviceSearching, signInLink, room, setRoom }) => {
 
   return (
     <nav className="flex items-center justify-between flex-wrap bg-bgDark p-4 border-b-2 border-text">
-      <div className="text-primary flex items-center px-0 md:px-2 pt-1 md:mt-0">
+      <div className="text-primary flex items-center px-0 md:px-2 md:mt-0">
         <Icon />
         <span className="font-bold text-2xl text-text">duotonic</span>
         <a href="https://duotonic.co" className="text-text text-xl hover:text-primary px-5 hidden md:block">about</a>
