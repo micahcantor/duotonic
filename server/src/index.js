@@ -114,7 +114,7 @@ const init = async () => {
                         roomID = `?room=${request.auth.credentials.query.room}`;
                     }
 
-                    return h.redirect(`http://localhost:8080/${roomID}?auth=true`);
+                    return h.redirect(`${process.env.CLIENT_URL}/${roomID}?auth=true`);
                 }
 
                 throw Boom.badImplementation();
