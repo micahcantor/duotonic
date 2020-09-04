@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import React, { useState } from "react";
 import TriangleTooltip from "./tooltip.jsx";
 import ClipLoader from "react-spinners/ClipLoader.js";
@@ -177,7 +176,7 @@ const UserAloneIndicator = () => {
 const LeaveRoomButton = ({ wsClient }) => {
   const leaveRoom = async () => {
     await exitRoom();
-    await wsClient.disconnect();
+    wsClient.subscriptions().forEach(sub => wsClient.unsubscribe(sub, null));
     if (window.location) {
       window.location.href = "/";
     }
