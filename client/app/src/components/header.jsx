@@ -53,7 +53,7 @@ const Header = ({ device, deviceSearching, signInLink, room, setRoom, wsClient }
       setRoom(roomID);
       window.history.replaceState(null, null, "?room=" + roomID);
     }
-    setLink("http://localhost:8080?room=" + roomID);
+    setLink(`${process.env.APP_URL}?room=${roomID}`)
     setShowLink(true);
   }
 

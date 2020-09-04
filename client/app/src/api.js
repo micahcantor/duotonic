@@ -1,5 +1,5 @@
 const apiRequest = async (method, params, query, body) => {
-    const base = "http://localhost:3000";
+    const base = process.env.API_URL;
     const url = base + params + query;
     let options = { method, credentials: "include" }
     if (body) {
