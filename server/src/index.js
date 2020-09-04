@@ -53,20 +53,6 @@ const init = async () => {
         domain: process.env.HOST
     });
 
-    server.state('isAuthorized', {
-        isSecure: (process.env.TLS_ENABLED === 'true'),
-        isHttpOnly: false,
-        path: '/',
-        domain: process.env.HOST
-    });
-
-    server.state('showCookieBanner', {
-        isSecure: (process.env.TLS_ENABLED === 'true'),
-        isHttpOnly: false,
-        path: '/',
-        domain: process.env.HOST
-    });
-
     if (process.env.TLS_ENABLED === 'true') {
         await server.register(RequireHttps);
     }
@@ -122,43 +108,17 @@ const init = async () => {
                     const userID = result.ops[0]._id.toString();
 
                     h.state('sessionId', userID, { ttl });
-                    h.state('isAuthorized', 'true', { ttl });
 
                     let roomID = '';
                     if (request.auth.credentials.query.room) {
                         roomID = `?room=${request.auth.credentials.query.room}`;
                     }
 
-                    return h.redirect(`http://localhost:8080/${roomID}`);
+                    return h.redirect(`http://localhost:8080/${roomID}?auth=true`);
                 }
 
                 throw Boom.badImplementation();
             }
-        }
-    });
-
-    server.route({
-        method: 'PUT',
-        path: '/cookies/cookie-banner',
-        handler: async (request, h) => {
-
-            if (!request.state.sessionId) {
-                throw Boom.unauthorized('Must have a session cookie.');
-            }
-
-            try {
-                const userID = ObjectId(request.state.sessionId);
-                const user = await db.collection('sessions').findOne({ _id: userID });
-                const SIX_MONTHS_MS = 15552000000;
-                const ttl = user.remember ? SIX_MONTHS_MS : null;
-                h.state('showCookieBanner', 'false', { ttl });
-            }
-            catch (error) {
-                console.log(error);
-                throw Boom.badImplementation('could not set cookie banner cookie');
-            }
-
-            return { message: 'success' };
         }
     });
 

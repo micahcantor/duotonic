@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import React, { useState, useEffect } from "react";
 import "../styles/styles.css";
 import SEO from "../components/seo.jsx"
@@ -25,8 +24,8 @@ function reducer(state, action) {
   const { songs, history, isPaused } = state;
   switch(action.type) {
     case 'next-song':
-      const isPaused = songs.length === 1; // if this is the last song in queue set isPaused to true
-      return { ...state, isPaused, songs: songs.filter((s, i) => i > 0)};
+      const isLastSong = songs.length === 1; // if this is the last song in queue set isPaused to true
+      return { ...state, isPaused: isLastSong, songs: songs.filter((s, i) => i > 0)};
     case 'previous-song':
       const updated = [...songs];
       updated[0] = history[history.length - 1];
@@ -50,7 +49,7 @@ const App = () => {
   const { songs, history, isPaused } = state;
 
   const [isAuthorized, setIsAuthorized] = useState(false);
-  const [showCookieBanner, setShowCookieBanner] = useState(true);
+  const [hideCookieBanner, setHideCookieBanner] = useState(false);
   const [playbackCapable, setPlaybackCapable] = useState(true);
 
   const [signInLink, setSignInLink] = useState(null);
@@ -71,11 +70,20 @@ const App = () => {
   /* Initialization function that fires on mount
     If the user is signed in, sets up the approproiate device connection, otherwise prompts them to log in */
   useEffect(() => {
-    const isAuthorized = document.cookie.includes("isAuthorized=true");
-    const showCookieBanner = !document.cookie.includes("showCookieBanner=false");
-    const playbackCapable = isPlaybackCapable();
     const queryParams = new URLSearchParams(window.location.search);
     const room = queryParams.get("room");
+
+    let isAuthorized;
+    if (queryParams.get("auth")) {
+      isAuthorized = true;
+      localStorage.setItem("auth", "true");
+    } 
+    else {
+      isAuthorized = localStorage.getItem("auth") ? true : false;
+    }
+
+    const hideCookieBanner = localStorage.getItem("hideCookieBanner") === "true";
+    const playbackCapable = isPlaybackCapable();
     
     if (isAuthorized && playbackCapable) {
       setupWebPlayer();
@@ -90,7 +98,7 @@ const App = () => {
     }
 
     startRefreshTimer();
-    setShowCookieBanner(showCookieBanner);
+    setHideCookieBanner(hideCookieBanner);
     setIsAuthorized(isAuthorized);
     setPlaybackCapable(playbackCapable);
     setRoom(room);
@@ -189,9 +197,11 @@ const App = () => {
       }
     }
 
-    /* I'm not sure if this is necessary, but it *seems* like it should be */
+    /* I'm not sure if this is necessary, but it *seems* like it should be. */
     return async function cleanup() {
-      await WSClient.disconnect();
+      if (WSClient) {
+        await WSClient.disconnect();
+      }
     }
 
   }, [isAuthorized, device, room, WSClient]);
@@ -241,9 +251,9 @@ const App = () => {
               <Queue songs={songs} setQueueVisible={setQueueVisible} queueVisible={queueVisible}/>
               <Chat room={room} client={WSClient} setQueueVisible={setQueueVisible} queueVisible={queueVisible} authorized={isAuthorized}/>
           </div>
-          {showCookieBanner 
-            ? <div className="pt-4 mx-auto"><Banner setShowCookieBanner={setShowCookieBanner}/></div>
-            : null
+          {hideCookieBanner 
+            ? null
+            : <div className="pt-4 mx-auto"><Banner setHideCookieBanner={setHideCookieBanner}/></div>
           }
         </div>
         <Player songInQueue={songInQueue} isPaused={isPaused} songs={songs} history={history} room={room} device={device} dispatch={dispatch}

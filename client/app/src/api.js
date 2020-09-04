@@ -16,10 +16,6 @@ export const getAccessToken = async () => {
     return json.access_token;
 }
 
-export const setCookieBannerCookie = async () => {
-    await apiRequest("PUT", "/cookies/cookie-banner", "", null);
-}
-
 export const setUsernameInDB = async (username) => {
     await apiRequest("POST", "/users/set-username", `?username=${encodeURIComponent(username)}`, null);
 }
