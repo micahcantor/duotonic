@@ -106,7 +106,7 @@ const App = () => {
 
   /* Fires after the user is authorized, connected to a device, and in a room */
   useEffect(() => {
-    if (isAuthorized && device && room) {
+    if (isAuthorized && device && room && !WSClient) {
       initRoomSocket().then(async (msg) => {
         const playback = await getCurrentPlaybackState(room);
         await loadPlaybackLocally(playback);
@@ -188,7 +188,13 @@ const App = () => {
         default: break;
       }
     }
-  }, [isAuthorized, device, room]);
+
+    /* I'm not sure if this is necessary, but it *seems* like it should be */
+    return async function cleanup() {
+      await WSClient.disconnect();
+    }
+
+  }, [isAuthorized, device, room, WSClient]);
 
   const setupWebPlayer = async () => {
     addSDKScript();
@@ -228,7 +234,7 @@ const App = () => {
       <Modal body={modalBody} loading={deviceSearching} deviceName={device? device.name : ""}
         showDialog={showModal} close={closeModal} mobile={false} signInLink={signInLink} setSignInLink={setSignInLink} />
       <div className="flex flex-col w-screen h-screen bg-bgColor text-text overflow-hidden">
-        <Header device={device} deviceSearching={deviceSearching} signInLink={signInLink} room={room} setRoom={setRoom}/>
+        <Header device={device} deviceSearching={deviceSearching} signInLink={signInLink} room={room} setRoom={setRoom} wsClient={WSClient}/>
         <div className="container flex flex-col flex-grow mx-auto my-4 px-5 overflow-y-auto h-full scrollbar" style={{height: '85%'}}>
           <SearchBar songs={songs} room={room} device={device} dispatch={dispatch} />
           <div className="flex h-full">

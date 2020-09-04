@@ -7,7 +7,7 @@ import Icon from "./icon.jsx"
 import "../styles/styles.css";
 import { getRoomID, enterQueue, findPartner, exitQueue, exitRoom } from "../api.js";
 
-const Header = ({ device, deviceSearching, signInLink, room, setRoom }) => {
+const Header = ({ device, deviceSearching, signInLink, room, setRoom, wsClient }) => {
   const [showRandom, setShowRandom] = useState(false);
   const [partnerSearching, setPartnerSearching] = useState(true);
   const [findMatchInterval, setFindMatchInterval] = useState(null);
@@ -68,12 +68,12 @@ const Header = ({ device, deviceSearching, signInLink, room, setRoom }) => {
     else return <DisconnectedIndicator />
   }
 
-  const inRoomIcon = () => {
+  const inRoomIcon = (wsClient) => {
     if (typeof window !== `undefined`) {
       const queryParams = new URLSearchParams(window.location.search);
       const roomID = queryParams.get("room");
       if (roomID) {
-        return <LeaveRoomButton />
+        return <LeaveRoomButton wsClient={wsClient}/>
       }
       else return <UserAloneIndicator />
     }
@@ -101,7 +101,7 @@ const Header = ({ device, deviceSearching, signInLink, room, setRoom }) => {
 
           <div className="w-1 bg-white rounded"></div>
           {connectedIcon()}
-          {inRoomIcon()}
+          {inRoomIcon(wsClient)}
         </div>
       </div>
     </nav>
@@ -174,9 +174,10 @@ const UserAloneIndicator = () => {
   );
 }
 
-const LeaveRoomButton = () => {
+const LeaveRoomButton = ({ wsClient }) => {
   const leaveRoom = async () => {
     await exitRoom();
+    await wsClient.disconnect();
     if (window.location) {
       window.location.href = "/";
     }
