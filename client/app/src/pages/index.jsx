@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useReducer } from "react";
 import "../styles/styles.css";
 import SEO from "../components/seo.jsx"
 
@@ -11,7 +11,6 @@ import Banner from "../components/banner.jsx";
 import { Modal, modals } from "../components/modal.jsx"
 import { addToQueue, startSong, pauseSong, resumeSong, nextSong, previousSong, getDevices, getAccessToken, enterRoom, setSongPosition, getCurrentPlaybackState } from "../api.js"
 import { addSDKScript, isPlaybackCapable, initPlayer } from "../web_playback.js";
-import { useReducer } from "react";
 const Nes = require("@hapi/nes/lib/client")
 
 const initialState = {
