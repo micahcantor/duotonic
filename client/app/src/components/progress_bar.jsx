@@ -20,7 +20,7 @@ export const ProgressBar = ({ seekElapsed, songs, runtime, isPaused, deviceID, r
   }, [room, songs, dispatch]);
 
   useEffect(() => {
-    if (elapsed === runtimeMS && progressIntervalID) {
+    if (elapsed >= runtimeMS && progressIntervalID) {
       clearInterval(progressIntervalID);
       setElapsed(0);
       setProgressActive(false);

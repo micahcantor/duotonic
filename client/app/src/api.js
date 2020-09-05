@@ -1,5 +1,5 @@
 const apiRequest = async (method, params, query, body) => {
-    const base = "http://localhost:3000";
+    const base = process.env.API_URL;
     const url = base + params + query;
     let options = { method, credentials: "include" }
     if (body) {
@@ -14,10 +14,6 @@ export const getAccessToken = async () => {
     const response = await apiRequest("GET", "/auth/spotify/access-token", "", null);
     const json = await response.json();
     return json.access_token;
-}
-
-export const setCookieBannerCookie = async () => {
-    await apiRequest("PUT", "/cookies/cookie-banner", "", null);
 }
 
 export const setUsernameInDB = async (username) => {

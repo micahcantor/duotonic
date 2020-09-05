@@ -1,5 +1,4 @@
-/* eslint-disable react/prop-types */
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useReducer } from "react";
 import "../styles/styles.css";
 import SEO from "../components/seo.jsx"
 
@@ -12,19 +11,20 @@ import Banner from "../components/banner.jsx";
 import { Modal, modals } from "../components/modal.jsx"
 import { addToQueue, startSong, pauseSong, resumeSong, nextSong, previousSong, getDevices, getAccessToken, enterRoom, setSongPosition, getCurrentPlaybackState } from "../api.js"
 import { addSDKScript, isPlaybackCapable, initPlayer } from "../web_playback.js";
-import { useReducer } from "react";
 const Nes = require("@hapi/nes/lib/client")
 
 const initialState = {
   songs: [],
   history: [],
+  isPaused: true,
 }
 
 function reducer(state, action) {
   const { songs, history, isPaused } = state;
   switch(action.type) {
     case 'next-song':
-      return { ...state, songs: songs.filter((s, i) => i > 0)};
+      const isLastSong = songs.length === 1; // if this is the last song in queue set isPaused to true
+      return { ...state, isPaused: isLastSong, songs: songs.filter((s, i) => i > 0)};
     case 'previous-song':
       const updated = [...songs];
       updated[0] = history[history.length - 1];
@@ -48,7 +48,7 @@ const App = () => {
   const { songs, history, isPaused } = state;
 
   const [isAuthorized, setIsAuthorized] = useState(false);
-  const [showCookieBanner, setShowCookieBanner] = useState(true);
+  const [hideCookieBanner, setHideCookieBanner] = useState(false);
   const [playbackCapable, setPlaybackCapable] = useState(true);
 
   const [signInLink, setSignInLink] = useState(null);
@@ -69,11 +69,20 @@ const App = () => {
   /* Initialization function that fires on mount
     If the user is signed in, sets up the approproiate device connection, otherwise prompts them to log in */
   useEffect(() => {
-    const isAuthorized = document.cookie.includes("isAuthorized=true");
-    const showCookieBanner = !document.cookie.includes("showCookieBanner=false");
-    const playbackCapable = isPlaybackCapable();
     const queryParams = new URLSearchParams(window.location.search);
     const room = queryParams.get("room");
+
+    let isAuthorized;
+    if (queryParams.get("auth")) {
+      isAuthorized = true;
+      localStorage.setItem("auth", "true");
+    } 
+    else {
+      isAuthorized = localStorage.getItem("auth") ? true : false;
+    }
+
+    const hideCookieBanner = localStorage.getItem("hideCookieBanner") === "true";
+    const playbackCapable = isPlaybackCapable();
     
     if (isAuthorized && playbackCapable) {
       setupWebPlayer();
@@ -84,11 +93,11 @@ const App = () => {
     else {
       const playbackQuery = playbackCapable ? '?wantsWebPlayback=true' : "";
       const roomQuery = room ? `&room=${room}` : "";
-      setSignInLink(`http://localhost:3000/auth/spotify${playbackQuery}${roomQuery}`);
+      setSignInLink(`${process.env.API_URL}/auth/spotify${playbackQuery}${roomQuery}`);
     }
 
     startRefreshTimer();
-    setShowCookieBanner(showCookieBanner);
+    setHideCookieBanner(hideCookieBanner);
     setIsAuthorized(isAuthorized);
     setPlaybackCapable(playbackCapable);
     setRoom(room);
@@ -104,7 +113,7 @@ const App = () => {
 
   /* Fires after the user is authorized, connected to a device, and in a room */
   useEffect(() => {
-    if (isAuthorized && device && room) {
+    if (isAuthorized && device && room && !WSClient) {
       initRoomSocket().then(async (msg) => {
         const playback = await getCurrentPlaybackState(room);
         await loadPlaybackLocally(playback);
@@ -123,7 +132,7 @@ const App = () => {
       }
       else {
         console.log("connecting to websocket in room", room)
-        const client = new Nes.Client("ws://localhost:3000");
+        const client = new Nes.Client(process.env.SOCKET_URL);
         await client.connect();
         client.subscribe(`/rooms/playback/${room}`, handleRoomPlaybackUpdate);
         setWSClient(client);
@@ -186,7 +195,15 @@ const App = () => {
         default: break;
       }
     }
-  }, [isAuthorized, device, room]);
+
+    /* I'm not sure if this is necessary, but it *seems* like it should be. */
+    return async function cleanup() {
+      if (WSClient) {
+        await WSClient.disconnect();
+      }
+    }
+
+  }, [isAuthorized, device, room, WSClient]);
 
   const setupWebPlayer = async () => {
     addSDKScript();
@@ -226,16 +243,16 @@ const App = () => {
       <Modal body={modalBody} loading={deviceSearching} deviceName={device? device.name : ""}
         showDialog={showModal} close={closeModal} mobile={false} signInLink={signInLink} setSignInLink={setSignInLink} />
       <div className="flex flex-col w-screen h-screen bg-bgColor text-text overflow-hidden">
-        <Header device={device} deviceSearching={deviceSearching} signInLink={signInLink} room={room} setRoom={setRoom}/>
+        <Header device={device} deviceSearching={deviceSearching} signInLink={signInLink} room={room} setRoom={setRoom} wsClient={WSClient}/>
         <div className="container flex flex-col flex-grow mx-auto my-4 px-5 overflow-y-auto h-full scrollbar" style={{height: '85%'}}>
           <SearchBar songs={songs} room={room} device={device} dispatch={dispatch} />
           <div className="flex h-full">
               <Queue songs={songs} setQueueVisible={setQueueVisible} queueVisible={queueVisible}/>
               <Chat room={room} client={WSClient} setQueueVisible={setQueueVisible} queueVisible={queueVisible} authorized={isAuthorized}/>
           </div>
-          {showCookieBanner 
-            ? <div className="pt-4 mx-auto"><Banner setShowCookieBanner={setShowCookieBanner}/></div>
-            : null
+          {hideCookieBanner 
+            ? null
+            : <div className="pt-4 mx-auto"><Banner setHideCookieBanner={setHideCookieBanner}/></div>
           }
         </div>
         <Player songInQueue={songInQueue} isPaused={isPaused} songs={songs} history={history} room={room} device={device} dispatch={dispatch}

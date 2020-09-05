@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import React, { useState } from "react";
 import TriangleTooltip from "./tooltip.jsx";
 import ClipLoader from "react-spinners/ClipLoader.js";
@@ -7,7 +6,7 @@ import Icon from "./icon.jsx"
 import "../styles/styles.css";
 import { getRoomID, enterQueue, findPartner, exitQueue, exitRoom } from "../api.js";
 
-const Header = ({ device, deviceSearching, signInLink, room, setRoom }) => {
+const Header = ({ device, deviceSearching, signInLink, room, setRoom, wsClient }) => {
   const [showRandom, setShowRandom] = useState(false);
   const [partnerSearching, setPartnerSearching] = useState(true);
   const [findMatchInterval, setFindMatchInterval] = useState(null);
@@ -54,7 +53,7 @@ const Header = ({ device, deviceSearching, signInLink, room, setRoom }) => {
       setRoom(roomID);
       window.history.replaceState(null, null, "?room=" + roomID);
     }
-    setLink("http://localhost:8080?room=" + roomID);
+    setLink(`${process.env.APP_URL}?room=${roomID}`)
     setShowLink(true);
   }
 
@@ -68,12 +67,12 @@ const Header = ({ device, deviceSearching, signInLink, room, setRoom }) => {
     else return <DisconnectedIndicator />
   }
 
-  const inRoomIcon = () => {
+  const inRoomIcon = (wsClient) => {
     if (typeof window !== `undefined`) {
       const queryParams = new URLSearchParams(window.location.search);
       const roomID = queryParams.get("room");
       if (roomID) {
-        return <LeaveRoomButton />
+        return <LeaveRoomButton wsClient={wsClient}/>
       }
       else return <UserAloneIndicator />
     }
@@ -82,7 +81,7 @@ const Header = ({ device, deviceSearching, signInLink, room, setRoom }) => {
 
   return (
     <nav className="flex items-center justify-between flex-wrap bg-bgDark p-4 border-b-2 border-text">
-      <div className="text-primary flex items-center px-0 md:px-2 pt-1 md:mt-0">
+      <div className="text-primary flex items-center px-0 md:px-2 md:mt-0">
         <Icon />
         <span className="font-bold text-2xl text-text">duotonic</span>
         <a href="https://duotonic.co" className="text-text text-xl hover:text-primary px-5 hidden md:block">about</a>
@@ -101,7 +100,7 @@ const Header = ({ device, deviceSearching, signInLink, room, setRoom }) => {
 
           <div className="w-1 bg-white rounded"></div>
           {connectedIcon()}
-          {inRoomIcon()}
+          {inRoomIcon(wsClient)}
         </div>
       </div>
     </nav>
@@ -174,9 +173,10 @@ const UserAloneIndicator = () => {
   );
 }
 
-const LeaveRoomButton = () => {
+const LeaveRoomButton = ({ wsClient }) => {
   const leaveRoom = async () => {
     await exitRoom();
+    wsClient.subscriptions().forEach(sub => wsClient.unsubscribe(sub, null));
     if (window.location) {
       window.location.href = "/";
     }
