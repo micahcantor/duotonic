@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
+import ScrollToBottom from "react-scroll-to-bottom";
 import SwapIcon from "./swap.jsx";
 import { sendChat, setUsernameInDB, getUsernameFromDB } from "../api.js";
 import "../styles/styles.css";
@@ -10,7 +11,6 @@ const Chat = ({ room, client, setQueueVisible, queueVisible, authorized}) => {
   const [messages, setMessages] = useState([]);
   const [username, setUsername] = useState("");
   const [usernameVal, setUsernameVal] = useState("");
-  const messagesBottom = useRef(null);
   const [inputVal, setInputVal] = useState("");
   const [showUsernameEntry, setShowUsernameEntry] = useState(false);
 
@@ -34,12 +34,6 @@ const Chat = ({ room, client, setQueueVisible, queueVisible, authorized}) => {
       });
     }
   }, [client, room])
-
-  useEffect(() => {
-    if (messagesBottom.current) {
-      messagesBottom.current.scrollIntoView(false); // scrolls to bottom of DOM element
-    }
-  }, [messages, messagesBottom])
 
   const handleInputChange = (value) => {
     setInputVal(value);
@@ -104,9 +98,9 @@ const Chat = ({ room, client, setQueueVisible, queueVisible, authorized}) => {
         <span className="text-lg uppercase tracking-wider font-mono p-3"> Chat </span>
         <SwapIcon queueVisible={queueVisible} setQueueVisible={setQueueVisible} />
       </div>
-      <div id="messages" className="flex-grow w-full h-full overflow-y-auto scrollbar">
-        <MessageList messages={messages} messagesBottom={messagesBottom}/>
-      </div>
+      <ScrollToBottom className="w-full h-full scrollbar flex-grow overflow-y-auto">
+        <MessageList messages={messages}/>
+      </ScrollToBottom>
       { username.length === 0 || username === "DEFAULT_USERNAME"
         ? null
         : <ChatStatus username={username} onClick={handleUsernameDisplayClick}/>
@@ -133,7 +127,7 @@ const ChatInput = ({ onChange, onSubmit }) => {
   }
 
   return (
-    <form autoComplete="off" onSubmit={handleSubmit} className="px-4 mb-3 mx-auto">
+    <form autoComplete="off" onSubmit={handleSubmit} className="px-4 mb-3 mx-auto" aria-label="chat-input">
       <div className="relative w-full">
         <input id="chat-input" type="text" onChange={handleChange} placeholder="Send a message"
           className="text-black placeholder-black transition-colors duration-200 ease-in-out bg-text appearance-none border-2 
@@ -157,12 +151,11 @@ const SendButton = () => {
   );
 };
 
-const MessageList = ({ messages, messagesBottom }) => {
+const MessageList = ({ messages }) => {
   const listItems = messages.map((m, idx) => {
     return (
       <li key={idx}>
         <Message user={m.username} messageString={m.text} time={m.time} />
-        <div ref={messagesBottom}></div>
       </li>
     );
   });

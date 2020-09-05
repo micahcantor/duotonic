@@ -45,7 +45,6 @@ module.exports = {
       resolve: `gatsby-plugin-purgecss`,
       options: { 
         tailwind: true,
-        printRejected: true,
         ignore: ['src/components/markdown-styles.css'] 
       },
     },

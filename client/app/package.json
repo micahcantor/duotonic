@@ -23,6 +23,7 @@
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-helmet": "^6.1.0",
+    "react-scroll-to-bottom": "^4.0.0",
     "react-spinners": "^0.9.0"
   },
   "devDependencies": {
