@@ -6,7 +6,7 @@ import "../styles/modal_styles.css";
 import ScaleLoader from "react-spinners/ScaleLoader";
 
 export const Modal = ({showDialog, close, body, loading, deviceName, signInLink, setSignInLink, shareURL, partnerSearching}) => {
-  const className = "w-full md:w-auto md:inline-block text-center mt-64 rounded h-auto";
+  const className = "w-full md:w-auto md:inline-block text-center rounded h-auto";
   var modalBody;
   switch(body) {
     case modals.SignIn:
