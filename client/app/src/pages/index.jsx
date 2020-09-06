@@ -93,7 +93,7 @@ const App = () => {
     else {
       const playbackQuery = playbackCapable ? '?wantsWebPlayback=true' : "";
       const roomQuery = room ? `&room=${room}` : "";
-      setSignInLink(`${process.env.API_URL}/auth/spotify${playbackQuery}${roomQuery}`);
+      setSignInLink(`${process.env.GATSBY_API_URL}/auth/spotify${playbackQuery}${roomQuery}`);
     }
 
     startRefreshTimer();
@@ -132,7 +132,7 @@ const App = () => {
       }
       else {
         console.log("connecting to websocket in room", room)
-        const client = new Nes.Client(process.env.SOCKET_URL);
+        const client = new Nes.Client(process.env.GATSBY_SOCKET_URL);
         await client.connect();
         client.subscribe(`/rooms/playback/${room}`, handleRoomPlaybackUpdate);
         setWSClient(client);
