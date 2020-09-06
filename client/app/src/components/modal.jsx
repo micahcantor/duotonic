@@ -5,8 +5,8 @@ import { Dialog } from "@reach/dialog";
 import "../styles/modal_styles.css";
 import ScaleLoader from "react-spinners/ScaleLoader";
 
-export const Modal = ({showDialog, close, body, mobile, loading, deviceName, signInLink, setSignInLink, shareURL, partnerSearching}) => {
-  const className = mobile ? "w-full h-full text-left" : "inline-block text-center mt-64 rounded h-auto";
+export const Modal = ({showDialog, close, body, loading, deviceName, signInLink, setSignInLink, shareURL, partnerSearching}) => {
+  const className = "w-full md:w-auto md:inline-block text-center mt-64 rounded h-auto";
   var modalBody;
   switch(body) {
     case modals.SignIn:
@@ -20,9 +20,6 @@ export const Modal = ({showDialog, close, body, mobile, loading, deviceName, sig
       break;
     case modals.GiveLink:
       modalBody = <GiveLink shareURL={shareURL}/>;
-      break;
-    case modals.MobileMenu:
-      modalBody = <Mobile close={close} />;
       break;
     case modals.RoomNotFound:
       modalBody = <RoomNotFound />
@@ -42,12 +39,10 @@ export const modals = {
   DeviceSearch: "device-search",
   FindRandom:   "find-random",
   GiveLink:     "give-link",
-  MobileMenu:   "mobile-menu",
   RoomNotFound: "room-not-found",
 }
 
 export const GiveLink = ({ shareURL }) => {
-  
   const onCopyClick = () => {
     navigator.clipboard.writeText(shareURL);
   }
@@ -57,7 +52,7 @@ export const GiveLink = ({ shareURL }) => {
       <span className="uppercase font-mono font-normal border-b-2 border-text text-left"> Share</span>
       <span className=""> Give this link to a friend: </span>
       <div className="text-primary flex justify-center items-center">
-        <p className="font-semibold text-primary mr-3" id="share_link">
+        <p className="break-all font-semibold text-primary mr-3" id="share_link">
           {shareURL}
         </p>
         <button onClick={onCopyClick} type="button" className="flex items-center">
@@ -141,51 +136,11 @@ export const DeviceSearch = (props) => {
   );
 }
 
-export const Mobile = ({ close }) => {
-  return (
-    <div className="relative">
-      <button onClick={() => close()} type="button" className="inset-y-0 right-0 absolute w-8 h-8">
-        <svg className="hover:text-primary stroke-current" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24">
-          <path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-        </svg>
-      </button>
-      <MobileMenu />
-    </div>
-  );
-}
-
 export const RoomNotFound = () => {
   return (
     <div className="flex flex-col space-y-2 text-2xl -mt-2">
       <span className="uppercase font-mono border-b-2 border-text text-left">Not Found</span>
       <span className="font-semibold">Sorry, we couldn't find that room.</span>
-    </div>
-  );
-}
-
-const MobileMenu = () => {
-
-  const [showRandom, setShowRandom] = React.useState(false);
-  const openRandom = () => setShowRandom(true);
-  const closeRandom = () => setShowRandom(false);
-
-  const [showLink, setShowLink] = React.useState(false);
-  const openLink = () => setShowLink(true);
-  const closeLink = () => setShowLink(false); 
-
-  return (
-    <div className="text-3xl lowercase pt-6 font-medium">
-      <button onClick={openLink} type="button" className="hover:text-primary">
-        Get a Link
-        <Modal body={modals.GiveLink} shareURL="link" showDialog={showLink} close={closeLink} mobile={false}/>
-      </button>
-      <div className="my-2 w-full h-px bg-gray-300"></div>
-      <button onClick={openRandom} type="button" className="hover:text-primary">
-        Go Random
-        <Modal body={modals.FindRandom} showDialog={showRandom} close={closeRandom} mobile={false}/>
-      </button>
-      <div className="my-2 w-full h-px bg-gray-300"></div>
-      <a href="https://duotonic.co" className="text-2xl hover:text-primary">About</a>
     </div>
   );
 }

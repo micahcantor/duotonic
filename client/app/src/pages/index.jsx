@@ -243,7 +243,7 @@ const App = () => {
       <Modal body={modalBody} loading={deviceSearching} deviceName={device? device.name : ""}
         showDialog={showModal} close={closeModal} mobile={false} signInLink={signInLink} setSignInLink={setSignInLink} />
       <div className="flex flex-col w-screen h-screen bg-bgColor text-text overflow-hidden">
-        <Header device={device} deviceSearching={deviceSearching} signInLink={signInLink} room={room} setRoom={setRoom} wsClient={WSClient}/>
+        <Header device={device} deviceSearching={deviceSearching} room={room} setRoom={setRoom} wsClient={WSClient}/>
         <div className="container flex flex-col flex-grow mx-auto my-4 px-5 overflow-y-auto h-full scrollbar" style={{height: '85%'}}>
           <SearchBar songs={songs} room={room} device={device} dispatch={dispatch} />
           <div className="flex h-full">

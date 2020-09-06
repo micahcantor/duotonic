@@ -6,17 +6,13 @@ import Icon from "./icon.jsx"
 import "../styles/styles.css";
 import { getRoomID, enterQueue, findPartner, exitQueue, exitRoom } from "../api.js";
 
-const Header = ({ device, deviceSearching, signInLink, room, setRoom, wsClient }) => {
+const Header = ({ device, deviceSearching, room, setRoom, wsClient }) => {
   const [showRandom, setShowRandom] = useState(false);
   const [partnerSearching, setPartnerSearching] = useState(true);
   const [findMatchInterval, setFindMatchInterval] = useState(null);
   const [link, setLink] = useState("");
   const [showLink, setShowLink] = useState(false);
-  const [showMobile, setShowMobile] = useState(false);
-
-  const closeLink = () => setShowLink(false);
-  const openMobile = () => setShowMobile(true);
-  const closeMobile = () => setShowMobile(false);
+  const [showMobileHeader, setShowMobileHeader] = useState(false);
 
   const openRandom = async () => {
     await enterQueue();  // adds user to the queue of users looking for a match
@@ -57,9 +53,13 @@ const Header = ({ device, deviceSearching, signInLink, room, setRoom, wsClient }
     setShowLink(true);
   }
 
+  const closeLink = () => setShowLink(false);
+
+  const onHamburgerClick = () => setShowMobileHeader(show => !show);
+
   const connectedIcon = () => {
     if (deviceSearching) {
-      return <LoadingIndicator signInLink={signInLink}/>
+      return <LoadingIndicator/>
     }
     else if (device) {
       return <ConnectedIndicator />
@@ -86,17 +86,16 @@ const Header = ({ device, deviceSearching, signInLink, room, setRoom, wsClient }
         <span className="font-bold text-2xl text-text">duotonic</span>
         <a href="https://duotonic.co" className="text-text text-xl hover:text-primary px-5 hidden md:block">about</a>
       </div>
-      <div className="block lg:hidden">
-        <HamburgerButton open={openMobile} />
-        <Modal body={modals.MobileMenu} showDialog={showMobile} close={closeMobile} mobile={true} />
+      <div className="block md:hidden">
+        <HamburgerButton onClick={onHamburgerClick}/>
       </div>
-      <div className="font-mono hidden w-full block lg:flex lg:items-center lg:w-auto">
+      <div className={`${showMobileHeader ? "flex" : "hidden"} font-mono md:flex items-center w-auto mt-2 md:mt-0`}>
         <div className="flex mx-2 space-x-4">
           <NavButton open={openRandom} buttonText="Go Random" />
-          <Modal body={modals.FindRandom} showDialog={showRandom} close={closeRandom} mobile={false} partnerSearching={partnerSearching} />
+          <Modal body={modals.FindRandom} showDialog={showRandom} close={closeRandom} partnerSearching={partnerSearching} />
 
           <NavButton open={openLink} buttonText="Get a Link" />
-          <Modal body={modals.GiveLink} shareURL={link} showDialog={showLink} close={closeLink} mobile={false} />
+          <Modal body={modals.GiveLink} shareURL={link} showDialog={showLink} close={closeLink} />
 
           <div className="w-1 bg-white rounded"></div>
           {connectedIcon()}
@@ -110,7 +109,7 @@ const Header = ({ device, deviceSearching, signInLink, room, setRoom, wsClient }
 const NavButton = (props) => {
   return (
     <button onClick={props.open}>
-      <div className="inline-block bg-primary lowercase font-semibold px-3 py-2 leading-none rounded transform hover:scale-110 mt-4 lg:mt-0">
+      <div className="inline-block bg-primary lowercase font-semibold px-3 py-2 leading-snug rounded transform hover:scale-110">
         {props.buttonText}
       </div>
     </button>
@@ -119,7 +118,7 @@ const NavButton = (props) => {
 
 const HamburgerButton = (props) => {
   return (
-    <button type="button" onClick={props.open} className="flex items-center px-3 py-2 text-textColor hover:text-primary">
+    <button type="button" onClick={props.onClick} className="flex items-center px-3 py-2 text-textColor hover:text-primary">
       <svg className="fill-current h-5 w-5" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
         <title>Menu</title><path d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z" />
       </svg>
@@ -127,13 +126,20 @@ const HamburgerButton = (props) => {
   );
 }
 
-const LoadingIndicator = ({ signInLink }) => {
+const LoadingIndicator = () => {
+  function onClick() {
+    localStorage.removeItem("isAuthorized");
+    window.location.href = "/";
+  }
+
   return (
-    <TriangleTooltip label="try signing in again?">
-      <a className="w-6 h-6" href={signInLink}>
-        <ClipLoader color="#6246ea" size="23px"/>
-      </a>
-    </TriangleTooltip>
+    <div className="flex items-center justify-center mt-2">
+      <TriangleTooltip label="try signing in again?">
+        <button onClick={onClick}>
+          <ClipLoader color="#6246ea" size="24px"/>
+        </button>
+      </TriangleTooltip>
+    </div>
   )
 }
 
