@@ -1,9 +1,9 @@
 'use strict';
 
-require('dotenv').config();
+//require('dotenv').config();
 
-const Path = require('path');
-const Fs = require('fs');
+/* const Path = require('path');
+const Fs = require('fs'); */
 const Hapi = require('@hapi/hapi');
 const Boom = require('@hapi/boom');
 const Bell = require('@hapi/bell');
@@ -13,11 +13,6 @@ const ObjectId = require('mongodb').ObjectId;
 
 const LoadDB = require('./db');
 const { requestSpotifyPayload, requestSpotify, getUpdatedToken, updateRoomState, filterUpdateMessages } = require('./utils');
-
-const tls = (process.env.TLS_ENABLED === 'true') ? {
-    cert: Fs.readFileSync(Path.resolve(__dirname, '../ssl/localhost.crt')),
-    key: Fs.readFileSync(Path.resolve(__dirname, '../ssl/localhost.key'))
-} : undefined;
 
 const init = async () => {
 
@@ -31,7 +26,6 @@ const init = async () => {
     const server = Hapi.server({
         host: process.env.HOST,
         port: process.env.PORT,
-        tls: (process.env.TLS_ENABLED === 'true') ? tls : false,
         routes: {
             cors: {
                 origin: ['*'],
@@ -48,12 +42,12 @@ const init = async () => {
     server.subscription('/rooms/chat/{id}', { filter: filterUpdateMessages });
 
     server.state('sessionId', {
-        isSecure: (process.env.TLS_ENABLED === 'true'),
+        isSecure: process.env.NODE_ENV === 'production' ? true : false,
         path: '/',
         domain: process.env.HOST
     });
 
-    if (process.env.TLS_ENABLED === 'true') {
+    if (process.env.NODE_ENV === 'production') {
         await server.register(RequireHttps);
     }
 
@@ -62,7 +56,7 @@ const init = async () => {
         password: process.env.COOKIE_PASSWORD,
         clientId: process.env.SPOTIFY_CLIENT_ID,
         clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
-        isSecure: (process.env.TLS_ENABLED === 'true'),
+        isSecure: process.env.NODE_ENV === 'production' ? true : false,
         scope(request) {
 
             const scopes = ['user-read-private', 'user-modify-playback-state', 'user-read-playback-state'];
@@ -83,7 +77,7 @@ const init = async () => {
                 strategy: 'spotify'
             },
             handler: async (request, h) => {
-
+                console.log(process.env.NODE_ENV)
                 if (!request.auth.isAuthenticated) {
                     console.log(request.auth.error.message);
                     throw Boom.unauthorized();
