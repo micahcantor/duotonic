@@ -1,6 +1,6 @@
 'use strict';
 
-//require('dotenv').config();
+require('dotenv').config();
 
 /* const Path = require('path');
 const Fs = require('fs'); */
@@ -42,7 +42,7 @@ const init = async () => {
     server.subscription('/rooms/chat/{id}', { filter: filterUpdateMessages });
 
     server.state('sessionId', {
-        isSecure: process.env.NODE_ENV === 'production' ? true : false,
+        isSecure: false,
         path: '/',
         domain: process.env.HOST
     });
@@ -56,7 +56,7 @@ const init = async () => {
         password: process.env.COOKIE_PASSWORD,
         clientId: process.env.SPOTIFY_CLIENT_ID,
         clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
-        isSecure: process.env.NODE_ENV === 'production' ? true : false,
+        isSecure: false,
         scope(request) {
 
             const scopes = ['user-read-private', 'user-modify-playback-state', 'user-read-playback-state'];
@@ -538,7 +538,7 @@ const init = async () => {
         path: '/',
         handler: (request, h) => {
 
-            return 'Duotonic API';
+            return 'Duotonic API'
         }
     });
 

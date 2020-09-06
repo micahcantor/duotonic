@@ -15,7 +15,7 @@ export const Hero = ({ data }) => {
         </span>
         <div></div>
         <a className="text-2xl font-semibold inline-block text-center rounded bg-primary hover:bg-primaryDark text-bgColor p-4"
-          href="http://localhost:8080"> Start Listening
+          href={process.env.APP_URL}> Start Listening
         </a>
         <span className="text-sm lg:text-normal mx-auto">Only available for Spotify Premium members</span>
       </div>

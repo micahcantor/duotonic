@@ -10,7 +10,9 @@ const Header = ({ showButton }) => {
         <Link to="/" className="text-3xl font-black">duotonic</Link>
       </div>
       { showButton
-        ? <a className="ml-2 sm:ml-none text-lg md:text-xl font-semibold text-center rounded bg-primary p-2 hover:bg-primaryDark text-bgColor" href="http://localhost:8080">Start Listening</a>
+        ? <a href={process.env.APP_URL} className="ml-2 sm:ml-none text-lg md:text-xl font-semibold text-center rounded bg-primary p-2 hover:bg-primaryDark text-bgColor">
+            Start Listening
+          </a>
         : null
       }
     </header>

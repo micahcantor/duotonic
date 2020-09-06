@@ -4,7 +4,8 @@
   "description": "",
   "private": true,
   "scripts": {
-    "start": "nodemon --ignore 'node_modules/' src/index.js"
+    "start": "node src/index.js",
+    "dev": "nodemon --ignore 'node_modules/' src/index.js"
   },
   "keywords": [],
   "author": "",
