@@ -83,7 +83,7 @@ const App = () => {
 
     const hideCookieBanner = localStorage.getItem("hideCookieBanner") === "true";
     const playbackCapable = isPlaybackCapable();
-    
+
     if (isAuthorized && playbackCapable) {
       setupWebPlayer();
     }
@@ -216,7 +216,7 @@ const App = () => {
 
   const setupRemoteDevice = () => {
     setModalBody(modals.DeviceSearch);
-
+    setShowModal(true);
     //every 2 seconds, check if there are any active devices, and if so, set it as the device
     const searchForDevices = setInterval(() => {
       getDevices().then(devices => {

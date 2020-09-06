@@ -24,7 +24,7 @@ export const isPlaybackCapable = () => {
       edge: ">20.10240",
     },
   });
-  
+
   return supported
 };
 
