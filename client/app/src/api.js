@@ -6,7 +6,15 @@ const apiRequest = async (method, params, query, body) => {
         options.body = JSON.stringify(body);
         options.headers = { "Content-Type": "application/json" }
     }
-    const response = await fetch(url, options);
+    try {
+        const response = await fetch(url, options);
+        if (response.status === 401) {
+            localStorage.removeItem("auth");
+        }
+    }
+    catch (error) {
+        console.warn(error);
+    }
     return response;
 }
 
