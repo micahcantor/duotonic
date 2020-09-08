@@ -87,8 +87,12 @@ export const FindRandom = ({ loading }) => {
 export const SignIn = ({ signInLink, setSignInLink }) => {
 
   function onChange(e) {
-    const rememberMe = e.target.value ? "&remember=true" : "";
-    setSignInLink(link => link + rememberMe);
+    if (e.target.checked) {
+      setSignInLink(link => link + "&remember=true");
+    }
+    else {
+      setSignInLink(link => link.replace("&remember=true", ""));
+    }
   }
 
   return (
