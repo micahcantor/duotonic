@@ -77,7 +77,6 @@ const App = () => {
     const room = queryParams.get("room");
 
     isUserAuth().then(isAuthorized => {
-      console.log(isAuthorized)
       if (isAuthorized && playbackCapable) {
         setupWebPlayer();
       }
@@ -102,7 +101,6 @@ const App = () => {
   /* Fires after the sign in link has been set with the query params it needs (room ID and playback capability) */
   useEffect(() => {
     if (signInLink) {
-      console.log(signInLink)
       setModalBody(modals.SignIn);
       setShowModal(true);
     }
