@@ -6,15 +6,8 @@ const apiRequest = async (method, params, query, body) => {
         options.body = JSON.stringify(body);
         options.headers = { "Content-Type": "application/json" }
     }
-    try {
-        const response = await fetch(url, options);
-        if (response.status === 401) {
-            localStorage.removeItem("auth");
-        }
-    }
-    catch (error) {
-        console.warn(error);
-    }
+
+    const response = await fetch(url, options);
     return response;
 }
 
@@ -22,6 +15,12 @@ export const getAccessToken = async () => {
     const response = await apiRequest("GET", "/auth/spotify/access-token", "", null);
     const json = await response.json();
     return json.access_token;
+}
+
+export const isUserAuth = async () => {
+    const response = await apiRequest("GET", "/auth/spotify/check", "", null);
+    const json = await response.json();
+    return json.message === "authorized";
 }
 
 export const setUsernameInDB = async (username) => {

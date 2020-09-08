@@ -128,7 +128,6 @@ const HamburgerButton = (props) => {
 
 const LoadingIndicator = () => {
   function onClick() {
-    localStorage.removeItem("auth");
     window.location.href = "/";
   }
 

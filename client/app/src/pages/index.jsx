@@ -9,7 +9,7 @@ import Chat from "../components/chat.jsx";
 import Header from "../components/header.jsx";
 import Banner from "../components/banner.jsx";
 import { Modal, modals } from "../components/modal.jsx"
-import { addToQueue, startSong, pauseSong, resumeSong, nextSong, previousSong, getDevices, getAccessToken, enterRoom, setSongPosition, getCurrentPlaybackState } from "../api.js"
+import { addToQueue, startSong, pauseSong, resumeSong, nextSong, previousSong, getDevices, getAccessToken, enterRoom, setSongPosition, getCurrentPlaybackState, isUserAuth } from "../api.js"
 import { addSDKScript, isPlaybackCapable, initPlayer } from "../web_playback.js";
 const Nes = require("@hapi/nes/lib/client")
 
@@ -69,36 +69,32 @@ const App = () => {
   /* Initialization function that fires on mount
     If the user is signed in, sets up the approproiate device connection, otherwise prompts them to log in */
   useEffect(() => {
-    const queryParams = new URLSearchParams(window.location.search);
-    const room = queryParams.get("room");
-
-    let isAuthorized;
-    if (queryParams.get("auth")) {
-      isAuthorized = true;
-      localStorage.setItem("auth", "true");
-    } 
-    else {
-      isAuthorized = localStorage.getItem("auth") ? true : false;
-    }
 
     const hideCookieBanner = localStorage.getItem("hideCookieBanner") === "true";
     const playbackCapable = isPlaybackCapable();
+    
+    const queryParams = new URLSearchParams(window.location.search);
+    const room = queryParams.get("room");
 
-    if (isAuthorized && playbackCapable) {
-      setupWebPlayer();
-    }
-    else if (isAuthorized && !playbackCapable) {
-      setupRemoteDevice();
-    }
-    else {
-      const playbackQuery = playbackCapable ? '?wantsWebPlayback=true' : "";
-      const roomQuery = room ? `&room=${room}` : "";
-      setSignInLink(`${process.env.GATSBY_API_URL}/auth/spotify${playbackQuery}${roomQuery}`);
-    }
+    isUserAuth().then(isAuthorized => {
+      console.log(isAuthorized)
+      if (isAuthorized && playbackCapable) {
+        setupWebPlayer();
+      }
+      else if (isAuthorized && !playbackCapable) {
+        setupRemoteDevice();
+      }
+      else {
+        const playbackQuery = playbackCapable ? '?wantsWebPlayback=true' : "";
+        const roomQuery = room ? `&room=${room}` : "";
+        setSignInLink(`${process.env.GATSBY_API_URL}/auth/spotify${playbackQuery}${roomQuery}`);
+      }
+
+      setIsAuthorized(isAuthorized);
+    })
 
     startRefreshTimer();
     setHideCookieBanner(hideCookieBanner);
-    setIsAuthorized(isAuthorized);
     setPlaybackCapable(playbackCapable);
     setRoom(room);
   }, []);
@@ -106,6 +102,7 @@ const App = () => {
   /* Fires after the sign in link has been set with the query params it needs (room ID and playback capability) */
   useEffect(() => {
     if (signInLink) {
+      console.log(signInLink)
       setModalBody(modals.SignIn);
       setShowModal(true);
     }

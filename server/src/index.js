@@ -108,7 +108,7 @@ const init = async () => {
                         roomID = `?room=${request.auth.credentials.query.room}`;
                     }
 
-                    return h.redirect(`${process.env.CLIENT_URL}/${roomID}?auth=true`);
+                    return h.redirect(`${process.env.CLIENT_URL}/${roomID}`);
                 }
 
                 throw Boom.badImplementation();
@@ -117,7 +117,7 @@ const init = async () => {
     });
 
     server.route({
-        method: ['GET'],
+        method: 'GET',
         path: '/auth/spotify/access-token',
         handler: async (request, h) => {
 
@@ -135,6 +135,18 @@ const init = async () => {
             throw Boom.unauthorized('Session ID not found in database.');
         }
     });
+
+    server.route({
+        method: 'GET',
+        path: '/auth/spotify/check',
+        handler: async (request, h) => {
+
+            if (request.state.sessionId) {
+                return { message: "authorized" };
+            }
+            else return { message: "not authorized" };
+        }
+    })
 
     server.route({
         method: ['GET', 'PUT', 'POST'],
