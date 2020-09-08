@@ -1,6 +1,5 @@
 /* eslint-disable react/prop-types */
-import React, { useState, useEffect } from "react";
-import ScrollToBottom from "react-scroll-to-bottom";
+import React, { useState, useEffect, useRef } from "react";
 import SwapIcon from "./swap.jsx";
 import { sendChat, setUsernameInDB, getUsernameFromDB } from "../api.js";
 import "../styles/styles.css";
@@ -16,6 +15,8 @@ const Chat = ({ room, client, setQueueVisible, queueVisible, authorized}) => {
 
   const [errorVisible, setErrorVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
+  const bottomRef = useRef();
 
   useEffect(() => {
     if (authorized) {
@@ -35,6 +36,10 @@ const Chat = ({ room, client, setQueueVisible, queueVisible, authorized}) => {
     }
   }, [client, room])
 
+  useEffect(() => {
+    bottomRef.current.scrollIntoView();
+  }, [messages])
+
   const handleInputChange = (value) => {
     setInputVal(value);
   }
@@ -47,7 +52,7 @@ const Chat = ({ room, client, setQueueVisible, queueVisible, authorized}) => {
       text: inputVal,
       time: getFormattedTime(),
     }
-    console.log(inputVal)
+
     if (inputVal.length > 0) {
       setMessages([...messages, message]);
     }
@@ -98,9 +103,9 @@ const Chat = ({ room, client, setQueueVisible, queueVisible, authorized}) => {
         <span className="text-lg uppercase tracking-wider font-mono p-3"> Chat </span>
         <SwapIcon queueVisible={queueVisible} setQueueVisible={setQueueVisible} />
       </div>
-      <ScrollToBottom className="w-full h-full scrollbar flex-grow overflow-y-auto">
-        <MessageList messages={messages}/>
-      </ScrollToBottom>
+      <div className="w-full h-full scrollbar flex-grow overflow-y-auto">
+        <MessageList messages={messages} bottomRef={bottomRef}/>
+      </div>
       { username.length === 0 || username === "DEFAULT_USERNAME"
         ? null
         : <ChatStatus username={username} onClick={handleUsernameDisplayClick}/>
@@ -151,7 +156,7 @@ const SendButton = () => {
   );
 };
 
-const MessageList = ({ messages }) => {
+const MessageList = ({ messages, bottomRef }) => {
   const listItems = messages.map((m, idx) => {
     return (
       <li key={idx}>
@@ -160,7 +165,12 @@ const MessageList = ({ messages }) => {
     );
   });
   
-  return <ul className="mt-2">{listItems}</ul>;
+  return (
+    <ul className="mt-2">
+      {listItems}
+      <div ref={bottomRef}></div>
+    </ul>
+  )
 };
 
 const Message = ({ user, time, messageString }) => {
