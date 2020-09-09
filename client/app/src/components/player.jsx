@@ -5,14 +5,38 @@ import "../styles/styles.css";
 import SongInfo from "./song_info.jsx"
 import { SliderInput, SliderTrack, SliderTrackHighlight, SliderHandle } from "@reach/slider";
 import "../styles/slider_styles.css";
-import { startSong, resumeSong, pauseSong, previousSong, nextSong, updateHistoryInRoom, setVolume } from "../api";
+import { getPlayerInfo, startSong, resumeSong, pauseSong, previousSong, nextSong, updateHistoryInRoom, setVolume } from "../api";
 import { ProgressBar } from "./progress_bar.jsx";
 
-const Player = ( { songInQueue, isPaused, songs, history, room, device, playbackCapable, 
+const Player = ( { songInQueue, isPaused, elapsed, songs, history, room, device, playbackCapable, 
   seekElapsed, dispatch } ) => {
 
   const [runtime, setRuntime] = useState(null);
   const [songStarted, setSongStarted] = useState(false);
+
+  useEffect(() => {
+    
+    const interval = setInterval(async () => {
+      const playbackState = await getPlayerInfo();
+      loadUpdatedPlayback(playbackState);
+    }, 5000)
+
+    function loadUpdatedPlayback(playbackState) {
+      const { is_playing, progress_ms, item } = playbackState;
+      const track = {
+        name: item.name, 
+        artists: item.artists.map(a => a.name).reduce((acc, curr) => acc + ", " + curr),
+        coverUrl: item.album.images[0].url,
+        uri: item.uri,
+        runtime: item.duration_ms.toString(),
+      }
+      dispatch({ type: 'pause-update', isPaused: !is_playing});
+      dispatch({ type: 'set-elapsed', elapsed: progress_ms });
+      dispatch({ type: 'set-current-song', song: track });
+    }
+
+    return () => clearInterval(interval);
+  }, [dispatch])
 
   useEffect(() => {
     if (songs[0]) {
@@ -28,9 +52,11 @@ const Player = ( { songInQueue, isPaused, songs, history, room, device, playback
 
     if (isPaused && !songStarted && songInQueue) {
       await startSong(device.id, songs[0], room, true);
-    } else if (isPaused && songStarted && songInQueue) {
+    } 
+    else if (isPaused && songStarted && songInQueue) {
       await resumeSong(device.id, room, true);
-    } else if (songInQueue) {
+    } 
+    else if (songInQueue) {
       await pauseSong(device.id, room, true);
     }
 
@@ -78,7 +104,7 @@ const Player = ( { songInQueue, isPaused, songs, history, room, device, playback
         }
       </div>
       {songInQueue
-        ? <ProgressBar songs={songs} isPaused={isPaused} runtime={runtime} seekElapsed={seekElapsed}
+        ? <ProgressBar elapsed={elapsed} songs={songs} isPaused={isPaused} runtime={runtime} seekElapsed={seekElapsed}
           deviceID={device ? device.id : ""} room={room} dispatch={dispatch}/>
         : null
       }

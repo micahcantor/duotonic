@@ -79,6 +79,18 @@ export const sendChat = async (message, room_id) => {
     await apiRequest("POST", "/rooms/chat/new-message", `?room=${room_id}`, message);
 }
 
+export const getPlayerInfo = async () => {
+    const response = await apiRequest("GET", "/api/spotify/me/player", "", null);
+    const json = await response.json();
+    return json;
+}
+
+export const startSong = async (device_id, song_info, room_id, broadcast) => {
+    // sending uri with request starts the song
+    const query = `?device_id=${device_id}&room=${room_id}&broadcast=${broadcast}`;
+    await apiRequest("PUT", "/api/spotify/me/player/play", query, song_info);
+}
+
 export const resumeSong = async (device_id, room_id, broadcast) => {
     // no uri sent so this resumes the song
     const query = `?device_id=${device_id}&room=${room_id}&broadcast=${broadcast}`;
@@ -119,12 +131,6 @@ export const getDevices = async () => {
 export const addToQueue = async (device_id, song_info, room_id, broadcast) => {
     const query = `?device_id=${device_id}&uri=${song_info.uri}&room=${room_id}&broadcast=${broadcast}`;
     await apiRequest("POST", "/api/spotify/me/player/queue", query, song_info);
-}
-
-export const startSong = async (device_id, song_info, room_id, broadcast) => {
-    // sending uri with request starts the song
-    const query = `?device_id=${device_id}&room=${room_id}&broadcast=${broadcast}`;
-    await apiRequest("PUT", "/api/spotify/me/player/play", query, song_info);
 }
 
 export const searchSpotify = async (input) => {
