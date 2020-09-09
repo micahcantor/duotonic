@@ -125,7 +125,7 @@ export const DeviceSearch = (props) => {
     <div className="flex flex-col text-2xl space-y-2 -mt-2 -mb-4 font-semibold">
       <span className="text-left font-mono font-normal uppercase border-b-2 border-text"> Connect a Device</span>
       {props.loading
-        ? <span> Open the Spotify app on your phone so Pass the AUX can connect to it</span>
+        ? <span> Open the Spotify app on your phone so Duotonic can connect to it</span>
         : <span> Now connected to '{props.deviceName}', you're ready to go</span>
       }
       
