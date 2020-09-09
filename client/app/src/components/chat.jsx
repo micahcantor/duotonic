@@ -20,8 +20,11 @@ const Chat = ({ room, client, setQueueVisible, queueVisible, authorized}) => {
 
   useEffect(() => {
     if (authorized) {
-      getUsernameFromDB().then((response) => {
-        setUsername(response.username);
+      getUsernameFromDB().then(response => {
+        if (response.username) {
+          setUsername(response.username);
+        }
+        else setUsername("anonymous");
       });
     }
   }, [authorized])
