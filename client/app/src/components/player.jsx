@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable prefer-destructuring */
 import React, { useState, useEffect } from "react";
+import useInterval from "@use-it/interval";
 import "../styles/styles.css";
 import SongInfo from "./song_info.jsx"
 import { SliderInput, SliderTrack, SliderTrackHighlight, SliderHandle } from "@reach/slider";
@@ -13,30 +14,7 @@ const Player = ( { songInQueue, isPaused, elapsed, songs, history, room, device,
 
   const [runtime, setRuntime] = useState(null);
   const [songStarted, setSongStarted] = useState(false);
-
-  useEffect(() => {
-    
-    const interval = setInterval(async () => {
-      const playbackState = await getPlayerInfo();
-      loadUpdatedPlayback(playbackState);
-    }, 5000)
-
-    function loadUpdatedPlayback(playbackState) {
-      const { is_playing, progress_ms, item } = playbackState;
-      const track = {
-        name: item.name, 
-        artists: item.artists.map(a => a.name).reduce((acc, curr) => acc + ", " + curr),
-        coverUrl: item.album.images[0].url,
-        uri: item.uri,
-        runtime: item.duration_ms.toString(),
-      }
-      dispatch({ type: 'pause-update', isPaused: !is_playing});
-      dispatch({ type: 'set-elapsed', elapsed: progress_ms });
-      dispatch({ type: 'set-current-song', song: track });
-    }
-
-    return () => clearInterval(interval);
-  }, [dispatch])
+  const [shouldPoll, setShouldPoll] = useState(false);
 
   useEffect(() => {
     if (songs[0]) {
@@ -46,6 +24,35 @@ const Player = ( { songInQueue, isPaused, elapsed, songs, history, room, device,
       setRuntime(null);
     }
   }, [songs]);
+
+  useEffect(() => {
+    if (songInQueue && !isPaused) {
+      setShouldPoll(true);
+    }
+    else {
+      setShouldPoll(false);
+    }
+  }, [isPaused, songInQueue])
+
+  useInterval(() => {
+    getPlayerInfo().then(playbackState => {
+      loadUpdatedPlayback(playbackState);
+    })
+  }, shouldPoll ? 10000 : null)
+
+  function loadUpdatedPlayback(playbackState) {
+    const { is_playing, progress_ms, item } = playbackState;
+    const track = {
+      name: item.name, 
+      artists: item.artists.map(a => a.name).reduce((acc, curr) => acc + ", " + curr),
+      coverUrl: item.album.images[0].url,
+      uri: item.uri,
+      runtime: item.duration_ms.toString(),
+    }
+    dispatch({ type: 'pause-update', isPaused: !is_playing});
+    dispatch({ type: 'set-elapsed', elapsed: progress_ms });
+    dispatch({ type: 'set-current-song', song: track });
+  }
 
   const handlePauseChange = async () => {
     dispatch({ type: 'flip-pause' });
