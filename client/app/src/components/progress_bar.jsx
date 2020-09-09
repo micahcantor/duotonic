@@ -3,9 +3,8 @@ import "../styles/styles.css"
 import { SliderInput, SliderTrack, SliderTrackHighlight, SliderHandle } from "@reach/slider";
 import { setSongPosition, updateHistoryInRoom } from "../api";
 
-export const ProgressBar = ({ seekElapsed, songs, runtime, isPaused, deviceID, room, dispatch }) => {
+export const ProgressBar = ({ elapsed, songs, runtime, isPaused, deviceID, room, dispatch }) => {
 
-  const [elapsed, setElapsed] = useState(0);
   const [runtimeMS, setRuntimeMS] = useState(null);
   const [timeoutID, setTimeoutID] = useState(null);
   const [progressActive, setProgressActive] = useState(false);
@@ -22,13 +21,13 @@ export const ProgressBar = ({ seekElapsed, songs, runtime, isPaused, deviceID, r
   useEffect(() => {
     if (elapsed >= runtimeMS && progressIntervalID) {
       clearInterval(progressIntervalID);
-      setElapsed(0);
+      dispatch({ type: 'set-elapsed', elapsed: 0 });
       setProgressActive(false);
       onProgressComplete();
     }
     else if (!isPaused && !progressActive) {
       const intervalID = setInterval(() =>
-        setElapsed(elapsed => elapsed + 0.05),
+        dispatch({ type: 'increment-elapsed', increment: 50 }),
         50 // every 50 ms
       );
       setProgressActive(true);
@@ -38,19 +37,14 @@ export const ProgressBar = ({ seekElapsed, songs, runtime, isPaused, deviceID, r
       setProgressActive(false);
       clearInterval(progressIntervalID);
     }
-  }, [elapsed, isPaused, progressActive, runtimeMS, progressIntervalID, onProgressComplete])
+  }, [elapsed, isPaused, progressActive, runtimeMS, progressIntervalID, onProgressComplete, dispatch])
 
   /* Fires when the first song in queue has been updated (song skip) -- resets progress bar values to their initial state */
   useEffect(() => {
-    setElapsed(0);
-    setRuntimeMS(parseFloat(runtime) / 1000);
+    dispatch({ type: 'set-elapsed', elapsed: 0 });
+    setRuntimeMS(parseFloat(runtime));
     setProgressActive(false);
-  }, [songs[0], runtime])
-
-  /* Fires when the progress bar has been changed by another user in the room */
-  useEffect(() => {
-    setElapsed(seekElapsed);
-  }, [seekElapsed])
+  }, [songs[0], runtime, dispatch])
 
   /* Clean up function that clears timers on dismount */
   useEffect(() => {
@@ -61,15 +55,15 @@ export const ProgressBar = ({ seekElapsed, songs, runtime, isPaused, deviceID, r
   }, [timeoutID, progressIntervalID])
 
   const onChange = (newValue) => {
-    setElapsed(newValue); // visually update the elapsed state immediately
+    dispatch({ type: 'set-elapsed', elapsed: newValue }); // visually update the elapsed state immediately
     // sets a timeout function that sends the api request after .25 seconds
     // this prevents sending many api requests successively to the server when the bar is dragged.
     if (timeoutID) {
       clearTimeout(timeoutID);
     }
-    const timeout = setTimeout(() => {
+    const timeout = setTimeout(async () => {
       console.log("sending seek req ", room);
-      setSongPosition(deviceID, newValue * 1000, room, true);
+      await setSongPosition(deviceID, newValue, room, true);
     }, 250)
     setTimeoutID(timeout);
   }

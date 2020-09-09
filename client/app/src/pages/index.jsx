@@ -17,10 +17,11 @@ const initialState = {
   songs: [],
   history: [],
   isPaused: true,
+  elapsed: 0,
 }
 
 function reducer(state, action) {
-  const { songs, history, isPaused } = state;
+  const { songs, history, isPaused, elapsed } = state;
   switch(action.type) {
     case 'next-song':
       const isLastSong = songs.length === 1; // if this is the last song in queue set isPaused to true
@@ -31,6 +32,10 @@ function reducer(state, action) {
       return { ...state, songs: updated};
     case 'add-song':
       return { ...state, songs: [...songs, action.song]};
+    case 'set-current-song':
+      const songsCopy = [...songs];
+      songsCopy[0] = action.song;
+      return { ...state, song: songsCopy };
     case 'add-to-history':
       return { ...state, history: [...history, action.song] };
     case 'replace-playback':
@@ -39,20 +44,23 @@ function reducer(state, action) {
       return { ...state, isPaused: action.isPaused };
     case 'flip-pause':
       return { ...state, isPaused: !isPaused };
+    case 'set-elapsed':
+      return { ...state, elapsed: action.elapsed };
+    case 'increment-elapsed':
+      return { ...state, elapsed: elapsed + action.increment };
     default: throw new Error('undefined action');
   }
 }
 
 const App = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { songs, history, isPaused } = state;
+  const { songs, history, isPaused, elapsed } = state;
 
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [hideCookieBanner, setHideCookieBanner] = useState(false);
   const [playbackCapable, setPlaybackCapable] = useState(true);
 
   const [signInLink, setSignInLink] = useState(null);
-  const [seekUpdateElapsed, setSeekUpdateElapsed] = useState(0);
   const [room, setRoom] = useState("");
   const [WSClient, setWSClient] = useState(null);
 
@@ -141,7 +149,7 @@ const App = () => {
       if (current_song && !isPaused && Object.keys(current_song).length !== 0) {
         await startSong(device.id, current_song, room, false);
         await setSongPosition(device.id, position_ms, room, false);
-        setSeekUpdateElapsed(position_ms);
+        dispatch({ type: 'set-elapsed', elapsed: position_ms });
       }
   
       dispatch({ type: 'pause-update', isPaused: isPaused });
@@ -185,7 +193,7 @@ const App = () => {
         case 'seek':
           const position = parseInt(updated.position_ms);
           await setSongPosition(device.id, position, room, false);
-          setSeekUpdateElapsed(position / 1000);
+          dispatch({ type: 'set-elapsed', elapsed: position });
           break;
         default: break;
       }
@@ -250,8 +258,8 @@ const App = () => {
             : <div className="pt-4 mx-auto"><Banner setHideCookieBanner={setHideCookieBanner}/></div>
           }
         </div>
-        <Player songInQueue={songInQueue} isPaused={isPaused} songs={songs} history={history} room={room} device={device} dispatch={dispatch}
-          playbackCapable={playbackCapable} seekElapsed={seekUpdateElapsed}/>
+        <Player songInQueue={songInQueue} isPaused={isPaused} elapsed={elapsed} songs={songs} history={history} room={room} device={device} dispatch={dispatch}
+          playbackCapable={playbackCapable} />
       </div>
     </>
   );
