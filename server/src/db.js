@@ -14,7 +14,7 @@ const loadDB = async () => {
 
     try {
         const client = await MongoClient.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-        db = client.db();
+        db = client.db("prodDB")
     }
     catch (err) {
         console.log('caught err');
