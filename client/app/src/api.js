@@ -107,8 +107,8 @@ export const nextSong = async (device_id, song_info, room_id, broadcast) => {
     await apiRequest("POST", "/api/spotify/me/player/next", query, song_info);
 }
 
-export const previousSong = async (device_id, room_id) => {
-    const query = `?device_id=${device_id}&room=${room_id}&broadcast=${false}`;
+export const previousSong = async (device_id, room_id, broadcast) => {
+    const query = `?device_id=${device_id}&room=${room_id}&broadcast=${broadcast}`;
     await apiRequest("POST", "/api/spotify/me/player/previous", query, null);
 }
 
@@ -120,6 +120,13 @@ export const setVolume = async (device_id, volume_percent) => {
 export const setSongPosition = async (device_id, position_ms, room_id, broadcast) => {
     const query = `?device_id=${device_id}&position_ms=${position_ms}&room=${room_id}&broadcast=${broadcast}`;
     await apiRequest("PUT", "/api/spotify/me/player/seek", query, null);
+}
+
+/* This function does not change the Spotify playback, just updates the position_ms number in the room collection
+    Gives a discrete way to update that value, since otherwise it would only change when the user deliberately seeks to a diff position. */
+export const setSongPositionInDB = async (position_ms, room_id) => {
+    const query = `?position_ms=${position_ms}&room_id=${room_id}`;
+    await apiRequest("PUT", "/rooms/set-position", query, null);
 }
 
 export const getDevices = async () => {
