@@ -1,58 +1,40 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
+import useInterval from "@use-it/interval";
 import "../styles/styles.css"
 import { SliderInput, SliderTrack, SliderTrackHighlight, SliderHandle } from "@reach/slider";
-import { setSongPosition, updateHistoryInRoom } from "../api";
+import { setSongPosition, setSongPositionInDB, updateHistoryInRoom } from "../api";
 
 export const ProgressBar = ({ elapsed, songs, runtime, isPaused, deviceID, room, dispatch }) => {
 
-  const [runtimeMS, setRuntimeMS] = useState(null);
   const [timeoutID, setTimeoutID] = useState(null);
-  const [progressActive, setProgressActive] = useState(false);
-  const [progressIntervalID, setProgressIntervalID] = useState(null);
-
-  const onProgressComplete = useCallback(() => {
-    if (room && room !== "") {
-      updateHistoryInRoom(songs[0], room);
-    }
-    dispatch({ type: 'add-to-history', song: songs[0] });
-    dispatch({ type: 'next-song' });
-  }, [room, songs, dispatch]);
+  const [shouldIncrement, setShouldIncrement] = useState(false);
 
   useEffect(() => {
-    if (elapsed >= runtimeMS && progressIntervalID) {
-      clearInterval(progressIntervalID);
+    if (runtime && elapsed >= runtime) {
+
+      if (room && room !== "") { /* update history for the room if user is in a room */
+        updateHistoryInRoom(songs[0], room);
+      }
+      setShouldIncrement(false);
       dispatch({ type: 'set-elapsed', elapsed: 0 });
-      setProgressActive(false);
-      onProgressComplete();
-    }
-    else if (!isPaused && !progressActive) {
-      const intervalID = setInterval(() =>
-        dispatch({ type: 'increment-elapsed', increment: 50 }),
-        50 // every 50 ms
-      );
-      setProgressActive(true);
-      setProgressIntervalID(intervalID);
-    }
-    else if (isPaused && progressActive) {
-      setProgressActive(false);
-      clearInterval(progressIntervalID);
-    }
-  }, [elapsed, isPaused, progressActive, runtimeMS, progressIntervalID, onProgressComplete, dispatch])
+      dispatch({ type: 'add-to-history', song: songs[0] });
+      dispatch({ type: 'next-song' });
 
-  /* Fires when the first song in queue has been updated (song skip) -- resets progress bar values to their initial state */
-  useEffect(() => {
-    dispatch({ type: 'set-elapsed', elapsed: 0 });
-    setRuntimeMS(parseFloat(runtime));
-    setProgressActive(false);
-  }, [songs[0], runtime, dispatch])
-
-  /* Clean up function that clears timers on dismount */
-  useEffect(() => {
-    return () => {
-      clearTimeout(timeoutID);
-      clearInterval(progressIntervalID);
     }
-  }, [timeoutID, progressIntervalID])
+    else if (room && elapsed > 1 && elapsed < 100) { /* set song position in the db once when the song starts */
+      setSongPositionInDB(elapsed, room);
+    }
+  }, [elapsed, runtime, room, songs, dispatch])
+
+  /* When pause state changes, set should increment */
+  useEffect(() => {
+    setShouldIncrement(!isPaused)
+  }, [isPaused])
+
+  /* Interval that increments elapsed every 50 ms if shouldIncrement is enabled */
+  useInterval(() => {
+    dispatch({ type: 'increment-elapsed', increment: 50 });
+  }, shouldIncrement ? 50 : null)
 
   const onChange = (newValue) => {
     dispatch({ type: 'set-elapsed', elapsed: newValue }); // visually update the elapsed state immediately
@@ -62,18 +44,18 @@ export const ProgressBar = ({ elapsed, songs, runtime, isPaused, deviceID, room,
       clearTimeout(timeoutID);
     }
     const timeout = setTimeout(async () => {
-      console.log("sending seek req ", room);
       await setSongPosition(deviceID, newValue, room, true);
     }, 250)
     setTimeoutID(timeout);
   }
 
-  return (
-    <SliderInput className="w-full pb-6 mb-1 md:mb-0" min={0} max={runtimeMS} value={elapsed} onChange={onChange}>
+  if (elapsed > 0) return (
+    <SliderInput className="w-full pb-6 mb-1 md:mb-0" min={0} max={runtime} value={elapsed} onChange={onChange}>
       <SliderTrack>
         <SliderTrackHighlight />
         <SliderHandle className="w-3 h-3 hover:bg-primary hover:border-primary focus:bg-primary focus:border-primary" />
       </SliderTrack>
     </SliderInput>
-  );
+  )
+  else return null;
 }
