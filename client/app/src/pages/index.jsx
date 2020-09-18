@@ -144,6 +144,7 @@ const App = () => {
 
     async function loadPlaybackLocally(playback) {
       const {isPaused, position_ms, queue, history, current_song} = playback;
+      console.log(playback)
       queue.forEach(async (song) => await addToQueue(device.id, song, room, false));
   
       if (current_song && !isPaused && Object.keys(current_song).length !== 0) {
@@ -162,7 +163,6 @@ const App = () => {
       console.log(updated, type);
       switch(type) {
         case 'start':
-          console.log('received update to start')
           await startSong(device.id, updated.current_song, room, false);
           dispatch({ type: 'add-song', song: updated.current_song });
           dispatch({ type: 'pause-update', isPaused: false });
@@ -173,29 +173,32 @@ const App = () => {
           break;
         case 'pause':
           await pauseSong(device.id, room, false);
-          dispatch({ type: 'pause-update', isPaused: false });
+          dispatch({ type: 'pause-update', isPaused: true });
           break;
         case 'next':
           console.log('next song from room update')
           await nextSong(device.id, updated.current_song, room, false);
+          dispatch({ type: 'set-elapsed', elapsed: 0 });
           dispatch({ type: 'next-song' });
           dispatch({ type: 'pause-update', isPaused: false });
           break;
         case 'previous':
-          await previousSong(device.id, updated.current_song, room, false);
+          await previousSong(device.id, room, false);
           dispatch({ type: 'previous-song' });
+          dispatch({ type: 'set-elapsed', elapsed: 0 });
           dispatch({ type: 'pause-update', isPaused: false });
           break;
         case 'queue':
-          await addToQueue(device.id, updated.current_song, room, false);
-          dispatch({ type: 'add-song', song: updated.current_song });
+          const lastInQueue = updated.queue[updated.queue.length - 1];
+          await addToQueue(device.id, lastInQueue, room, false);
+          dispatch({ type: 'add-song', song: lastInQueue });
           break;
         case 'seek':
           const position = parseInt(updated.position_ms);
           await setSongPosition(device.id, position, room, false);
           dispatch({ type: 'set-elapsed', elapsed: position });
           break;
-        default: break;
+        default: throw new Error('invalid update type');
       }
     }
 
