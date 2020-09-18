@@ -6,38 +6,33 @@ import "../styles/styles.css";
 import SongInfo from "./song_info.jsx"
 import { SliderInput, SliderTrack, SliderTrackHighlight, SliderHandle } from "@reach/slider";
 import "../styles/slider_styles.css";
-import { getPlayerInfo, startSong, resumeSong, pauseSong, previousSong, nextSong, updateHistoryInRoom, setVolume } from "../api";
+import { getPlayerInfo, startSong, resumeSong, pauseSong, previousSong, nextSong, updateHistoryInRoom, setVolume, setSongPositionInDB } from "../api";
 import { ProgressBar } from "./progress_bar.jsx";
 
-const Player = ( { songInQueue, isPaused, elapsed, songs, history, room, device, playbackCapable, 
-  seekElapsed, dispatch } ) => {
+const Player = ( { songInQueue, isPaused, elapsed, songs, history, room, device, playbackCapable, dispatch } ) => {
 
   const [runtime, setRuntime] = useState(null);
-  const [songStarted, setSongStarted] = useState(false);
   const [shouldPoll, setShouldPoll] = useState(false);
 
   useEffect(() => {
     if (songs[0]) {
       setRuntime(songs[0].runtime);
-    } 
-    else {
-      setRuntime(null);
     }
+    else setRuntime(null)
   }, [songs]);
 
   useEffect(() => {
-    if (songInQueue && !isPaused) {
-      setShouldPoll(true);
-    }
-    else {
-      setShouldPoll(false);
-    }
+    setShouldPoll(songInQueue && !isPaused);
   }, [isPaused, songInQueue])
 
   useInterval(() => {
     getPlayerInfo().then(playbackState => {
       loadUpdatedPlayback(playbackState);
-    })
+    });
+
+    if (room) { /* updates the position of the song in the room collection */
+      setSongPositionInDB(elapsed, room)
+    }
   }, shouldPoll ? 10000 : null)
 
   function loadUpdatedPlayback(playbackState) {
@@ -47,7 +42,7 @@ const Player = ( { songInQueue, isPaused, elapsed, songs, history, room, device,
       artists: item.artists.map(a => a.name).reduce((acc, curr) => acc + ", " + curr),
       coverUrl: item.album.images[0].url,
       uri: item.uri,
-      runtime: item.duration_ms.toString(),
+      runtime: item.duration_ms,
     }
     dispatch({ type: 'pause-update', isPaused: !is_playing});
     dispatch({ type: 'set-elapsed', elapsed: progress_ms });
@@ -57,23 +52,22 @@ const Player = ( { songInQueue, isPaused, elapsed, songs, history, room, device,
   const handlePauseChange = async () => {
     dispatch({ type: 'flip-pause' });
 
-    if (isPaused && !songStarted && songInQueue) {
+    if (isPaused && elapsed === 0 && songInQueue) {
       await startSong(device.id, songs[0], room, true);
     } 
-    else if (isPaused && songStarted && songInQueue) {
+    else if (isPaused && elapsed > 0 && songInQueue) {
       await resumeSong(device.id, room, true);
     } 
     else if (songInQueue) {
       await pauseSong(device.id, room, true);
     }
-
-    setSongStarted(true);
   }
 
   const onLeftSkip = async () => {
     if (history.length > 0) {
-      await previousSong(device.id, room); // asks Spotify to play the previous song
+      await previousSong(device.id, room, true); // asks Spotify to play the previous song
       dispatch({ type: 'previous-song' });
+      dispatch({ type: 'set-elapsed', elapsed: 0 });
       dispatch({ type: 'pause-update', isPaused: false });
     }
   }
@@ -85,8 +79,9 @@ const Player = ( { songInQueue, isPaused, elapsed, songs, history, room, device,
     console.log('next song from button press');
     await nextSong(device.id, songs[1], room, true); // moves to the next song in spotify queue
 
+    dispatch({ type: 'set-elapsed', elapsed: 0 });
     dispatch({ type: 'add-to-history', song: songs[0] }); // add the skipped song to the local history
-    dispatch({ type: 'next-song' }); // removes the first song from the queue list and returns the new list
+    dispatch({ type: 'next-song' });
     dispatch({ type: 'pause-update', isPaused: false });
   }
 
@@ -110,11 +105,8 @@ const Player = ( { songInQueue, isPaused, elapsed, songs, history, room, device,
           : null
         }
       </div>
-      {songInQueue
-        ? <ProgressBar elapsed={elapsed} songs={songs} isPaused={isPaused} runtime={runtime} seekElapsed={seekElapsed}
+        <ProgressBar elapsed={elapsed} songs={songs} isPaused={isPaused} runtime={parseInt(runtime)}
           deviceID={device ? device.id : ""} room={room} dispatch={dispatch}/>
-        : null
-      }
     </div>
   );
 }
