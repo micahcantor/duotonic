@@ -77,10 +77,9 @@ const init = async () => {
                 strategy: 'spotify'
             },
             handler: async (request, h) => {
-                console.log(process.env.NODE_ENV)
+
                 if (!request.auth.isAuthenticated) {
-                    console.log(request.auth.error.message);
-                    throw Boom.unauthorized();
+                    throw Boom.unauthorized('must have session cookie');
                 }
 
                 let ttl = null;
@@ -395,6 +394,31 @@ const init = async () => {
             throw Boom.badImplementation();
         }
     });
+
+    server.route({
+        method: 'PUT',
+        path: '/rooms/set-position',
+        handler: async (request, h) => {
+
+            if (!request.state.sessionId) {
+                throw Boom.unauthorized('user must be authenticated');
+            }
+
+            try {
+                const roomID = ObjectId(request.query.room);
+                await db.collection('rooms').updateOne(
+                    { _id: roomID },
+                    { $set: { 'playback.position_ms': request.query.position_ms }}
+                );
+            }
+            catch (error) {
+                console.log(error);
+                throw Boom.badImplementation('could not find or update room');
+            }
+
+            return { message: 'success' };
+        }
+    })
 
     server.route({
         method: 'POST',
