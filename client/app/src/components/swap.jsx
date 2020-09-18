@@ -2,7 +2,7 @@ import React from "react";
 import "../styles/styles.css"
 import "../styles/styles.css";
 
-const SwapIcon = ({ queueVisible, setQueueVisible }) => {
+const SwapIcon = ({ setQueueVisible }) => {
 
     const onClick = () => {
         setQueueVisible(queueVisible => !queueVisible);
