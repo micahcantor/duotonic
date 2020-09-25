@@ -11,7 +11,7 @@ import Banner from "../components/banner.jsx";
 import { Modal, modals } from "../components/modal.jsx"
 import { addToQueue, startSong, pauseSong, resumeSong, nextSong, previousSong, getDevices, getAccessToken, enterRoom, setSongPosition, getCurrentPlaybackState, isUserAuth } from "../api.js"
 import { addSDKScript, isPlaybackCapable, initPlayer } from "../web_playback.js";
-const Nes = require("@hapi/nes/lib/client")
+const Nes = require("@hapi/nes/lib/client");
 
 const initialState = {
   songs: [],
@@ -144,7 +144,6 @@ const App = () => {
 
     async function loadPlaybackLocally(playback) {
       const {isPaused, position_ms, queue, history, current_song} = playback;
-      console.log(playback)
       queue.forEach(async (song) => await addToQueue(device.id, song, room, false));
   
       if (current_song && !isPaused && Object.keys(current_song).length !== 0) {
@@ -226,6 +225,7 @@ const App = () => {
     //every 2 seconds, check if there are any active devices, and if so, set it as the device
     const searchForDevices = setInterval(() => {
       getDevices().then(devices => {
+        console.log(devices);
         if (devices && devices.length > 0) {
           setDevice(devices[0]);
           setDeviceSearching(false);
@@ -246,7 +246,7 @@ const App = () => {
   return (
     <>
       <SEO title="App" />
-      <Modal body={modalBody} loading={deviceSearching} deviceName={device? device.name : ""}
+      <Modal body={modalBody} loading={deviceSearching} deviceName={device ? device.name : ""}
         showDialog={showModal} close={closeModal} mobile={false} signInLink={signInLink} setSignInLink={setSignInLink} />
       <div className="flex flex-col w-screen h-screen bg-bgColor text-text overflow-hidden">
         <Header device={device} deviceSearching={deviceSearching} room={room} setRoom={setRoom} wsClient={WSClient}/>

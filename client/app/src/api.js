@@ -7,8 +7,7 @@ const apiRequest = async (method, params, query, body) => {
         options.headers = { "Content-Type": "application/json" }
     }
 
-    const response = await fetch(url, options);
-    return response;
+    return await fetch(url, options);
 }
 
 export const getAccessToken = async () => {
