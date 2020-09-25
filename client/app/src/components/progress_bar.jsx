@@ -10,12 +10,14 @@ export const ProgressBar = ({ elapsed, songs, runtime, isPaused, deviceID, room,
   const [shouldIncrement, setShouldIncrement] = useState(false);
 
   useEffect(() => {
-    if (runtime && elapsed >= runtime) {
-
+    if (runtime && elapsed >= runtime) { /* when the progress bar reaches the end */
+      
       if (room && room !== "") { /* update history for the room if user is in a room */
         updateHistoryInRoom(songs[0], room);
       }
-      setShouldIncrement(false);
+      if (songs.length === 1) { /* turn off increment if this was the last song in queue*/
+        setShouldIncrement(false);
+      }
       dispatch({ type: 'set-elapsed', elapsed: 0 });
       dispatch({ type: 'add-to-history', song: songs[0] });
       dispatch({ type: 'next-song' });
