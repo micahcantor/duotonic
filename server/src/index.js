@@ -190,7 +190,10 @@ const init = async () => {
                     throw Boom.badImplementation('could not handle spotify api request');
                 }
                 catch (error) {
-                    console.log(error);
+                    if (error.response && error.response.data) {
+                        console.log(error.response.data);
+                    }
+                    else console.log(error);
                     throw Boom.badRequest('Third-party API request failed.');
                 }
             }
