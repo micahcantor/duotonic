@@ -26,9 +26,9 @@ const Player = ( { songInQueue, isPaused, elapsed, songs, history, room, device,
   }, [isPaused, songInQueue])
 
   useInterval(() => {
-    getPlayerInfo().then(playbackState => {
-      loadUpdatedPlayback(playbackState);
-    });
+    getPlayerInfo()
+      .then(playbackState => loadUpdatedPlayback(playbackState))
+      .catch(error => console.error(error));
 
     if (room) { /* updates the position of the song in the room collection */
       setSongPositionInDB(elapsed, room)
@@ -105,8 +105,8 @@ const Player = ( { songInQueue, isPaused, elapsed, songs, history, room, device,
           : null
         }
       </div>
-        <ProgressBar elapsed={elapsed} songs={songs} isPaused={isPaused} runtime={parseInt(runtime)}
-          deviceID={device ? device.id : ""} room={room} dispatch={dispatch}/>
+      <ProgressBar elapsed={elapsed} songs={songs} isPaused={isPaused} runtime={parseInt(runtime)}
+        deviceID={device ? device.id : ""} room={room} dispatch={dispatch}/>
     </div>
   );
 }
