@@ -87,12 +87,18 @@ export const FindRandom = ({ loading }) => {
 export const SignIn = ({ signInLink, setSignInLink }) => {
 
   function onChange(e) {
+    const url = new URL(signInLink);
+    const params = new URLSearchParams(url.search.slice(1));
+
     if (e.target.checked) {
-      setSignInLink(link => link + "&remember=true");
+      params.append("remember", "true");
     }
     else {
-      setSignInLink(link => link.replace("&remember=true", ""));
+      params.delete("remember");
     }
+
+    url.search = params.toString();
+    setSignInLink(url.href);
   }
 
   return (

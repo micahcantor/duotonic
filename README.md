@@ -3,7 +3,6 @@
 # Duotonic
 
 ### Listen to Spotify and chat simultaneously with a friend or stranger.
-</br>
 
 ![App Screenshot](./images/Duotonic_App.png)
 </br>
