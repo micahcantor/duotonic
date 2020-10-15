@@ -4,7 +4,7 @@ import { graphql } from "gatsby"
 import SEO from "../components/seo.js"
 import Header from "../components/header.jsx"
 import Footer from "../components/footer.jsx"
-import { Hero, Sync, Chat, Pairing } from "../components/sections.jsx"
+import { Hero, Sync, Chat, Pairing, OpenSource } from "../components/sections.jsx"
 
 const IndexPage = ({ data }) => {
   return (
@@ -18,6 +18,7 @@ const IndexPage = ({ data }) => {
             <Sync data={data}/>
             <Chat data={data}/>
             <Pairing data={data}/>
+            <OpenSource/>
           </main>
           <Footer />
         </div>
@@ -58,6 +59,13 @@ export const query = graphql`{
   selfless: file(relativePath: {eq: "selfless.jpeg"}) {
     childImageSharp {
       fluid(maxWidth: 2000, quality: 100) {
+        ...GatsbyImageSharpFluid
+      }
+    }
+  },
+  github: file(relativePath: {eq: "github-icon-white.png"}) {
+    childImageSharp {
+      fluid(maxWidth: 32, maxHeight: 32, quality: 100) {
         ...GatsbyImageSharpFluid
       }
     }
