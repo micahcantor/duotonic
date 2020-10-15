@@ -126,18 +126,18 @@ export const SignIn = ({ signInLink, setSignInLink }) => {
   );
 }
 
-export const DeviceSearch = (props) => {
+export const DeviceSearch = ({ loading, deviceName }) => {
   return (
     <div className="flex flex-col text-2xl space-y-2 -mt-2 -mb-4 font-semibold">
       <span className="text-left font-mono font-normal uppercase border-b-2 border-text"> Connect a Device</span>
-      {props.loading
+      {loading
         ? <span> Open the Spotify app on your phone so Duotonic can connect to it</span>
-        : <span> Now connected to '{props.deviceName}', you're ready to go</span>
+        : <span> Now connected to '{deviceName}', you're ready to go</span>
       }
       
       <div className="flex flex-col items-center">
-        <ScaleLoader color="#6246ea" loading={props.loading}/>
-        {props.loading 
+        <ScaleLoader color="#6246ea" loading={loading}/>
+        {loading 
           ? <span className="text-textColor text-xl"> searching for devices...</span>
           : <CheckMark />
         }
