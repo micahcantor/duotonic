@@ -1,4 +1,18 @@
-const apiRequest = async (method, params, query, body) => {
+function fetchRetry(url, options = {}, retries = 3) {
+    const retryCodes = [408, 500, 502, 503, 504, 522, 524];
+    return fetch(url, options)
+        .then(res => {
+            if (res.ok) return res;
+
+            if (retries > 0 && retryCodes.includes(res.status)) {
+                return fetchRetry(url, options, retries - 1);
+            }
+            else throw new Error(res);
+        })
+        .catch(console.error);
+}
+
+async function apiRequest(method, params, query, body) {
     const base = process.env.GATSBY_API_URL;
     const url = base + params + query;
     let options = { method, credentials: "include" }
@@ -7,7 +21,7 @@ const apiRequest = async (method, params, query, body) => {
         options.headers = { "Content-Type": "application/json" }
     }
 
-    return await fetch(url, options);
+    return await fetchRetry(url, options);
 }
 
 export const getAccessToken = async () => {
