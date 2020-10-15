@@ -40,6 +40,16 @@ module.exports = {
         ignore: ['src/styles/modal_styles.css', 'src/styles/slider_styles.css', 'src/styles/tooltip_styles.css']
       },
     },
+    {
+      resolve: `gatsby-plugin-umami`,
+      options: {
+        websiteId: 'b29e2c44-2d89-4fad-ac81-36b693127cef',
+        srcUrl: 'https://umami-pearl.vercel.app/umami.js',
+        includeInDevelopment: false,
+        autoTrack: true,
+        respectDoNotTrack: true
+      },
+    },
     // this (optional) plugin enables Progressive Web App + Offline functionality
     // To learn more, visit: https://gatsby.dev/offline
     // `gatsby-plugin-offline`,
