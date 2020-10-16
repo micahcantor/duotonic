@@ -8,6 +8,7 @@ import { SliderInput, SliderTrack, SliderTrackHighlight, SliderHandle } from "@r
 import "../styles/slider_styles.css";
 import { getPlayerInfo, startSong, resumeSong, pauseSong, previousSong, nextSong, updateHistoryInRoom, setVolume, setSongPositionInDB } from "../api";
 import { ProgressBar } from "./progress_bar.jsx";
+import { ClipLoader } from "react-spinners";
 
 const Player = ( { songInQueue, isPaused, elapsed, songs, history, room, device, playbackCapable, dispatch } ) => {
 
@@ -114,9 +115,9 @@ const Player = ( { songInQueue, isPaused, elapsed, songs, history, room, device,
 const PlaybackControls = ({ onLeftSkip, onRightSkip, isPaused, songInQueue, onPauseChange }) => {
   return (
     <div className={`flex justify-center text-textColor md:pl-2 ${songInQueue ? "mx-auto" : ""}`}>
-      <LeftSkip onLeftSkip={onLeftSkip}/>
+      <LeftSkip onLeftSkip={onLeftSkip} songInQueue={songInQueue}/>
       <PausePlay isPaused={isPaused} onPauseChange={onPauseChange} />
-      <RightSkip onRightSkip={onRightSkip}/>
+      <RightSkip onRightSkip={onRightSkip} songInQueue={songInQueue}/>
     </div>
   );
 };
@@ -172,9 +173,18 @@ const PlayIcon = () => {
   );
 };
 
-const RightSkip = ({ onRightSkip }) => {
-  return (
-    <button type="button" onClick={onRightSkip}>
+const RightSkip = ({ onRightSkip, songInQueue }) => {
+  const [loading, setLoading] = useState(false);
+  const handleClick = async () => {
+    if (songInQueue) {
+      setLoading(true);
+      await onRightSkip();
+      setLoading(false);
+    }
+  }
+  if (loading) return <div className="flex items-center justify-center ml-2"><ClipLoader color="#6246ea" size="24px"/></div>
+  else return (
+    <button type="button" onClick={handleClick}>
       <svg className="w-12 h-12 stroke-current hover:text-primary" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth=".75" viewBox="0 0 24 24">
         <path d="M9 5l7 7-7 7"> </path>
       </svg>
@@ -182,9 +192,18 @@ const RightSkip = ({ onRightSkip }) => {
   );
 };
 
-const LeftSkip = ({ onLeftSkip }) => {
-  return (
-    <button type="button" onClick={onLeftSkip}>
+const LeftSkip = ({ onLeftSkip, songInQueue }) => {
+  const [loading, setLoading] = useState(false);
+  const handleClick = async () => {
+    if (songInQueue) {
+      setLoading(true);
+      await onLeftSkip();
+      setLoading(false);
+    }
+  }
+  if (loading) return <div className="flex items-center justify-center mr-2"><ClipLoader color="#6246ea" size="24px"/></div>
+  else return (
+    <button type="button" onClick={handleClick}>
       <svg className="w-12 h-12 stroke-current hover:text-primary" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth=".75" viewBox="0 0 24 24" >
         <path d="M15 19l-7-7 7-7"></path>
       </svg>

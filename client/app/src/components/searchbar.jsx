@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import SongInfo from "./song_info.jsx";
 import ScaleLoader from "react-spinners/ScaleLoader";
+import ClipLoader from "react-spinners/ClipLoader";
 import { searchSpotify, startSong, addToQueue } from "../api.js";
 import "../styles/styles.css";
 
@@ -9,7 +10,7 @@ const SearchBar = ({ songs, device, room, dispatch }) => {
   
   const [searchResults, setSearchResults] = useState([]);
   const [showResults, setShowResults] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [searchLoading, setSearchLoading] = useState(false);
   const [currentTimer, setCurrentTimer] = useState(null);
 
   const parseSearchResults = (response) => {
@@ -33,7 +34,7 @@ const SearchBar = ({ songs, device, room, dispatch }) => {
   }
 
   const handleInputChange = async (e) => {
-    setLoading(true);
+    setSearchLoading(true);
     // show the search results box is not empty
     const initial = e.target.value;
     if (initial.length > 0) {
@@ -60,7 +61,7 @@ const SearchBar = ({ songs, device, room, dispatch }) => {
           setSearchResults(tracks);
         }
 
-        setLoading(false);
+        setSearchLoading(false);
       }, 750
     );
     setCurrentTimer(timeoutID);
@@ -78,7 +79,7 @@ const SearchBar = ({ songs, device, room, dispatch }) => {
     };
 
     // the first song is played immediately and isn't added to the queue
-    // spotify automatically adds the first song played to the queue
+    // spotify automatically adds the first song played to the 
     if (songs.length === 0) {
       await startSong(device.id, newQueueItem, room, true);
       dispatch({ type: 'pause-update', isPaused: false });
@@ -86,7 +87,6 @@ const SearchBar = ({ songs, device, room, dispatch }) => {
     else {
       await addToQueue(device.id, newQueueItem, room, true);
     }
-
     // update songs state afterwards to avoid stale state issues
     dispatch({type: 'add-song', song: newQueueItem })
   };
@@ -100,20 +100,20 @@ const SearchBar = ({ songs, device, room, dispatch }) => {
         />
         <CloseButton onClick={closeResults} showResults={showResults}/>
       </form>
-      <SearchResults show={showResults} songs={searchResults} onAdd={onAdd} closeResults={closeResults} loading={loading}/>
+      <SearchResults show={showResults} songs={searchResults} onAdd={onAdd} closeResults={closeResults} searchLoading={searchLoading}/>
     </>
   );
 }
 
-const SearchResults = ({ songs, onAdd, show, loading }) => { 
+const SearchResults = ({ songs, onAdd, show, searchLoading }) => { 
   const resultList = songs.map((song, index) => {
-    return <SearchItem key={index} song={song} onAdd={onAdd}/>
+    return <SearchItem key={index} song={song} onAdd={onAdd} />
   })
 
   if (show) {
     return (
       <div className="min-h-1/2 relative z-0 rounded bg-bgDark w-full h-full overflow-y-auto mb-4 -mt-5 text-center scrollbar">
-        <ScaleLoader css="margin-top: -20px; margin-bottom: -20px" height="50px" width="10px" color="#6246ea" loading={loading} />
+        <ScaleLoader css="margin-top: -20px; margin-bottom: -20px" height="50px" width="10px" color="#6246ea" loading={searchLoading} />
         {resultList}
       </div>
     )
@@ -123,15 +123,24 @@ const SearchResults = ({ songs, onAdd, show, loading }) => {
 
 const SearchItem = ({ song, onAdd }) => {
   const [inQueue, setInQueue] = useState(false);
-  const handleClick = (e) => {
-    onAdd(e);
+  const [addSongLoading, setAddSongLoading] = useState(false);
+
+  const handleClick = async (e) => {
+    setAddSongLoading(true);
+    await onAdd(e);
+    setAddSongLoading(true)
     setInQueue(true);
   }
 
   return (
     <div id="result-parent" className="text-left border-b-2 border-text hover:border-primary p-3 w-full flex justify-between items-center">
       <SongInfo id="info" className="ml-2" song={song} />
-      {inQueue ? <CheckMark /> : <AddButton onClick={handleClick} />}
+      {inQueue 
+        ? <CheckMark /> 
+        : addSongLoading  
+          ? <div className="mr-2"><ClipLoader color="#6246ea" size="24px" /></div>
+          : <AddButton onClick={handleClick} />
+      }
     </div>
   )
 }

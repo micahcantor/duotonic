@@ -70,6 +70,7 @@ const App = () => {
   const [queueVisible, setQueueVisible] = useState(true);
   const [modalBody, setModalBody] = useState("");
   const [showModal, setShowModal] = useState(false);
+  
   const closeModal = () => setShowModal(false);
   
   const songInQueue = songs.length > 0; // bool that is true if there is a song in the queue
