@@ -67,12 +67,12 @@ const Header = ({ device, deviceSearching, room, setRoom, wsClient }) => {
     else return <DisconnectedIndicator />
   }
 
-  const inRoomIcon = (wsClient) => {
+  const inRoomIcon = (wsClient, room) => {
     if (typeof window !== `undefined`) {
       const queryParams = new URLSearchParams(window.location.search);
       const roomID = queryParams.get("room");
       if (roomID) {
-        return <LeaveRoomButton wsClient={wsClient}/>
+        return <LeaveRoomButton wsClient={wsClient} room={room}/>
       }
       else return <UserAloneIndicator />
     }
@@ -99,7 +99,7 @@ const Header = ({ device, deviceSearching, room, setRoom, wsClient }) => {
 
           <div className="w-1 bg-white rounded"></div>
           {connectedIcon()}
-          {inRoomIcon(wsClient)}
+          {inRoomIcon(wsClient, room)}
         </div>
       </div>
     </nav>
@@ -178,9 +178,9 @@ const UserAloneIndicator = () => {
   );
 }
 
-const LeaveRoomButton = ({ wsClient }) => {
+const LeaveRoomButton = ({ wsClient, room }) => {
   const leaveRoom = async () => {
-    await exitRoom();
+    await exitRoom(room);
     wsClient.subscriptions().forEach(sub => wsClient.unsubscribe(sub, null));
     if (window.location) {
       window.location.href = "/";
