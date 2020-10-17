@@ -50,9 +50,7 @@ const Player = ( { songInQueue, isPaused, elapsed, songs, history, room, device,
     dispatch({ type: 'set-current-song', song: track });
   }
 
-  const handlePauseChange = async () => {
-    dispatch({ type: 'flip-pause' });
-
+  const onPauseChange = async () => {
     if (isPaused && elapsed === 0 && songInQueue) {
       await startSong(device.id, songs[0], room, true);
     } 
@@ -62,6 +60,7 @@ const Player = ( { songInQueue, isPaused, elapsed, songs, history, room, device,
     else if (songInQueue) {
       await pauseSong(device.id, room, true);
     }
+    dispatch({ type: 'flip-pause' });
   }
 
   const onLeftSkip = async () => {
@@ -98,7 +97,7 @@ const Player = ( { songInQueue, isPaused, elapsed, songs, history, room, device,
           ? <div className="ml-3 md:ml-5 w-1/2 lg:w-1/3 lg:absolute"><SongInfo song={songs[0]} /></div>
           : null
         }
-        <PlaybackControls isPaused={isPaused} onPauseChange={handlePauseChange} 
+        <PlaybackControls isPaused={isPaused} onPauseChange={onPauseChange} 
           onLeftSkip={onLeftSkip} onRightSkip={onRightSkip} songInQueue={songInQueue} />
 
         {playbackCapable
@@ -123,11 +122,21 @@ const PlaybackControls = ({ onLeftSkip, onRightSkip, isPaused, songInQueue, onPa
 };
 
 const PausePlay = ({ isPaused, onPauseChange }) => {
-  const handleClick = () => {
-    onPauseChange(isPaused); // calls function passed down from Player
-  } // lifts pause state to the player so it is accessible to other player components
+  const [loading, setLoading] = useState(false);
+  const handleClick = async () => {
+    setLoading(true);
+    await onPauseChange(isPaused); 
+    setLoading(false);
+  }
 
-  return (
+  if (loading) {
+    return (
+      <div className="w-16 h-16 flex items-center justify-center">
+        <ClipLoader color="#6246ea" size="24px" />
+      </div>
+    )
+  }
+  else return (
     <button onClick={handleClick} className="rounded-full h-16 w-16 flex items-center" type="button" >
       {isPaused ? <PlayIcon /> : <PauseIcon />}
     </button>
