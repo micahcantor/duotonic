@@ -6,7 +6,7 @@ import Icon from "./icon.jsx"
 import "../styles/styles.css";
 import { getRoomID, enterQueue, findPartner, exitQueue, exitRoom } from "../api.js";
 
-const Header = ({ device, deviceSearching, room, setRoom, wsClient }) => {
+const Header = ({ device, deviceSearching, room, setRoom, wsClient, error }) => {
   const [showRandom, setShowRandom] = useState(false);
   const [partnerSearching, setPartnerSearching] = useState(true);
   const [findMatchInterval, setFindMatchInterval] = useState(null);
@@ -58,13 +58,13 @@ const Header = ({ device, deviceSearching, room, setRoom, wsClient }) => {
   const onHamburgerClick = () => setShowMobileHeader(show => !show);
 
   const connectedIcon = () => {
-    if (deviceSearching) {
+    if (error) return <DisconnectedIndicator />
+    else if (deviceSearching) {
       return <LoadingIndicator/>
     }
     else if (device) {
       return <ConnectedIndicator />
     }
-    else return <DisconnectedIndicator />
   }
 
   const inRoomIcon = (wsClient, room) => {
@@ -156,7 +156,7 @@ const ConnectedIndicator = () => {
 
 const DisconnectedIndicator = () => {
   return (
-    <TriangleTooltip label="spotify not connected">
+    <TriangleTooltip label="there was an error">
       <div className="flex items-center text-red-700">
         <svg className="fill-current w-6 h-6 transform hover:scale-125" viewBox="0 0 20 20">
           <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd"></path>

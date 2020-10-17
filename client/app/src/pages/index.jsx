@@ -57,6 +57,7 @@ const App = () => {
   const { songs, history, isPaused, elapsed } = state;
 
   const [isAuthorized, setIsAuthorized] = useState(false);
+  const [error, setError] = useState(false);
   const [hideCookieBanner, setHideCookieBanner] = useState(false);
   const [playbackCapable, setPlaybackCapable] = useState(true);
 
@@ -85,21 +86,27 @@ const App = () => {
     const queryParams = new URLSearchParams(window.location.search);
     const room = queryParams.get("room");
 
-    isUserAuth().then(isAuthorized => {
-      if (isAuthorized && playbackCapable) {
-        setupWebPlayer();
-      }
-      else if (isAuthorized && !playbackCapable) {
-        setupRemoteDevice();
-      }
-      else {
-        const playbackQuery = playbackCapable ? '?wantsWebPlayback=true' : "";
-        const roomQuery = room ? `&room=${room}` : "";
-        setSignInLink(`${process.env.GATSBY_API_URL}/auth/spotify${playbackQuery}${roomQuery}`);
-      }
+    isUserAuth()
+      .then(isAuthorized => {
+        if (isAuthorized && playbackCapable) {
+          setupWebPlayer();
+        }
+        else if (isAuthorized && !playbackCapable) {
+          setupRemoteDevice();
+        }
+        else {
+          const playbackQuery = playbackCapable ? '?wantsWebPlayback=true' : "";
+          const roomQuery = room ? `&room=${room}` : "";
+          setSignInLink(`${process.env.GATSBY_API_URL}/auth/spotify${playbackQuery}${roomQuery}`);
+        }
 
-      setIsAuthorized(isAuthorized);
-    })
+        setIsAuthorized(isAuthorized);
+      })
+      .catch(e => {
+        setError(true);
+        console.log(e)
+      }) 
+
 
     startRefreshTimer();
     setHideCookieBanner(hideCookieBanner);
@@ -126,7 +133,7 @@ const App = () => {
 
     /* Functions needed to do this effect included here in the callback body */
     async function initRoomSocket() {
-      console.log('entering room', room, 'with device ', device.id);
+      console.log('entering room', room);
       const { msg } = await enterRoom(room);
       if (msg === "error") {
         setShowModal(true);
@@ -250,7 +257,7 @@ const App = () => {
       <Modal body={modalBody} loading={deviceSearching} deviceName={device ? device.name : ""}
         showDialog={showModal} close={closeModal} mobile={false} signInLink={signInLink} setSignInLink={setSignInLink} />
       <div className="flex flex-col w-screen h-screen bg-bgColor text-text overflow-hidden">
-        <Header device={device} deviceSearching={deviceSearching} room={room} setRoom={setRoom} wsClient={WSClient}/>
+        <Header device={device} deviceSearching={deviceSearching} room={room} setRoom={setRoom} wsClient={WSClient} error={error}/>
         <div className="container flex flex-col flex-grow mx-auto my-4 px-5 overflow-y-auto h-full scrollbar" style={{height: '85%'}}>
           <SearchBar songs={songs} room={room} device={device} dispatch={dispatch} />
           <div className="flex h-full">
