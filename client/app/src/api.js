@@ -1,15 +1,19 @@
-function fetchRetry(url, options = {}, retries = 3) {
+
+function fetchRetry(url, options, retries) {
     const retryCodes = [408, 500, 502, 503, 504, 522, 524];
     return fetch(url, options)
         .then(res => {
             if (res.ok) return res;
-
+            
+            console.log(res.status, url)
             if (retries > 0 && retryCodes.includes(res.status)) {
                 return fetchRetry(url, options, retries - 1);
             }
-            else throw new Error(res);
+            else { 
+                throw new Error(res);
+            }
         })
-        .catch(console.error);
+        .catch(console.log);
 }
 
 async function apiRequest(method, params, query, body) {
@@ -21,7 +25,7 @@ async function apiRequest(method, params, query, body) {
         options.headers = { "Content-Type": "application/json" }
     }
 
-    return await fetchRetry(url, options);
+    return await fetchRetry(url, options, 3);
 }
 
 export const getAccessToken = async () => {

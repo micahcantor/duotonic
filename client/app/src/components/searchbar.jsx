@@ -87,7 +87,7 @@ const SearchBar = ({ songs, device, room, dispatch }) => {
     else {
       await addToQueue(device.id, newQueueItem, room, true);
     }
-    // update songs state afterwards to avoid stale state issues
+    
     dispatch({type: 'add-song', song: newQueueItem })
   };
 
