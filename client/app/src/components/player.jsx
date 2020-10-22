@@ -1,5 +1,3 @@
-/* eslint-disable react/prop-types */
-/* eslint-disable prefer-destructuring */
 import React, { useState, useEffect } from "react";
 import useInterval from "@use-it/interval";
 import "../styles/styles.css";
