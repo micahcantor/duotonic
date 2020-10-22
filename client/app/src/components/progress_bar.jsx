@@ -27,18 +27,18 @@ export const ProgressBar = ({ elapsed, songs, runtime, isPaused, deviceID, room,
       setSongPositionInDB(elapsed, room);
     }
   }, [elapsed, runtime, room, songs, dispatch])
-
+  
   /* When pause state changes, set should increment */
   useEffect(() => {
-    setShouldIncrement(!isPaused)
-  }, [isPaused])
+    setShouldIncrement(!isPaused && songs.length > 0)
+  }, [isPaused, songs])
 
   /* Interval that increments elapsed every 50 ms if shouldIncrement is enabled */
   useInterval(() => {
     dispatch({ type: 'increment-elapsed', increment: 50 });
   }, shouldIncrement ? 50 : null)
 
-  const onChange = (newValue) => {
+  const onSeek = (newValue) => {
     dispatch({ type: 'set-elapsed', elapsed: newValue }); // visually update the elapsed state immediately
     // sets a timeout function that sends the api request after .25 seconds
     // this prevents sending many api requests successively to the server when the bar is dragged.
@@ -52,7 +52,7 @@ export const ProgressBar = ({ elapsed, songs, runtime, isPaused, deviceID, room,
   }
 
   if (elapsed > 0) return (
-    <SliderInput className="w-full pb-6 mb-1 md:mb-0" min={0} max={runtime} value={elapsed} onChange={onChange}>
+    <SliderInput className="w-full pb-6 mb-1 md:mb-0" min={0} max={runtime} value={elapsed} onChange={onSeek}>
       <SliderTrack>
         <SliderTrackHighlight />
         <SliderHandle className="w-3 h-3 hover:bg-primary hover:border-primary focus:bg-primary focus:border-primary" />
