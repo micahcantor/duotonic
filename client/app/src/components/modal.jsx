@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import React from "react";
+import React, { useState } from "react";
 import "../styles/styles.css";
 import { Dialog } from "@reach/dialog";
 import "../styles/modal_styles.css";
@@ -43,8 +43,10 @@ export const modals = {
 }
 
 export const GiveLink = ({ shareURL }) => {
+  const [linkCopied, setLinkCopied] = useState(false);
   const onCopyClick = () => {
     navigator.clipboard.writeText(shareURL);
+    setLinkCopied(true);
   }
 
   return (
@@ -55,13 +57,10 @@ export const GiveLink = ({ shareURL }) => {
         <p className="break-all font-semibold text-primary mr-3" id="share_link">
           {shareURL}
         </p>
-        <button onClick={onCopyClick} type="button" className="flex items-center">
-          <svg fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" 
-            className="mt-1 w-8 h-8 text-textColor hover:text-primary stroke-current"
-          >
-            <path d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
-          </svg>
-        </button>
+        {linkCopied
+          ? <CheckMark w="10" h="10"/> 
+          : <button onClick={onCopyClick} aria-label="copy link" className="flex items-center"><ClipboardIcon /></button>
+        }
       </div>
     </div>
   );
@@ -139,7 +138,7 @@ export const DeviceSearch = ({ loading, deviceName }) => {
         <ScaleLoader color="#6246ea" loading={loading}/>
         {loading 
           ? <span className="text-textColor text-xl"> searching for devices...</span>
-          : <CheckMark />
+          : <CheckMark w="20" h="20"/>
         }
       </div>
     </div>
@@ -155,10 +154,20 @@ export const RoomNotFound = () => {
   );
 }
 
-const CheckMark = () => {
+const CheckMark = ({w, h}) => {
   return (
-    <svg className="text-primary mr-2 w-20 h-20 stroke-current" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" viewBox="0 0 24 24">
+    <svg className={`text-primary mr-2 w-${w} h-${h} stroke-current`} fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" viewBox="0 0 24 24">
         <path d="M5 13l4 4L19 7"></path>
+    </svg>
+  )
+}
+
+const ClipboardIcon = () => {
+  return (
+    <svg fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" 
+      className="mt-1 w-8 h-8 text-textColor hover:text-primary stroke-current"
+    >
+      <path d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
     </svg>
   )
 }

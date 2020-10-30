@@ -94,7 +94,7 @@ const Header = ({ device, deviceSearching, room, setRoom, wsClient, error }) => 
           <NavButton open={openRandom} buttonText="Go Random" />
           <Modal body={modals.FindRandom} showDialog={showRandom} close={closeRandom} partnerSearching={partnerSearching} />
 
-          <NavButton open={openLink} buttonText="Get a Link" />
+          <NavButton open={openLink} buttonText="Create a Room" />
           <Modal body={modals.GiveLink} shareURL={link} showDialog={showLink} close={closeLink} />
 
           <div className="w-1 bg-white rounded"></div>

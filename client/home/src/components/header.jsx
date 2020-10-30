@@ -11,7 +11,7 @@ const Header = ({ showButton }) => {
       </div>
       { showButton
         ? <a href={process.env.GATSBY_APP_URL} className="ml-2 sm:ml-none text-lg md:text-xl font-semibold text-center rounded bg-primary p-2 hover:bg-primaryDark text-bgColor">
-            Start Listening
+            Go to the app
           </a>
         : null
       }
