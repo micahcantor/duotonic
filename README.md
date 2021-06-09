@@ -11,7 +11,7 @@
 
 ## Overview
 
-**Duotonic** is a full stack web application that sits on top of the Spotify API and allows *Preimum* users to control their playback and queue together.
+**Duotonic** is a full stack web application that sits on top of the Spotify API and allows *Premium* users to control their playback and queue together.
 
 The application employs a React/Gatsby frontend and a Node.js (Hapi framework) and MongoDB backend. The entire app can be found in the repo, with the frontend in `client/app` and the backend in `server`. Additionally there is a Gatsby landing page for the site at `client/home`.
 
